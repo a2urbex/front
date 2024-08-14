@@ -19,7 +19,6 @@ body {
   margin: 0;
   display: flex;
   place-items: center;
-  min-width: 320px;
   min-height: 100vh;
 }
 
@@ -32,4 +31,15 @@ a {
   color : $blue;
   text-decoration: none;
   transition: all 0.2s;
+}
+
+.translate-enter-active,
+.translate-leave-active {
+  transition: all 0.5s ease;
+}
+
+.translate-enter-from,
+.translate-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }

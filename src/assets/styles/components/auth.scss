@@ -1,0 +1,155 @@
+@import '@/assets/styles/base.scss';
+
+.auth {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    border-radius: .5rem;
+    overflow: hidden;
+
+    @media screen and (max-width: 768px) {
+        flex-direction: column-reverse;
+        width: 90%;
+        margin: auto;
+    }
+
+    &-form {
+        display: flex;
+        background-color: $contrast;
+        width: 50%;
+        padding: 4rem;
+        @media screen and (max-width: 768px) {
+            width: 100%;
+            padding: 1rem 0;
+        }
+    }
+
+    &-switch {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        width: 50%;
+        padding: 4rem;
+        background-color: $dark-background;
+
+        @media screen and (max-width: 768px) {
+            width: 100%;
+            gap: 1rem;
+            padding: 1.3rem 0rem;
+        }
+
+        &__h1 {
+            color: $contrast-5;
+            margin: 0;
+        }
+
+        &__p {
+            text-align: center;
+            color: $contrast-4;
+            max-width: 80%;
+        }
+
+        &__button {
+            color: $contrast-5;
+            background-color: $dark-background;
+            border: 1px solid $contrast-5;
+
+            &:hover {
+                color: $dark-background;
+                background-color: $contrast-5;
+                border: 1px solid $dark-background;
+            }
+        }
+    }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: auto;
+        gap: 2rem;
+        width: 80%;
+
+
+        h2 {
+            margin: 0;
+            font-weight: $font-weight-bold;
+            color: $background;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            width: 100%;
+        }
+
+        .form-group {
+            position: relative;
+            width: 100%;
+        }
+        
+        .form-input {
+            width: calc(100% - 2rem);
+            padding: 0.8rem 1rem;
+            background-color: $contrast-5;
+            border: none;
+            border-radius: 5px;
+            font-size: $font-size-small;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .form-label {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            transform: translateY(-50%);
+            padding: 0 4px;
+            color: $contrast-4;
+            font-size: $font-size-small;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus + .form-label,
+        .form-input:not(:placeholder-shown) + .form-label {
+            transform: translateY(-1.5em);
+            font-size: $font-size-xsmall;
+            color: $contrast-5;
+        }
+        
+        .form-input:focus {
+            background-color: $contrast-4;
+        }
+
+        button {
+            color: $dark-background;
+            background-color: $contrast;
+            border: 1px solid $dark-background;
+
+            &:hover {
+                color: $contrast;
+                background-color: $dark-background;
+                border: 1px solid $contrast;
+
+            }
+        }
+    }
+
+    .form-submit,
+    .auth-switch__button {
+        border-radius: 4rem;
+        padding: .6rem 2.4rem;
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        transition: all .2s;
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+}

@@ -1,4 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import LoginForm from '@/components/LoginForm.vue'
+import RegisterForm from '@/components/RegisterForm.vue'
+import ResetPassword from '@/components/ResetForm.vue'
+import Auth from '@/views/Auth.vue'
 import HomeView from '@/views/Home.vue'
 
 export default createRouter({
@@ -7,10 +11,16 @@ export default createRouter({
     {
       path: '/',
       component: HomeView,
+      meta: { transition: 'none' }
     },
-    // {
-    //   path: '/about',
-    //   component: () => import('@/components/AboutView.vue'),
-    // },
+    {
+      path: '/',
+      component: Auth,
+      children: [
+        { path: 'login', component: LoginForm },
+        { path: 'register', component: RegisterForm },
+        { path: 'forgot-password', component: ResetPassword }
+      ]
+    }
   ],
 })

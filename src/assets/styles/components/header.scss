@@ -10,7 +10,8 @@
     left: 0px;
     right: 0px;
     padding: 0.5rem 2rem;
-    border: 1px solid $contrast-2;
+    border-bottom: 1px solid $contrast-2;
+    background-color: $background;
 
     &__connect {
         background-color: $blue;

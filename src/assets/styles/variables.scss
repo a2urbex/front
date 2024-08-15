@@ -35,3 +35,37 @@ $font-weight-normal : 400;
 $font-weight-medium : 500;
 $font-weight-bold : 700;
 
+// Page Width
+.page-width{
+    padding: 0 2rem;
+    @media screen and (max-width: 768px) {
+        padding: 0 1.5rem;
+    }
+}
+
+// Icons 
+.icon {
+    border-radius: 5px;
+    margin: 0;
+    padding: 5px 10px;
+
+    &-earth {
+        background-color: rgba(129, 209, 255, .129);
+        color: #81d1ff;
+    }
+
+    &-waze {
+        background-color: rgba(52, 168, 81, .188);
+        color: #34a851;
+    }
+
+    &-edit {
+        background-color: hsla(0, 0%, 64%, .149);
+        color: #a3a3a3;
+    }
+
+    &-delete {
+        background-color: hsla(0, 67%, 68%, .102);
+        color: #e47878;
+    }
+}

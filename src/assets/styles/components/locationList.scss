@@ -1,10 +1,40 @@
 @import '@/assets/styles/base.scss';
 
-.locations-container{
+.locations-container {
     align-content: space-evenly;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     justify-items: center;
     gap: 1rem;
+
+    &__paginate {
+        margin: auto;
+        width: fit-content;
+        padding: 1rem;
+        &-ext{
+            opacity: .4;
+            transform: scale(.8);
+        }
+
+        &-buttons {
+            display: flex;
+            gap: 0.3rem;
+            .active{
+                transform: scale(1.2);
+                background-color: $blue;
+                color: $contrast;
+                font-weight: $font-weight-bold;
+            }
+            button{
+                transition: all .5s;
+                cursor: pointer;
+                background-color: $contrast-1;
+                border: none;
+                color: $contrast-5;
+                padding: 0.3rem .5rem;
+                border-radius: 4px;
+            }
+        }
+    }
 }

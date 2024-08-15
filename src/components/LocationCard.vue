@@ -33,10 +33,9 @@ const wazeUrl = computed(() => {
 
 const truncatedName = computed(() => {
     const maxLength = 35;
-    if (props.location.name.length > maxLength) {
+    if (props.location.name && props.location.name.length > maxLength) {
         return props.location.name.slice(0, maxLength) + '...';
-    }
-    return props.location.name;
+    } return props.location.lon + props.location.lat; 
 });
 </script>
 

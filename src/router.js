@@ -3,6 +3,7 @@ import LoginForm from '@/components/LoginForm.vue'
 import RegisterForm from '@/components/RegisterForm.vue'
 import ResetPassword from '@/components/ResetForm.vue'
 import Auth from '@/views/Auth.vue'
+import LocationList from '@/views/LocationList.vue'
 import HomeView from '@/views/Home.vue'
 
 export default createRouter({
@@ -12,6 +13,10 @@ export default createRouter({
       path: '/',
       component: HomeView,
       meta: { transition: 'none' }
+    },
+    {
+      path: '/locations',
+      component: LocationList
     },
     {
       path: '/',

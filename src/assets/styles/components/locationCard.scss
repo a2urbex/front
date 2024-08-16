@@ -20,6 +20,9 @@
             width: 100%;
             display: block;
             background-color: $contrast-1;
+            background-image: url('/default.png');
+            background-size: cover;
+            background-position: center;
         }
         h2{
             font-size: $font-size-xsmall;

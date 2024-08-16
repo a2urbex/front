@@ -1,25 +1,46 @@
 <template>
     <div class="locations-container page-width">
-        <LocationCard v-for="(location, index) in locationsList" :key="location.id" :location="location" />
+        <LocationCard 
+            v-for="(location, index) in locationsList" 
+            :key="location.id" 
+            :location="location" 
+            @open-location="showLocationCardDisplay" 
+        />
     </div>
+
+    <LocationCardDisplay 
+        v-if="selectedLocation" 
+        :location="selectedLocation" 
+        @close="selectedLocation = null"
+    />
+
     <div class="locations-container__paginate">
         <div class="locations-container__paginate-buttons">
-            <button class="locations-container__paginate-ext" v-if="totalPages > 1 && currentPage > 3"
-                @click="goToPage(1)">1</button>
-            <button v-for="page in pagesToShow" :key="page" @click="goToPage(page)"
-                :class="{ active: page === currentPage }">{{ page }}</button>
-            <button class="locations-container__paginate-ext" v-if="totalPages > 1 && currentPage < totalPages"
+            <button class="locations-container__paginate-ext" 
+                v-if="totalPages > 1 && currentPage > 3" 
+                @click="goToPage(1)">
+                1
+            </button>
+            <button 
+                v-for="page in pagesToShow" 
+                :key="page" 
+                @click="goToPage(page)" 
+                :class="{ active: page === currentPage }">
+                {{ page }}
+            </button>
+            <button class="locations-container__paginate-ext" 
+                v-if="totalPages > 1 && currentPage < totalPages" 
                 @click="goToPage(totalPages)">
                 {{ totalPages }}
             </button>
         </div>
     </div>
 </template>
-
 <script setup>
+import { ref, onMounted, computed } from 'vue';
 import { useLocationStore } from '@/stores/location';
-import { onMounted, computed } from 'vue';
 import LocationCard from '@/components/LocationCard.vue';
+import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
 
 const locationStore = useLocationStore();
 
@@ -27,9 +48,10 @@ const locationsList = computed(() => locationStore.locationsList);
 const currentPage = computed(() => locationStore.currentPage);
 const totalPages = computed(() => locationStore.totalPages);
 
-// Generate an array of page numbers to show
+const selectedLocation = ref(null);
+
 const pagesToShow = computed(() => {
-    if (totalPages.value <= 1) return []; // No pages to show if totalPages is 1 or less
+    if (totalPages.value <= 1) return [];
 
     const pages = [];
     const start = Math.max(1, currentPage.value - 2);
@@ -48,11 +70,14 @@ function goToPage(page) {
     }
 }
 
+function showLocationCardDisplay(location) {
+    selectedLocation.value = location;
+}
+
 onMounted(() => {
     locationStore.fetchLocations(1);
 });
 </script>
-
 <style lang="scss">
 @import '../assets/styles/components/locationList.scss';
 </style>

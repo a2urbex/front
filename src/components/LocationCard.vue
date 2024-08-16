@@ -1,8 +1,7 @@
 <template>
     <div class="location-card">
-        <div class="location-card__top">
+        <div class="location-card__top" @click="openLocationCardDisplay">
             <img :src="location.image" alt="Location image">
-            <!-- Use the truncated name here -->
             <h2>{{ truncatedName }}</h2>
         </div>
         <div class="location-card__bottom">
@@ -15,13 +14,14 @@
         </div>
     </div>
 </template>
-
 <script setup>
 import { computed } from 'vue';
 
 const props = defineProps({
     location: Object,
 });
+
+const emit = defineEmits(['open-location']);
 
 const googleMapsUrl = computed(() => {
     return `https://www.google.com/maps?t=k&q=${props.location.lat},${props.location.lon}`;
@@ -35,10 +35,14 @@ const truncatedName = computed(() => {
     const maxLength = 35;
     if (props.location.name && props.location.name.length > maxLength) {
         return props.location.name.slice(0, maxLength) + '...';
-    } return props.location.lon + props.location.lat; 
+    } 
+    return props.location.name;
 });
-</script>
 
+const openLocationCardDisplay = () => {
+    emit('open-location', props.location);
+};
+</script>
 <style lang="scss">
 @import '../assets/styles/components/locationCard.scss';
 </style>

@@ -44,6 +44,27 @@ $font-weight-bold : 700;
     }
 }
 
+// Media Queries 
+$sm : 750px;
+$md : 990px;
+$xl : 1200px;
+
+// Utility
+
+.d-none{
+    display: block;
+    @media (min-width: $md){
+        display: none!important;
+    }
+}
+
+.m-none{
+    display: none!important;
+    @media (min-width: $md){
+        display: block;
+    }
+}
+
 // Icons 
 .icon {
     border-radius: 5px;

@@ -12,10 +12,6 @@
         margin: auto;
         width: fit-content;
         padding: 1rem;
-        position: fixed;
-        top: 50%;
-        right: 0;
-        transform: translateY(-50%);
 
         &-ext {
             opacity: .4;
@@ -25,7 +21,7 @@
         &-buttons {
             display: flex;
             gap: 0.3rem;
-            flex-direction: column;
+            flex-direction: row;
 
             .active {
                 transform: scale(1.2);

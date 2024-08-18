@@ -1,3 +1,28 @@
+<script>
+import { useAuthStore } from '@/stores/auth';
+
+export default {
+    data() {
+        return {
+            email: '',
+            password: '',
+            keepMeLoggedIn: false,
+        };
+    },
+    methods: {
+        async handleSubmit() {
+            const authStore = useAuthStore();
+            try {
+                await authStore.login(this.email, this.password, this.keepMeLoggedIn);
+                setTimeout(() => { this.$router.push('/locations'); }, 1500);
+            } catch (error) {
+                console.error('Login failed:', error.message || 'An unexpected error occurred.');
+            }
+        },
+    },
+};
+</script>
+
 <template>
     <transition name="translate" mode="out-in" appear>
         <div class="login-form">
@@ -25,28 +50,3 @@
         </div>
     </transition>
 </template>
-
-<script>
-import { useAuthStore } from '@/stores/auth';
-
-export default {
-    data() {
-        return {
-            email: '',
-            password: '',
-            keepMeLoggedIn: false,
-        };
-    },
-    methods: {
-        async handleSubmit() {
-            const authStore = useAuthStore();
-            try {
-                await authStore.login(this.email, this.password, this.keepMeLoggedIn);
-                setTimeout(() => { this.$router.push('/locations'); }, 1500);
-            } catch (error) {
-                console.error('Login failed:', error.message || 'An unexpected error occurred.');
-            }
-        },
-    },
-};
-</script>

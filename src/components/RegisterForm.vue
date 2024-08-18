@@ -1,3 +1,24 @@
+<script>
+import { useAuthStore } from '@/stores/auth';
+
+export default {
+    data() {
+        return {
+            email: '',
+            password: '',
+            firstname: '',
+            lastname: ''
+        };
+    },
+    methods: {
+        async handleSubmit() {
+            const authStore = useAuthStore();
+            await authStore.register(this.email, this.password, this.firstname, this.lastname);
+        },
+    },
+};
+</script>
+
 <template>
     <transition name="translate" mode="out-in" appear>
         <div class="login-form">
@@ -27,24 +48,3 @@
         </div>
     </transition>
 </template>
-
-<script>
-import { useAuthStore } from '@/stores/auth';
-
-export default {
-    data() {
-        return {
-            email: '',
-            password: '',
-            firstname: '',
-            lastname: ''
-        };
-    },
-    methods: {
-        async handleSubmit() {
-            const authStore = useAuthStore();
-            await authStore.register(this.email, this.password, this.firstname, this.lastname);
-        },
-    },
-};
-</script>

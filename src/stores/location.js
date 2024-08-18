@@ -7,30 +7,34 @@ export const useLocationStore = defineStore('location', {
         locationsList: [],
         currentPage: 1,
         totalPages: 1,
+        selectedFilters: {}
     }),
     actions: {
-        async fetchLocations(page = 1) {
+        async fetchLocations(page = 1, filters = {}) {
             try {
-                const data = await request('post', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, this);
+                this.selectedFilters = filters;
+                const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, this, filters);
+                console.log('Request body:', JSON.stringify(filters));
                 this.locationsList = data.list || [];
                 this.currentPage = page;
                 this.totalPages = Math.ceil(data.count / import.meta.env.VITE_LOCATIONS_PER_PAGE); 
             } catch (error) {
                 console.error('Error fetching locations:', error);
+                toast.error("Please Connect..", { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             }
         },
-        async location(id) {
-            // TO DO
-        },
-        goToPage(page) {
-            if (page > 0 && page <= this.totalPages) {
-                this.fetchLocations(page);
+        async getFilters() {
+            try {
+                const data = await request('GET', `${import.meta.env.VITE_LOCATIONS_FILTERS_ENDPOINT}`, this);
+                return data;
+            } catch (error) {
+                console.error('Error fetching filters:', error);
             }
         }
     }
 });
 
-function request(method, route, store) {
+async function request(method, route, store, body) {
     const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -41,9 +45,9 @@ function request(method, route, store) {
     }
 
     const params = {
-        method: method.toUpperCase(),
+        method: method,
         headers: headers,
-        body: JSON.stringify({})
+        body: method === 'POST' ? JSON.stringify(body) : undefined
     };
 
     return fetch(`${import.meta.env.VITE_API_BASE_URL}${route}`, params)

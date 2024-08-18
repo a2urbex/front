@@ -6,15 +6,15 @@ export const useAuthStore = defineStore('auth', {
         token: localStorage.getItem('authToken') || null,
     }),
     actions: {
-        async login(email, password, keepMeLoggedIn) { await request('post', `${import.meta.env.VITE_LOGIN_ENDPOINT}`, { email, password, keepMeLoggedIn }, this);},
-        async register(email, password, firstname, lastname) { await request('post', `${import.meta.env.VITE_REGISTER_ENDPOINT}`, { email, password, firstname, lastname }, this);},
+        async login(email, password, keepMeLoggedIn) { await request('POST', `${import.meta.env.VITE_LOGIN_ENDPOINT}`, { email, password, keepMeLoggedIn }, this);},
+        async register(email, password, firstname, lastname) { await request('POST', `${import.meta.env.VITE_REGISTER_ENDPOINT}`, { email, password, firstname, lastname }, this);},
         async logout(){}
     }
 });
 
 function request(method, route, body, store) {
     const params = {
-        method: method.toUpperCase(),
+        method: method,
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'

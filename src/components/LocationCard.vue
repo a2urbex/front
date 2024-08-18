@@ -1,19 +1,3 @@
-<template>
-    <div class="location-card">
-        <div class="location-card__top" @click="openLocationCardDisplay">
-            <img :src="location.image" alt="Location image">
-            <h2>{{ truncatedName }}</h2>
-        </div>
-        <div class="location-card__bottom">
-            <a class="location-card__bottom-icon icon icon-earth" target="_blank" :href="googleMapsUrl">
-                <font-awesome-icon :icon="['fas', 'earth-europe']" />
-            </a>
-            <a class="location-card__bottom-icon icon icon-waze" target="_blank" :href="wazeUrl">
-                <font-awesome-icon :icon="['fab', 'waze']" />
-            </a>
-        </div>
-    </div>
-</template>
 <script setup>
 import { computed } from 'vue';
 
@@ -43,6 +27,24 @@ const openLocationCardDisplay = () => {
     emit('open-location', props.location);
 };
 </script>
+
+<template>
+    <div class="location-card">
+        <div class="location-card__top" @click="openLocationCardDisplay">
+            <img :src="location.image" alt="Location image">
+            <h2>{{ truncatedName }}</h2>
+        </div>
+        <div class="location-card__bottom">
+            <a class="location-card__bottom-icon icon icon-earth" target="_blank" :href="googleMapsUrl">
+                <font-awesome-icon :icon="['fas', 'earth-europe']" />
+            </a>
+            <a class="location-card__bottom-icon icon icon-waze" target="_blank" :href="wazeUrl">
+                <font-awesome-icon :icon="['fab', 'waze']" />
+            </a>
+        </div>
+    </div>
+</template>
+
 <style lang="scss">
 @import '../assets/styles/components/locationCard.scss';
 </style>

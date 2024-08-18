@@ -9,10 +9,14 @@
     top: 0px;
     left: 0px;
     right: 0px;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid $contrast-2;
+    padding-top: 1.2rem;
+    padding-bottom: 1.2rem;
     background-color: $background;
+    @media (max-width : $md){
+        bottom: 0;
+        top: auto;
+        z-index: 1;
+    }
 
     &__connect {
         background-color: $blue;

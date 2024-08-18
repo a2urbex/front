@@ -1,3 +1,19 @@
+<script setup>
+import { computed } from 'vue';
+
+const props = defineProps({
+    location: Object
+});
+
+const googleMapsUrl = computed(() => {
+    return `https://www.google.com/maps?t=k&q=${props.location.lat},${props.location.lon}`;
+});
+
+const wazeUrl = computed(() => {
+    return `https://waze.com/ul?q=${props.location.lat},${props.location.lon}&navigate=yes&zoom=17`;
+});
+</script>
+
 <template>
     <transition name="translate" mode="out-in" appear>
         <div class="location-card-display">
@@ -23,21 +39,6 @@
     </transition>
 </template>
 
-<script setup>
-import { computed } from 'vue';
-
-const props = defineProps({
-    location: Object
-});
-
-const googleMapsUrl = computed(() => {
-    return `https://www.google.com/maps?t=k&q=${props.location.lat},${props.location.lon}`;
-});
-
-const wazeUrl = computed(() => {
-    return `https://waze.com/ul?q=${props.location.lat},${props.location.lon}&navigate=yes&zoom=17`;
-});
-</script>
 <style lang="scss">
 @import '../assets/styles/components/locationCardDisplay.scss';
 </style>

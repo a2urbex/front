@@ -1,4 +1,50 @@
+<script setup>
+import { ref, onMounted, computed } from 'vue';
+import { useLocationStore } from '@/stores/location';
+import LocationCard from '@/components/LocationCard.vue';
+import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
+import Filters from '@/components/Filters.vue';
+
+const locationStore = useLocationStore();
+
+const locationsList = computed(() => locationStore.locationsList);
+const currentPage = computed(() => locationStore.currentPage);
+const totalPages = computed(() => locationStore.totalPages);
+
+const selectedLocation = ref(null);
+
+const pagesToShow = computed(() => {
+    if (totalPages.value <= 1) return [];
+
+    const pages = [];
+    const start = Math.max(1, currentPage.value - 2);
+    const end = Math.min(totalPages.value, currentPage.value + 2);
+
+    for (let i = start; i <= end; i++) {
+        pages.push(i);
+    }
+
+    return pages;
+});
+
+function goToPage(page) {
+    if (page >= 1 && page <= totalPages.value) {
+        locationStore.fetchLocations(page, locationStore.selectedFilters);
+    }
+}
+
+
+function showLocationCardDisplay(location) {
+    selectedLocation.value = location;
+}
+
+onMounted(() => {
+    locationStore.fetchLocations(1);
+});
+</script>
+
 <template>
+    <Filters />
     <div class="locations-container page-width">
         <LocationCard 
             v-for="(location, index) in locationsList" 
@@ -36,48 +82,7 @@
         </div>
     </div>
 </template>
-<script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useLocationStore } from '@/stores/location';
-import LocationCard from '@/components/LocationCard.vue';
-import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
 
-const locationStore = useLocationStore();
-
-const locationsList = computed(() => locationStore.locationsList);
-const currentPage = computed(() => locationStore.currentPage);
-const totalPages = computed(() => locationStore.totalPages);
-
-const selectedLocation = ref(null);
-
-const pagesToShow = computed(() => {
-    if (totalPages.value <= 1) return [];
-
-    const pages = [];
-    const start = Math.max(1, currentPage.value - 2);
-    const end = Math.min(totalPages.value, currentPage.value + 2);
-
-    for (let i = start; i <= end; i++) {
-        pages.push(i);
-    }
-
-    return pages;
-});
-
-function goToPage(page) {
-    if (page >= 1 && page <= totalPages.value) {
-        locationStore.goToPage(page);
-    }
-}
-
-function showLocationCardDisplay(location) {
-    selectedLocation.value = location;
-}
-
-onMounted(() => {
-    locationStore.fetchLocations(1);
-});
-</script>
 <style lang="scss">
 @import '../assets/styles/components/locationList.scss';
 </style>

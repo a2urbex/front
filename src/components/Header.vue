@@ -1,4 +1,3 @@
-
 <template>
     <div class="header page-width">
       <router-link class="header__home" to="/">Home</router-link>

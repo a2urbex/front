@@ -8,14 +8,23 @@
     justify-items: center;
     gap: 1rem;
 
+    @media (max-width: $md) {
+        margin-top: 3rem;
+    }
+
     &__paginate {
         margin: auto;
         width: fit-content;
         padding: 1rem;
 
+
         &-ext {
             opacity: .4;
             transform: scale(.8);
+        }
+
+        @media (max-width: $md) {
+            margin-bottom: 5rem;
         }
 
         &-buttons {

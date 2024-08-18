@@ -18,6 +18,7 @@
             left: 0;
             top: 0;
             width: 100%;
+            transition: all 2s;
             background-color: $background;
             z-index: 2;
         }
@@ -26,6 +27,12 @@
             &>.filter__wrapper-close {
                 @media (max-width: $md) {
                 display: block;
+                border: none;
+                background-color: $contrast-1;
+                border-radius: 4rem;
+                padding: .4rem;
+                aspect-ratio: 1;
+                font-size: $font-size-small;
                 }
             }
             &>.filter__filters{
@@ -54,7 +61,7 @@
 
         @media (max-width: $md) {
             width: 100%;
-            height: fit-content;
+            height: 85px;
             background-color: $background;
             position: inherit;
             flex-direction: column;
@@ -86,6 +93,7 @@
 
             @media (max-width: $md) {
                 padding-left: 4rem;
+                font-size: $font-size-small;
             }
 
             &:focus {
@@ -156,7 +164,9 @@
     &__item {
         display: none;
 
-        &-input,
+        &-input{
+            display: none;
+        }
         &-close {
             display: none;
       
@@ -257,6 +267,9 @@
                 width: fit-content;
                 color: $contrast-5;
                 border: 0;
+                @media (max-width: $md) {
+                    display: none;
+                }
             }
 
             .filter__item-input {

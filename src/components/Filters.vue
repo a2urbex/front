@@ -73,7 +73,7 @@ function applyFilters() {
             </label></p>
             <div class="filter__item-content">
               <input class="filter__item" type="radio" name="identifier" id="close">
-              <label for="close" class="filter__item-close m-none">
+              <label for="close" class="filter__item-close">
                 <font-awesome-icon :icon="['fas', 'xmark']" />
               </label>
               <div class="filter__item-input-container">

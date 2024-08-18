@@ -33,15 +33,19 @@ function goToPage(page) {
     }
 }
 
-
 function showLocationCardDisplay(location) {
     selectedLocation.value = location;
+}
+
+function isLargeItem(index) {
+    return index % 2 === 0; 
 }
 
 onMounted(() => {
     locationStore.fetchLocations(1);
 });
 </script>
+
 
 <template>
     <Filters />
@@ -50,6 +54,7 @@ onMounted(() => {
             v-for="(location, index) in locationsList" 
             :key="location.id" 
             :location="location" 
+            :class="{'large': isLargeItem(index)}"
             @open-location="showLocationCardDisplay" 
         />
     </div>

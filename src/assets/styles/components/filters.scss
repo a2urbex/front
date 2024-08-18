@@ -29,9 +29,11 @@
                 display: block;
                 border: none;
                 background-color: $contrast-1;
+                color: $contrast;
                 border-radius: 4rem;
                 padding: .4rem;
-                aspect-ratio: 1;
+                width: 2rem;
+                height: 2rem;
                 font-size: $font-size-small;
                 }
             }

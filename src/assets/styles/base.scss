@@ -8,6 +8,8 @@
   color-scheme: dark light;
   color: $contrast-5;
   background-color: $background;
+  background: linear-gradient(180deg, $background 0%,  $dark-background 100%);
+
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

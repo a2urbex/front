@@ -12,8 +12,13 @@ export default {
     },
     methods: {
         async handleSubmit() {
-            const authStore = useAuthStore();
-            await authStore.register(this.email, this.password, this.firstname, this.lastname);
+            const authStore = useAuthStore();            
+            try {
+                await authStore.register(this.email, this.password, this.firstname, this.lastname);
+                setTimeout(() => { this.$router.push('/locations'); }, 1500);
+            } catch (error) {
+                console.error('Login failed:', error);
+            }
         },
     },
 };

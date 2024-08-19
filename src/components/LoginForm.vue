@@ -11,12 +11,12 @@ export default {
     },
     methods: {
         async handleSubmit() {
-            const authStore = useAuthStore();
+            const authStore = useAuthStore();            
             try {
                 await authStore.login(this.email, this.password, this.keepMeLoggedIn);
                 setTimeout(() => { this.$router.push('/locations'); }, 1500);
             } catch (error) {
-                console.error('Login failed:', error.message || 'An unexpected error occurred.');
+                console.error('Login failed:', error);
             }
         },
     },

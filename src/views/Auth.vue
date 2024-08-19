@@ -12,9 +12,11 @@ const switchForm = () => {
 <template>
   <div class="auth">
     <div class="auth-form">
+      <router-view v-slot="{ Component }">
         <transition name="translate" mode="out-in" appear>
-            <router-view />
+          <component :is="Component" />
         </transition>
+      </router-view>
     </div>
     <div class="auth-switch">
         <h1 class="auth-switch__h1">Hello, Explorer!</h1>

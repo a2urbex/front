@@ -8,6 +8,7 @@
         background-color: $contrast-1;
         color: $contrast-4;
         position: fixed;
+        z-index: 1;
         top: 0.6rem;
         left: 50%;
         transform: translateX(-50%);

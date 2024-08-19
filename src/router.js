@@ -4,6 +4,7 @@ import RegisterForm from '@/components/RegisterForm.vue'
 import ResetPassword from '@/components/ResetForm.vue'
 import Auth from '@/views/Auth.vue'
 import LocationList from '@/views/LocationList.vue'
+import Map from '@/views/Map.vue'
 import HomeView from '@/views/Home.vue'
 
 export default createRouter({
@@ -17,6 +18,10 @@ export default createRouter({
     {
       path: '/locations',
       component: LocationList
+    },
+    {
+      path: '/map',
+      component: Map
     },
     {
       path: '/',

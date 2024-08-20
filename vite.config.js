@@ -10,6 +10,10 @@ export default defineConfig({
     vue({reactivityTransform: true,}),
     VitePWA({ 
       registerType: 'autoUpdate',
+      workbox: {
+        cleanupOutdatedCaches: true,
+        sourcemap: true,
+      },
       strategies: 'injectManifest',
       srcDir: 'src/pwa',
       filename: 'sw.js',

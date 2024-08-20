@@ -48,7 +48,7 @@ export default {
                         required />
                     <label class="form-label" for="password">Password:</label>
                 </div>
-                <button class="form-submit" type="submit">Sing up</button>
+                <button class="form-submit" type="submit">Sign up</button>
             </form>
         </div>
     </transition>

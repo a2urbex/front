@@ -52,16 +52,14 @@ $xl : 1200px;
 // Utility
 
 .d-none{
-    display: block;
     @media (min-width: $md){
         display: none!important;
     }
 }
 
 .m-none{
-    display: none!important;
-    @media (min-width: $md){
-        display: block;
+    @media (max-width: $md){
+        display: none!important;
     }
 }
 

@@ -11,7 +11,6 @@ const showContent = ref(false);
 onMounted(async () => {
   try {
     filters.value = await locationStore.getFilters();
-    console.log("Filters available:", filters.value);
   } catch (error) {
     console.error('Error fetching filters:', error);
   }

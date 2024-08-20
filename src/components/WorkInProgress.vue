@@ -15,11 +15,11 @@
     <h1>{{ msg }}</h1>
 
     <p>Check out our repository on <a href="hhttps://github.com/a2urbex" target="_blank">Github</a></p>
-    <p class="work-in-progress-description">Work in progress</p>
+    <router-link class="connect" to="/login">Connect</router-link>
   </div>
 </template>
 
 <style lang="scss" scoped>
-  @import '../assets/styles/components/work-in-progress.scss';
+  @import '@/assets/styles/components/work-in-progress.scss';
 </style>
 

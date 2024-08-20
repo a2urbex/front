@@ -32,7 +32,7 @@
         bottom: 0;
         left: 0;
         padding-bottom: 4rem;
-        background: linear-gradient(180deg, transparent 0%, #0000007a 47%, rgb(4 4 4 / 81%) 70%, #070707 100%);
+        background: linear-gradient(180deg, transparent 0%, #0000007a 47%, rgba(4, 4, 4, 0.851) 70%, black 100%);
 
         h2 {
             font-size: 1.5rem;
@@ -65,8 +65,8 @@
     button {
         cursor: pointer;
         position: absolute;
-        left: 2rem;
-        top: 2rem;
+        left: 1.5rem;
+        top: 1.5rem;
         background-color: transparent;
         color:$contrast;
         border: none;

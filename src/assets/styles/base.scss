@@ -26,6 +26,9 @@ body {
   display: flex;
   place-items: center;
   min-height: calc(100vh);
+  @media (max-width : $md) {
+    padding-bottom: 4rem;;
+  }
 }
 
 #app {

@@ -90,6 +90,8 @@
             border-radius: 50%;
             cursor: pointer;
             background-image: url('/default-user.png');
+            background-size: cover;
+            background-position: center;
 
             @media (max-width : $md) {
                 width: 1.5rem;
@@ -108,7 +110,11 @@
 
             &:hover {
                 background-color: $contrast-1;
-                color: $contrast
+                color: $contrast;
+                @media (max-width : $md) {
+                    background-color: $background;
+                    color: $contrast-5;
+                }
             }
 
             svg {
@@ -180,7 +186,7 @@
                 opacity: 1;
                 padding: 0.4rem;
                 @media (max-width : $md) {
-                    padding: 1rem;
+                    padding: 1rem 1rem 2rem 1rem;
                     bottom: 0%;
                 }
             }

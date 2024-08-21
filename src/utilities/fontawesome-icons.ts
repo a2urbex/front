@@ -18,7 +18,16 @@ import {
     faRightFromBracket,
     faHeart,
     faHouse,
-    faMapLocationDot
+    faMapLocationDot, 
+    faLink,
+    faUserPlus,
+    faLock,
+    faLockOpen,
+    faEye,
+    faEyeSlash,
+    faTrash,
+    faArrowUpRightFromSquare
+    
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -35,7 +44,15 @@ library.add(
     faHeart,
     faUsers,
     faHouse,
-    faMapLocationDot
+    faMapLocationDot,
+    faLink,
+    faUserPlus,
+    faLock,
+    faLockOpen,
+    faEye,
+    faEyeSlash,
+    faTrash,
+    faArrowUpRightFromSquare
 );
 
 export default FontAwesomeIcon;

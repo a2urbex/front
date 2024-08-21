@@ -30,7 +30,14 @@ const logout = async () => {
 
 onMounted(async () => {
   if (isLoggedIn.value) {
-    await authStore.fetchUserProfile();
+    try {
+      await authStore.fetchUserProfile();
+    } catch (error) {
+      authStore.logout();
+      setTimeout(() => {
+        router.push('/login');
+      }, 1500);
+    }
   }
 });
 </script>

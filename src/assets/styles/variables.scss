@@ -88,4 +88,24 @@ $xl : 1200px;
         background-color: hsla(0, 67%, 68%, .102);
         color: #e47878;
     }
+
+    &-visibility{
+        background-color: hsla(0, 0%, 64%, .149);
+        color: #a3a3a3;
+    }
+
+    &-open{
+        background-color: hsla(0, 0%, 64%, .149);
+        color: #a3a3a3;
+    }
+
+    &-share{
+        background-color: hsla(0, 0%, 64%, .149);
+        color: #a3a3a3;
+    }
+
+    &-copy-link{
+        background-color: rgba(128, 0, 128, .251);
+        color: #ad6dad;
+    }
 }

@@ -1,0 +1,88 @@
+@import '@/assets/styles/base.scss';
+
+.favorites {
+    display: flex;
+    gap: 2rem;
+    width: 100vw;
+    flex-wrap: wrap;
+    justify-content: center;
+    @media (max-width: $md) {
+        gap: 1rem;
+    }
+    &__container{
+        padding-top: 4rem;
+        @media (max-width: $md) {
+            padding-bottom: 4rem;
+            padding-top: 0rem;
+        }
+        h2{
+            text-align: center;
+        }
+    }
+    &__entry{
+        position: relative;
+        cursor: pointer;
+        transition: all .5s;
+        background-color: $dark-background;
+        padding: 1rem;
+        border-radius: .4rem;
+        width: 40%;
+        max-width: 500px;
+        @media (max-width: $md) {
+            padding: .8rem;
+            min-width: 100%;
+        }
+        &:hover{
+            background-color: $background;
+            transform: scale(1.02);
+            box-shadow: $dark-background 0px 0px 8px 0px;
+        }
+        &-selected{
+            transform: scale(1.2);
+            z-index: 1;
+            @media (max-width: $md) {
+                transform: scale(1.1);
+            }
+            &:hover{
+                transform: scale(1.2);
+                .favorites-list-editor{
+                    background-color: $background;
+                }
+                @media (max-width: $md) {
+                    transform: scale(1.1);
+                }
+            }
+            
+            .favorites-list-editor{
+                visibility: visible;
+                opacity: 1;
+            }
+        }
+    }
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+        h3{
+            margin: 0;
+        }
+        p{
+            margin: 0;
+            color: $contrast-3;
+        }
+        &-users {
+            display: flex;
+            flex-direction: row;
+            gap: .3rem;
+
+            &-entry,
+            img {
+                width: 2rem;
+                height: 2rem;
+                object-fit: cover;
+                border-radius: 50%;
+                background-image: url('/default-user.png');
+            }
+        }
+    }
+}

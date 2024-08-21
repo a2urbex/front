@@ -5,7 +5,7 @@ import { toast } from 'vue3-toastify';
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         token: localStorage.getItem('authToken') || null,
-        userProfile: {} 
+        userProfile: {}
     }),
     actions: {
         async login(email, password, keepMeLoggedIn) {
@@ -13,7 +13,7 @@ export const useAuthStore = defineStore('auth', {
                 const data = await request('POST', `${import.meta.env.VITE_LOGIN_ENDPOINT}`, this, { email, password, keepMeLoggedIn });
                 this.token = data.token;
                 localStorage.setItem('authToken', data.token);
-                toast.success('Login successful!', {position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark'});
+                toast.success('Login successful!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
                 await this.fetchUserProfile();
             } catch (error) {
                 throw error;
@@ -33,9 +33,19 @@ export const useAuthStore = defineStore('auth', {
 
         async logout() {
             this.token = null;
-            this.userProfile = {}; 
+            this.userProfile = {};
             toast.warning('Logout successful!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             localStorage.removeItem('authToken');
+        },
+
+        async validateToken() {
+            try {
+                await request('GET', `${import.meta.env.VITE_ACCOUNT_ENDPOINT}`, this);
+                return true;
+            } catch (error) {
+                this.logout();
+                return false;
+            }
         },
 
         async fetchUserProfile() {
@@ -44,6 +54,7 @@ export const useAuthStore = defineStore('auth', {
                 this.userProfile = data;
             } catch (error) {
                 console.error('Failed to fetch user profile:', error);
+                throw error;
             }
         },
 

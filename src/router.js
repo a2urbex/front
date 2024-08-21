@@ -6,18 +6,28 @@ import Auth from '@/views/Auth.vue'
 import LocationList from '@/views/LocationList.vue'
 import Map from '@/views/Map.vue'
 import HomeView from '@/views/Home.vue'
+import FavoritesListView from '@/views/FavoritesList.vue'
+import FavoritesDetailView from '@/views/FavoritesListLocations.vue'
 
 export default createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: '/',
-      component: HomeView,
-      meta: { transition: 'none' }
+      component: HomeView
     },
     {
       path: '/locations',
       component: LocationList
+    },
+    {
+      path: '/favorites',
+      component: FavoritesListView
+    },
+    {
+      path: '/favorites/:id',
+      component: FavoritesDetailView,
+      props: route => ({ id: route.params.id })
     },
     {
       path: '/map',

@@ -1,6 +1,7 @@
 <script setup>
 import { defineProps, computed } from 'vue';
 import { useFavoritesStore } from '@/stores/favorites';
+import { toast } from 'vue3-toastify';
 
 const favoritesStore = useFavoritesStore();
 
@@ -16,6 +17,26 @@ const truncatedName = computed(() => {
     return props.favorite.name;
 });
 
+
+// COPY LINK
+const copyLink = () => {
+    if (props.favorite && props.favorite.id) {
+        const url = `${window.location.origin}/favorites/${props.favorite.id}`;
+        navigator.clipboard.writeText(url).then(() => {
+            toast.success('Link copied to clipboard!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+        }).catch(err => {
+            toast.error('Failed to copy link', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+        });
+    }
+};
+
+// DELETE
+const deleteFavorite = () => {
+    if (props.favorite && props.favorite.id) {
+        favoritesStore.deleteList(props.favorite.id);
+    }
+};
+
 </script>
 
 <template>
@@ -26,9 +47,9 @@ const truncatedName = computed(() => {
            <button class="icon icon-visibility"><font-awesome-icon :icon="['fas', 'eye']" /></button>
            <button class="icon icon-open"><font-awesome-icon :icon="['fas', 'lock']" /></button>
            <button class="icon icon-share"><font-awesome-icon :icon="['fas', 'user-plus']" /></button>
-           <button class="icon icon-copy-link"><font-awesome-icon :icon="['fas', 'link']" /></button>
+           <button class="icon icon-copy-link"><font-awesome-icon :icon="['fas', 'link']" @click="copyLink" /></button>
            <span></span>
-           <button class="icon icon-delete"><font-awesome-icon :icon="['fas', 'trash']" /></button>
+           <button class="icon icon-delete action-delete"><font-awesome-icon :icon="['fas', 'trash']" @click="deleteFavorite"/></button>
         </div>
     </div>
 </template>

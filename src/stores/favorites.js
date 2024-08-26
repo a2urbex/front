@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { request } from '@/services/api';
+import { toast } from 'vue3-toastify';
 
 export const useFavoritesStore = defineStore('Favorites', {
     state: () => ({
@@ -33,7 +34,14 @@ export const useFavoritesStore = defineStore('Favorites', {
             // TODO
         },
 
-
-
+        async deleteList(id){
+            try {
+                await request('DELETE', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`, this);
+                this.getList();
+                toast.success('List successfully deleted!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+            } catch (error) {
+                throw error;
+            }
+        }
     }
 });

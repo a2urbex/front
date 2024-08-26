@@ -38,11 +38,8 @@
             box-shadow: $dark-background 0px 0px 8px 0px;
         }
         &-selected{
-            transform: scale(1.2);
+            transform: scale(1.1);
             z-index: 1;
-            @media (max-width: $md) {
-                transform: scale(1.1);
-            }
             &:hover{
                 transform: scale(1.2);
                 .favorites-list-editor{

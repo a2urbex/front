@@ -17,6 +17,7 @@
         }
         h2{
             text-align: center;
+            color: $contrast;
         }
     }
     &__entry{
@@ -62,6 +63,9 @@
         gap: .5rem;
         h3{
             margin: 0;
+            @media (max-width: $md){
+                font-size: 1rem;
+            }
         }
         p{
             margin: 0;
@@ -78,7 +82,12 @@
                 height: 2rem;
                 object-fit: cover;
                 border-radius: 50%;
+                background-position: center;
                 background-image: url('/default-user.png');
+                @media (max-width: $md) {
+                    height: 1.5rem;
+                    width: 1.5rem;
+                }
             }
         }
     }

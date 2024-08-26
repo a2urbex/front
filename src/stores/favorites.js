@@ -30,7 +30,17 @@ export const useFavoritesStore = defineStore('Favorites', {
             // TODO
         },
 
-        async disableList(id){
+        async updateVisibility(id){
+            try {
+                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}/disable`, this);
+                this.getList();
+                toast.success('Successfully updated visibility!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async updatePrivacy(id){
             // TODO
         },
 

@@ -18,6 +18,29 @@ const truncatedName = computed(() => {
 });
 
 
+// VISIBIITY
+const visibilityIcon = computed(() => {
+    return props.favorite && props.favorite.disabled === 1 ? 'eye' : 'eye-slash';
+});
+
+const updateVisibility = () => {
+    if (props.favorite && props.favorite.id) {
+        favoritesStore.updateVisibility(props.favorite.id);
+    }
+};
+
+// PRIVACY
+const privacyIcon = computed(() => {
+    return props.favorite && props.favorite.share === 1 ? 'lock' : 'lock-open';
+});
+
+const updatePrivacy = () => {
+    if (props.favorite && props.favorite.id) {
+        favoritesStore.updatePrivacy(props.favorite.id);
+    }
+};
+
+
 // COPY LINK
 const copyLink = () => {
     if (props.favorite && props.favorite.id) {
@@ -41,11 +64,11 @@ const deleteFavorite = () => {
 
 <template>
     <div class="favorites-list-editor">
-        <h2>{{truncatedName}}</h2>
+        <router-link :to="`/favorites/${favorite.id}`"><h2>{{truncatedName}}</h2></router-link>
         <router-link class="favorites-list-editor__link" :to="`/favorites/${favorite.id}`"><font-awesome-icon :icon="['fas', 'fa-arrow-up-right-from-square']" /></router-link>
         <div class="favorites-list-editor__actions">
-           <button class="icon icon-visibility"><font-awesome-icon :icon="['fas', 'eye']" /></button>
-           <button class="icon icon-open"><font-awesome-icon :icon="['fas', 'lock']" /></button>
+           <button class="icon icon-visibility"><font-awesome-icon :icon="['fas', visibilityIcon]" @click="updateVisibility"/></button>
+           <button class="icon icon-open"><font-awesome-icon :icon="['fas', privacyIcon]" @click="updatePrivacy" /></button>
            <button class="icon icon-share"><font-awesome-icon :icon="['fas', 'user-plus']" /></button>
            <button class="icon icon-copy-link"><font-awesome-icon :icon="['fas', 'link']" @click="copyLink" /></button>
            <span></span>

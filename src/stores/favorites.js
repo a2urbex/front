@@ -6,9 +6,19 @@ export const useFavoritesStore = defineStore('Favorites', {
     state: () => ({
         token: localStorage.getItem('authToken') || null,
         locationsList: [],
-        locationsListItems: []
+        locationsListItems: [],
+        favoriteList: []
     }),
     actions: {
+        async getSummary() {
+            try {
+                const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/summary`, this);
+                this.favoriteList = data || [];
+            } catch (error) {
+                throw error;
+            }
+        },
+
         async getList() {
             try {
                 const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}`, this);
@@ -21,6 +31,15 @@ export const useFavoritesStore = defineStore('Favorites', {
             try {
                 const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`, this);
                 this.locationsListItems = data.list || [];
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async addLocation(id, list){
+            try {
+                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${list}/location/${id}`, this);
+                toast.success('Added to your favorite list!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
                 throw error;
             }
@@ -41,7 +60,13 @@ export const useFavoritesStore = defineStore('Favorites', {
         },
 
         async updatePrivacy(id){
-            // TODO
+            try {
+                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}/share`, this);
+                this.getList();
+                toast.success('Successfully updated privacy!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+            } catch (error) {
+                throw error;
+            }
         },
 
         async deleteList(id){

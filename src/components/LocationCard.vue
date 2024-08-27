@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import FavoritesModal from './FavoriteModal.vue';
 
 const props = defineProps({
     location: Object,
@@ -30,19 +31,12 @@ const openLocationCardDisplay = () => {
 
 <template>
     <div class="location-card">
+        <FavoritesModal :id="location.id" />
         <div class="location-card__top" @click="openLocationCardDisplay">
             <img :src="location.image" alt="Location image">
             <div class="location-card__top-overlay"></div>
             <h2>{{ truncatedName }}</h2>
         </div>
-        <!-- <div class="location-card__bottom">
-            <a class="location-card__bottom-icon icon icon-earth" target="_blank" :href="googleMapsUrl">
-                <font-awesome-icon :icon="['fas', 'earth-europe']" />
-            </a>
-            <a class="location-card__bottom-icon icon icon-waze" target="_blank" :href="wazeUrl">
-                <font-awesome-icon :icon="['fab', 'waze']" />
-            </a>
-        </div> -->
     </div>
 </template>
 

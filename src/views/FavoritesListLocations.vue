@@ -8,7 +8,7 @@ import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
 const favoritesStore = useFavoritesStore();
 const route = useRoute();
 
-const locationsListItems = computed(() => favoritesStore.locationsListItems);
+const locationsListItems = computed(() => favoritesStore.locationsListItems.list);
 const selectedLocation = ref(null);
 
 function showLocationCardDisplay(location) {
@@ -34,7 +34,7 @@ onMounted(async () => {
     </div>
     <LocationCardDisplay 
         v-if="selectedLocation" 
-        :location="selectedLocation" 
+        :location="selectedLocation.value" 
         @close="selectedLocation = null"
     />
 </template>

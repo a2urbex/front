@@ -67,12 +67,12 @@ const deleteFavorite = () => {
         <router-link :to="`/favorites/${favorite.id}`"><h2>{{truncatedName}}</h2></router-link>
         <router-link class="favorites-list-editor__link" :to="`/favorites/${favorite.id}`"><font-awesome-icon :icon="['fas', 'fa-arrow-up-right-from-square']" /></router-link>
         <div class="favorites-list-editor__actions">
-           <button class="icon icon-visibility"><font-awesome-icon :icon="['fas', visibilityIcon]" @click="updateVisibility"/></button>
-           <button class="icon icon-open"><font-awesome-icon :icon="['fas', privacyIcon]" @click="updatePrivacy" /></button>
+           <button class="icon icon-visibility" @click="updateVisibility"><font-awesome-icon :icon="['fas', visibilityIcon]"/></button>
+           <button class="icon icon-open" @click="updatePrivacy"><font-awesome-icon :icon="['fas', privacyIcon]"/></button>
            <button class="icon icon-share"><font-awesome-icon :icon="['fas', 'user-plus']" /></button>
-           <button class="icon icon-copy-link"><font-awesome-icon :icon="['fas', 'link']" @click="copyLink" /></button>
+           <button class="icon icon-copy-link" @click="copyLink"><font-awesome-icon :icon="['fas', 'link']"/></button>
            <span></span>
-           <button class="icon icon-delete action-delete"><font-awesome-icon :icon="['fas', 'trash']" @click="deleteFavorite"/></button>
+           <button class="icon icon-delete action-delete" @click="deleteFavorite"><font-awesome-icon :icon="['fas', 'trash']" /></button>
         </div>
     </div>
 </template>

@@ -46,7 +46,7 @@ onMounted(async () => {
   <div class="header page-width m-none">
     <div class="header__left">
       <router-link v-if="!isLoggedIn" class="header__home" to="/">Home</router-link>
-      <router-link v-if="isLoggedIn" class="header__home" to="locations">Locations</router-link>
+      <router-link v-if="isLoggedIn" class="header__home" to="/locations">Locations</router-link>
     </div>
 
     <div class="header__right">

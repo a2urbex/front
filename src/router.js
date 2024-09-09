@@ -8,6 +8,7 @@ import Map from '@/views/Map.vue'
 import HomeView from '@/views/Home.vue'
 import FavoritesListView from '@/views/FavoritesList.vue'
 import FavoritesDetailView from '@/views/FavoritesListLocations.vue'
+import WorkInProgress from '@/components/WorkInProgress.vue'
 
 export default createRouter({
   history: createWebHistory(),
@@ -31,7 +32,11 @@ export default createRouter({
     },
     {
       path: '/map',
-      component: Map
+      component: WorkInProgress
+    },
+    {
+      path: '/friends',
+      component: WorkInProgress
     },
     {
       path: '/',

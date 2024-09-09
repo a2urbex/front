@@ -6,8 +6,11 @@ export const useFavoritesStore = defineStore('Favorites', {
     state: () => ({
         token: localStorage.getItem('authToken') || null,
         locationsList: [],
-        locationsListItems: [],
-        favoriteList: []
+        locationsListItems: {
+            name: '',
+            list: []   
+        },
+        favoriteList: [],
     }),
     actions: {
         async getSummary() {
@@ -27,14 +30,19 @@ export const useFavoritesStore = defineStore('Favorites', {
                 throw error;
             }
         },
+
         async getFavorites(id) {
             try {
                 const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`, this);
-                this.locationsListItems = data.list || [];
+                console.log('API Response:', data);
+                this.locationsListItems = {
+                    name: data.name || '',
+                    list: data.list || { list: [] }
+                };
             } catch (error) {
-                throw error;
+                console.error('Error fetching favorites:', error);
             }
-        },
+        },            
 
         async addLocation(id, list){
             try {
@@ -52,7 +60,7 @@ export const useFavoritesStore = defineStore('Favorites', {
         async updateVisibility(id){
             try {
                 await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}/disable`, this);
-                this.getList();
+                await this.getList();  // Ensure that the list is updated after visibility change
                 toast.success('Successfully updated visibility!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
                 throw error;
@@ -62,7 +70,7 @@ export const useFavoritesStore = defineStore('Favorites', {
         async updatePrivacy(id){
             try {
                 await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}/share`, this);
-                this.getList();
+                await this.getList();  // Ensure that the list is updated after privacy change
                 toast.success('Successfully updated privacy!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
                 throw error;
@@ -72,7 +80,7 @@ export const useFavoritesStore = defineStore('Favorites', {
         async deleteList(id){
             try {
                 await request('DELETE', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`, this);
-                this.getList();
+                await this.getList();  // Ensure that the list is updated after deletion
                 toast.success('List successfully deleted!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
                 throw error;

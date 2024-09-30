@@ -1,0 +1,29 @@
+@import '@/assets/styles/base.scss';
+
+.home {
+    text-align: center;
+
+    .logo {
+        height: 6em;
+        padding: 1.5em;
+        will-change: filter;
+    }
+
+    .logo:hover {
+        filter: drop-shadow(0 0 2em $blue);
+    }
+
+    &-description {
+        color: $contrast-4;
+    }
+
+    .connect{
+        background-color: $blue;
+        color: $contrast;
+        font-size: 0.8rem;
+        font-weight: 700;
+        width: fit-content;
+        border-radius: 1rem;
+        padding: 0.3rem 0.5rem;
+    }
+}

@@ -4,12 +4,15 @@ import { useRoute } from 'vue-router';
 import { useFavoritesStore } from '@/stores/favorites';
 import LocationCard from '@/components/LocationCard.vue';
 import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
+import PreLoader from '../components/PreLoader.vue';
+
 
 const favoritesStore = useFavoritesStore();
 const route = useRoute();
 
 const locationsListItems = computed(() => favoritesStore.locationsListItems.list.list || []);
 const selectedLocation = ref(null);
+const isLoading = computed(() => favoritesStore.loading);
 
 function showLocationCardDisplay(location) {
     selectedLocation.value = location;
@@ -31,6 +34,11 @@ watch(() => favoritesStore.locationsListItems.list, (newValue) => {
 </script>
 
 <template>
+
+    <transition name="fade" mode="out-in">
+        <PreLoader msg="List" v-if="isLoading" key="preloader" /> 
+    </transition>
+
     <div class="locations-header page-width">
         <h1>{{ listName }}</h1> 
     </div>

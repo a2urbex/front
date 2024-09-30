@@ -7,10 +7,12 @@ export const useLocationStore = defineStore('location', {
         locationsList: [],
         currentPage: 1,
         totalPages: 1,
-        selectedFilters: {}
+        selectedFilters: {},
+        loading: false,
     }),
     actions: {
         async fetchLocations(page = 1, filters = {}) {
+            this.loading = true; 
             try {
                 this.selectedFilters = filters;
                 const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, this, filters);
@@ -18,7 +20,9 @@ export const useLocationStore = defineStore('location', {
                 this.currentPage = page;
                 this.totalPages = Math.ceil(data.count / import.meta.env.VITE_LOCATIONS_PER_PAGE); 
             } catch (error) {
-                throw error;
+                console.error('Error fetching locations:', error);
+            } finally {
+                this.loading = false;
             }
         },
         async getFilters() {

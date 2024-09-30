@@ -11,27 +11,35 @@ export const useFavoritesStore = defineStore('Favorites', {
             list: []   
         },
         favoriteList: [],
+        loading: false,
     }),
     actions: {
         async getSummary() {
+            this.loading = true; 
             try {
                 const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/summary`, this);
                 this.favoriteList = data || [];
             } catch (error) {
                 throw error;
+            } finally {
+                this.loading = false;
             }
         },
 
         async getList() {
+            this.loading = true; 
             try {
                 const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}`, this);
                 this.locationsList = data || [];
             } catch (error) {
                 throw error;
+            } finally {
+                this.loading = false;
             }
         },
 
         async getFavorites(id) {
+            this.loading = true;
             try {
                 const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`, this);
                 console.log('API Response:', data);
@@ -41,6 +49,8 @@ export const useFavoritesStore = defineStore('Favorites', {
                 };
             } catch (error) {
                 console.error('Error fetching favorites:', error);
+            } finally {
+                this.loading = false;
             }
         },            
 
@@ -50,6 +60,8 @@ export const useFavoritesStore = defineStore('Favorites', {
                 toast.success('Added to your favorite list!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
                 throw error;
+            } finally {
+                this.loading = false;
             }
         },
 

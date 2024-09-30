@@ -1,21 +1,7 @@
-<script setup>
-  defineProps({
-    msg: String,
-  })
-</script>
-
 <template>
   <div class="work-in-progress">
-    <div>
-      <a href="https://a2urbex.eu" target="_blank">
-        <img src="/logox192.png" class="logo" alt="a2urbex logo" />
-      </a>
-    </div>
-    
-    <h1>{{ msg }}</h1>
-
+    <h1>Work in progress</h1>
     <p>Check out our repository on <a href="hhttps://github.com/a2urbex" target="_blank">Github</a></p>
-    <router-link class="connect" to="/login">Connect</router-link>
   </div>
 </template>
 

@@ -2,11 +2,13 @@
 import { onMounted, ref, computed } from 'vue';
 import FavoritesEditor from '@/components/FavoritesEditor.vue'
 import { useFavoritesStore } from '@/stores/favorites';
+import PreLoader from '../components/PreLoader.vue';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const favoritesStore = useFavoritesStore();
 const locationsList = computed(() => favoritesStore.locationsList);
+const isLoading = computed(() => favoritesStore.loading);
 
 const selectedLocationId = ref(null);
 
@@ -20,6 +22,10 @@ onMounted(async () => {
 </script>
 
 <template>
+     <transition name="fade" mode="out-in">
+        <PreLoader msg="Favorites" v-if="isLoading" key="preloader" /> 
+    </transition>
+    
     <div class="favorites__container">
         <h2>Favorites</h2>
         <div class="favorites page-width">

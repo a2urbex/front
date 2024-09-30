@@ -21,13 +21,14 @@
         height: 100%;
         right: 0px;
         transform: translate(100%, 0%);
+        background: linear-gradient(180deg, $background 0%,  $dark-background 100%);
         &.active{
             transition: all .5s;
             visibility: visible;
             opacity: 1;
             display: block;
             position: fixed;
-            z-index: 2;
+            z-index: 4;
             transform: translate(0%, 0%);
             @media (max-width : $md){
                 width: 100%;
@@ -36,7 +37,6 @@
 
         &-header{
             padding: 1rem 1.2rem;
-            background-color: $background;
             display: flex;
             flex-direction: row;
             justify-content: space-between;
@@ -47,15 +47,18 @@
                 background-color: transparent;
                 color: $contrast;
                 border: none;
-                font-size: 1.5rem;
+                font-size: 1rem;
             }
             h3{
                 margin: 0;
+                font-weight: $font-weight-bold;
+                color: $contrast-5;
+                font-size: $font-size-small;
+                line-height: inherit;
             }
         }
 
         fieldset{
-            background-color: $background;
             border: none;
             padding: .5rem;
             display: flex;
@@ -80,7 +83,6 @@
             label{
                 display: block;
                 cursor: pointer;
-                padding: 0.2rem 1rem;
                 border-radius: 0.2rem;
                 font-weight: 500;
                 color: #7a7a7a;
@@ -88,6 +90,9 @@
                 cursor: pointer;
                 transition: all .2s;
                 width: 100%;
+                font-size: 1rem;
+                line-height: 1rem;
+                padding: .8rem 1rem;
                 &:hover{
                     background-color: $contrast-1;
                     color: $contrast;
@@ -96,7 +101,6 @@
         }
 
         &-footer{
-            background-color: $background;
             height: 100%;
             padding: 0rem 1.2rem;
             button{
@@ -107,6 +111,10 @@
                 border: none;
                 width: 100%;
                 padding: 1rem .5rem;
+
+                svg{
+                    height: 1rem;
+                }
             }
             .active{
                 display: block;

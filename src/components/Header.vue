@@ -80,7 +80,7 @@ onMounted(async () => {
   </div>
 
   <div v-if="isLoggedIn" class="header page-width d-none">
-      <router-link class="header__home" to="locations"><font-awesome-icon :icon="['fa', 'house']" /></router-link>
+      <router-link class="header__home" to="/locations"><font-awesome-icon :icon="['fa', 'house']" /></router-link>
       <router-link class="header__favorites" to="/friends">
         <font-awesome-icon :icon="['fa', 'users']" />
       </router-link>

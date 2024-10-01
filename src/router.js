@@ -9,6 +9,7 @@ import HomeView from '@/views/Home.vue'
 import FavoritesListView from '@/views/FavoritesList.vue'
 import FavoritesDetailView from '@/views/FavoritesListLocations.vue'
 import WorkInProgress from '@/components/WorkInProgress.vue'
+import FriendsList from '@/components/FriendsList.vue'
 import Profile from '@/components/ProfileVue.vue'
 
 export default createRouter({
@@ -37,7 +38,7 @@ export default createRouter({
     },
     {
       path: '/friends',
-      component: WorkInProgress
+      component: FriendsList
     },
     {
       path: '/profile/:id',

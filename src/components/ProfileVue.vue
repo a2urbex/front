@@ -1,12 +1,11 @@
 <script setup>
 import { onMounted, computed, ref } from 'vue';
 import { useProfileStore } from '@/stores/profile';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import PreLoader from '../components/PreLoader.vue';
 
 const profileStore = useProfileStore();
 const user = computed(() => profileStore.viewProfile);
-const router = useRouter();
 const route = useRoute();
 const isLoading = computed(() => profileStore.loading);
 
@@ -22,13 +21,13 @@ onMounted(async () => {
 
 <template>
   <transition name="fade" mode="out-in">
-    <PreLoader msg="Favorites" v-if="isLoading" key="preloader" /> 
+    <PreLoader msg="Profile" v-if="isLoading" key="preloader" /> 
   </transition>
 
   <div class="profile page-width">
     <div class="profile__wrapper">
       <div class="profile__image">
-        <img :src="user.image" alt="Profile image">
+        <img v-if="user.image" :src="user.image" alt="Profile image">
       </div>
       <div class="profile__info">
         <h2>{{ user.username }}</h2>

@@ -1,0 +1,36 @@
+@import '@/assets/styles/base.scss';
+
+.friends{
+    &__friends{
+
+        summary{
+            padding-bottom: 1rem;
+            font-weight: bold;
+        }
+    }
+
+    &__item{
+        margin: 1rem 0rem;
+        a{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            color: inherit;
+        }
+        &-image-wrapper, img{
+            width: 4rem;
+            height: 4rem;
+            background-image: url(/default-user.png);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-radius: 50%;
+            margin-right: 1rem;
+            @media (max-width: $md) {
+                width: 2rem;
+                height: 2rem;
+                margin-right: .5rem;
+            }
+        }
+    }
+}

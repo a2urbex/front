@@ -9,6 +9,7 @@ import HomeView from '@/views/Home.vue'
 import FavoritesListView from '@/views/FavoritesList.vue'
 import FavoritesDetailView from '@/views/FavoritesListLocations.vue'
 import WorkInProgress from '@/components/WorkInProgress.vue'
+import Profile from '@/components/ProfileVue.vue'
 
 export default createRouter({
   history: createWebHistory(),
@@ -37,6 +38,11 @@ export default createRouter({
     {
       path: '/friends',
       component: WorkInProgress
+    },
+    {
+      path: '/profile/:id',
+      component: Profile,
+      props: route => ({ id: route.params.id })
     },
     {
       path: '/',

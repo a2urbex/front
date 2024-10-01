@@ -2,7 +2,10 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 
 import { 
-    faWaze
+    faWaze,
+    faTiktok,
+    faInstagram,
+    faYoutube
 } from "@fortawesome/free-brands-svg-icons";
 
 import { 
@@ -52,7 +55,10 @@ library.add(
     faEye,
     faEyeSlash,
     faTrash,
-    faArrowUpRightFromSquare
+    faArrowUpRightFromSquare,
+    faTiktok,
+    faInstagram,
+    faYoutube
 );
 
 export default FontAwesomeIcon;

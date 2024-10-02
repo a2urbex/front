@@ -29,7 +29,8 @@ import {
     faEye,
     faEyeSlash,
     faTrash,
-    faArrowUpRightFromSquare
+    faArrowUpRightFromSquare,
+    faShare
     
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -58,7 +59,8 @@ library.add(
     faArrowUpRightFromSquare,
     faTiktok,
     faInstagram,
-    faYoutube
+    faYoutube,
+    faShare
 );
 
 export default FontAwesomeIcon;

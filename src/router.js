@@ -6,6 +6,7 @@ import Auth from '@/views/Auth.vue'
 import LocationList from '@/views/LocationList.vue'
 import Map from '@/views/Map.vue'
 import HomeView from '@/views/Home.vue'
+import LocationView from '@/views/LocationView.vue'
 import FavoritesListView from '@/views/FavoritesList.vue'
 import FavoritesDetailView from '@/views/FavoritesListLocations.vue'
 import WorkInProgress from '@/components/WorkInProgress.vue'
@@ -24,6 +25,10 @@ export default createRouter({
       component: LocationList
     },
     {
+      path: '/location/:id',
+      component: LocationView
+    },
+    {
       path: '/favorites',
       component: FavoritesListView
     },
@@ -34,7 +39,7 @@ export default createRouter({
     },
     {
       path: '/map',
-      component: WorkInProgress
+      component: Map
     },
     {
       path: '/friends',

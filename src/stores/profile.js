@@ -16,7 +16,6 @@ export const useProfileStore = defineStore('profile', {
                 console.log('GET', `${import.meta.env.VITE_FRIENDS_ENDPOINT}`, this)
                 const data = await request('GET', `${import.meta.env.VITE_FRIENDS_ENDPOINT}`, this);
                 this.friendsList = data;
-                console.log('Friends List:', this.friendsList);
             } catch (error) {
                 console.error('Failed to fetch friends :', error);
                 throw error;

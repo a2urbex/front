@@ -2,5 +2,5 @@
 </script>
 
 <template>
-Test Map
+Map, Salut Hugo
 </template>

@@ -8,6 +8,7 @@ export const useLocationStore = defineStore('location', {
         currentPage: 1,
         totalPages: 1,
         selectedFilters: {},
+        location: '',
         loading: false,
     }),
     actions: {
@@ -21,6 +22,18 @@ export const useLocationStore = defineStore('location', {
                 this.totalPages = Math.ceil(data.count / import.meta.env.VITE_LOCATIONS_PER_PAGE); 
             } catch (error) {
                 console.error('Error fetching locations:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+        async getLocation(id){
+            this.loading = true; 
+            try {
+                const data = await request('GET', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/${id}`, this);
+                console.log(data);
+                this.location  = data;
+            } catch (error) {
+                console.error('Error fetching location:', error);
             } finally {
                 this.loading = false;
             }

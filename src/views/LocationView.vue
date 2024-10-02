@@ -1,13 +1,30 @@
 <script setup>
-import { computed } from 'vue';
-import { toast } from 'vue3-toastify';
-import FavoritesModal from './FavoriteModal.vue';
+import { onMounted, computed } from 'vue';
+import { useLocationStore } from '@/stores/location';
+import { useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+// import PreLoader from '../components/PreLoader.vue';
 
-const props = defineProps({
-    location: Object
+const locationStore = useLocationStore();
+const authStore = useAuthStore();
+
+const route = useRoute();
+const id = route.params.id;
+
+// const isLoading = computed(() => locationStore.loading);
+const isLoggedIn = computed(() => authStore.token !== null);
+const location = computed(() => locationStore.location);
+import FavoritesModal from '@/components/FavoriteModal.vue';
+
+
+onMounted(async () => {
+  try {
+    await locationStore.getLocation(id);
+  } catch (error) {
+  }
 });
 
-// COPY LINK
+const routePath = isLoggedIn.value ? '/locations' : '/';
 const copyLink = (id) => {
     if (id) {
         const url = `${window.location.origin}/location/${id}`;
@@ -20,11 +37,11 @@ const copyLink = (id) => {
 };
 
 const googleMapsUrl = computed(() => {
-    return `https://www.google.com/maps?t=k&q=${props.location.lat},${props.location.lon}`;
+    return `https://www.google.com/maps?t=k&q=${location.lat},${location.lon}`;
 });
 
 const wazeUrl = computed(() => {
-    return `https://waze.com/ul?q=${props.location.lat},${props.location.lon}&navigate=yes&zoom=17`;
+    return `https://waze.com/ul?q=${location.lat},${location.lon}&navigate=yes&zoom=17`;
 });
 </script>
 
@@ -32,9 +49,9 @@ const wazeUrl = computed(() => {
     <transition name="translate" mode="out-in" appear>
         <div class="location-card-display">
             <div class="location-card-display__container">
-                <button class="close-button" @click="$emit('close')">
+                <router-link class="close-button" :to="routePath">
                     <font-awesome-icon :icon="['fas', 'angle-left']" />
-                </button>
+                </router-link>
                 <button class="share-button" @click="copyLink(location.id)">
                     <font-awesome-icon :icon="['fa', 'share']" />
                 </button>
@@ -56,7 +73,3 @@ const wazeUrl = computed(() => {
         </div>
     </transition>
 </template>
-
-<style lang="scss">
-@import '../assets/styles/components/locationCardDisplay.scss';
-</style>

@@ -21,6 +21,28 @@
         position: relative;
         height: 100%;
         width: 100%;
+
+        &>.close-button {
+            cursor: pointer;
+            position: absolute;
+            left: 1.5rem;
+            top: 1.5rem;
+            background-color: transparent;
+            color:$contrast;
+            border: none;
+            font-size: 1.5rem;
+        }
+    
+        &>.share-button {
+            cursor: pointer;
+            position: absolute;
+            right: 1.5rem;
+            top: 1.5rem;
+            background-color: transparent;
+            color:$contrast;
+            border: none;
+            font-size: 1.5rem;
+        }
     }
 
     &__bottom {
@@ -62,17 +84,6 @@
         }
     }
 
-    button {
-        cursor: pointer;
-        position: absolute;
-        left: 1.5rem;
-        top: 1.5rem;
-        background-color: transparent;
-        color:$contrast;
-        border: none;
-        font-size: 1.5rem;
-    }
-
     img {
         height: 100%;
         width: 100%;
@@ -81,5 +92,15 @@
         background-image: url('/default.png');
         background-size: cover;
         background-position: center
+    }
+
+    .favorite-modal{
+        position: initial;
+        padding: 0rem 2rem;
+        text-align: right;
+        font-size: 1.5rem;
+        &__trigger{
+            position: initial;
+        }
     }
 }

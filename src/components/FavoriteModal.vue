@@ -1,9 +1,11 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useFavoritesStore } from '@/stores/favorites';
+import { useAuthStore } from '@/stores/auth';
 import { toast } from 'vue3-toastify';
 
 const favoritesStore = useFavoritesStore();
+const authStore = useAuthStore();
 
 const props = defineProps({
    id: String,
@@ -16,11 +18,14 @@ const toggleActive = () => {
    isActive.value = !isActive.value;
 };
 
-onMounted(async () => {
-   await favoritesStore.getSummary();
-});
-
 const favoriteList = computed(() => favoritesStore.favoriteList);
+const isLoggedIn = computed(() => authStore.token !== null);
+
+onMounted(async () => {
+   if (isLoggedIn.value) {
+    await favoritesStore.getSummary();
+  }
+});
 
 const addToSelectedList = () => {
    if (selectedItemId.value) {
@@ -30,42 +35,44 @@ const addToSelectedList = () => {
 </script>
 
 <template>
-   <div class="favorite-modal">
-      <div class="favorite-modal__trigger" @click="toggleActive">
-         <font-awesome-icon :icon="['fas', 'heart']" />
-      </div>
-   </div>
-   <div :class="['favorite-modal__content', { active: isActive }]">
-      <div class="favorite-modal__content-header" @click="toggleActive">
-         <button class="close-button" @click="$emit('close')">
-            <font-awesome-icon :icon="['fas', 'angle-left']" />
-        </button>
-         <h3>Add to list</h3>
-      </div>
-      <fieldset>
-         <div v-for="item in favoriteList" :key="item.id">
-            <input 
-               type="radio" 
-               :id="`radio-${item.id}-${props.id}`" 
-               name="contactMethod" 
-               :value="item.id" 
-               v-model="selectedItemId" 
-            />
-            <label :for="`radio-${item.id}-${props.id}`">{{ item.name }}</label>
+   <div v-if="isLoggedIn">
+      <div class="favorite-modal">
+         <div class="favorite-modal__trigger" @click="toggleActive">
+            <font-awesome-icon :icon="['fas', 'heart']" />
          </div>
-      </fieldset>
-      <div class="favorite-modal__content-footer">
-         <button 
-            :class="['avorite-modal__content-footer-button-add', { active: isAvailable }]" 
-            @click="addToSelectedList"
-         >
-            Add to selected list
+      </div>
+      <div :class="['favorite-modal__content', { active: isActive }]">
+         <div class="favorite-modal__content-header" @click="toggleActive">
+            <button class="close-button" @click="$emit('close')">
+               <font-awesome-icon :icon="['fas', 'angle-left']" />
          </button>
-         <button 
-            :class="['avorite-modal__content-footer-button-create', { active: !isAvailable }]"
-         >
-            Create List (not working yet)
-         </button>
+            <h3>Add to list</h3>
+         </div>
+         <fieldset>
+            <div v-for="item in favoriteList" :key="item.id">
+               <input 
+                  type="radio" 
+                  :id="`radio-${item.id}-${props.id}`" 
+                  name="contactMethod" 
+                  :value="item.id" 
+                  v-model="selectedItemId" 
+               />
+               <label :for="`radio-${item.id}-${props.id}`">{{ item.name }}</label>
+            </div>
+         </fieldset>
+         <div class="favorite-modal__content-footer">
+            <button 
+               :class="['avorite-modal__content-footer-button-add', { active: isAvailable }]" 
+               @click="addToSelectedList"
+            >
+               Add to selected list
+            </button>
+            <button 
+               :class="['avorite-modal__content-footer-button-create', { active: !isAvailable }]"
+            >
+               Create List (not working yet)
+            </button>
+         </div>
       </div>
    </div>
 </template>

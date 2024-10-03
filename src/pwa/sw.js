@@ -11,6 +11,7 @@ self.addEventListener("message", (event) => {
   }
 });
 
+
 registerRoute(
   ({ request }) => request.mode === 'navigate',
   new NetworkFirst({
@@ -18,11 +19,19 @@ registerRoute(
     plugins: [
       {
         cacheWillUpdate: async ({ response }) => {
-          if (!response || response.status !== 200) {
-            toast.error('You are offline!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+          if (response && response.status === 200) {
+            return response;
           }
-          return response;
+          return null;
         },
+        fetchDidFail: async () => {
+          toast.error('You are offline!', {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 1000,
+            pauseOnHover: true,
+            theme: 'dark'
+          });
+        }
       },
     ],
   })

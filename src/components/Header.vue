@@ -10,7 +10,9 @@ const versionStore = useVersionStore();
 const authStore = useAuthStore();
 const router = useRouter();
 
-const version = computed(() => versionStore.status);
+const latest_version = computed(() => versionStore.latest_version);
+const code_version = computed(() => versionStore.code_version);
+const status = computed(() => versionStore.status);
 
 const isLoggedIn = computed(() => authStore.token !== null);
 const userProfile = computed(() => authStore.userProfile);
@@ -34,15 +36,22 @@ const logout = async () => {
   }, 1500);
 };
 
-// PWA Service Worker Refresh Functionality
-const { needRefresh, updateServiceWorker } = useRegisterSW();
-
-const refreshPWA = () => {
-  toast.warning('Not Refreshed' , { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
-  if (needRefresh.value) {
-    toast.success('Refreshed!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
-    updateServiceWorker(true); // Force the update and reload the app
+const clearCache = async () => {
+  if ('serviceWorker' in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (let registration of registrations) {
+      registration.unregister();
+    }
   }
+  if ('caches' in window) {
+    const cacheNames = await caches.keys();
+    console.log('Caches cleared:' + cacheNames);
+    for (let cacheName of cacheNames) {
+      console.log('Caches cleared:' + cacheName);
+      caches.delete(cacheName); 
+    }
+  }
+  window.location.reload();
 };
 
 onMounted(async () => {
@@ -122,9 +131,13 @@ onMounted(async () => {
         <router-link v-if="userProfile.isAdmin" class="header__user-entry header__admin" to="/admin">
           <font-awesome-icon :icon="['fas', 'mobile-button']" />Admin
         </router-link>
-        <div class="header__user-entry">
-          <p v-if="version === 'up-to-date'">Up to date</p>
-          <p v-if="version === 'outdated'"><button @click="refreshPWA">Refresh App</button></p>
+        <div v-if="status === 'up-to-date'" class="header__user-entry refresh">
+          <font-awesome-icon :icon="['fa', 'rotate-right']" />
+          <p class="uptodate" >Up to date </p><span>{{ code_version }}</span>
+        </div>
+        <div v-if="status === 'outdated'" @click="clearCache" class="header__user-entry refresh">
+          <font-awesome-icon :icon="['fa', 'rotate-right']" />
+          <button class="outaded">Refresh App</button><span>Latest : {{ latest_version }}</span>
         </div>
         <span class="header__user-separator"></span>
         <p class="header__user-entry header__logout" @click="logout">

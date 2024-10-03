@@ -3,13 +3,11 @@ import { defineStore } from 'pinia';
 export const useVersionStore = defineStore('version', {
     
     state: () => ({
-        code_version: '0.0.37', // Use for dev only
-        latest_version: {},
-        loading: false
+        code_version: '0.0.39', // Use for dev only
+        latest_version: ''
     }),
     actions: {
         async getVersion() {
-            this.loading = true;
             try {
                 const response = await fetch(import.meta.env.VITE_VERSION);
                 
@@ -26,7 +24,6 @@ export const useVersionStore = defineStore('version', {
             } catch (error) {
                 console.error('Error fetching version:', error);
             } finally {
-                this.loading = false;
             }
         }
     }

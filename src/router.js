@@ -53,7 +53,10 @@ export default createRouter({
         { path: 'login', component: LoginForm },
         { path: 'register', component: RegisterForm },
         { path: 'forgot-password', component: ResetPassword },
-        { path: 'reset-password', component: NewPassword }
+        { path: 'reset-password/:id', 
+          component: NewPassword,
+          props: route => ({ id: route.params.id })
+        }
       ]
     }
   ],

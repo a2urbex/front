@@ -33,8 +33,18 @@ export const useAuthStore = defineStore('auth', {
 
         async forgotPassword(email) {
             try {
-                await request('POST', `${import.meta.env.VITE_PASSWORD_FORGOT}`, { email });
+                await request('POST', `${import.meta.env.VITE_PASSWORD_FORGOT}`, this, { email });
                 toast.success('Password reset email sent!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        },
+
+        async resetPassword(token, password) {
+            try {
+                await request('POST', `${import.meta.env.VITE_PASSWORD_RESET}`, this, {token, password });
+                toast.success('Password successfully updated!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
                 console.log(error);
                 throw error;

@@ -5,7 +5,6 @@ import ResetPassword from '@/components/ResetForm.vue'
 import NewPassword from '@/components/NewPassword.vue'
 import Auth from '@/views/Auth.vue'
 import LocationList from '@/views/LocationList.vue'
-import Map from '@/views/Map.vue'
 import HomeView from '@/views/Home.vue'
 import LocationView from '@/views/LocationView.vue'
 import FavoritesListView from '@/views/FavoritesList.vue'
@@ -37,10 +36,6 @@ export default createRouter({
       path: '/favorites/:id',
       component: FavoritesDetailView,
       props: route => ({ id: route.params.id })
-    },
-    {
-      path: '/map',
-      component: Map
     },
     {
       path: '/friends',

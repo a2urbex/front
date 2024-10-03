@@ -31,6 +31,16 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
+        async forgotPassword(email) {
+            try {
+                await request('POST', `${import.meta.env.VITE_PASSWORD_FORGOT}`, { email });
+                toast.success('Password reset email sent!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        },
+
         async logout() {
             this.token = null;
             this.userProfile = {};

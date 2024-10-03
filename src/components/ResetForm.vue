@@ -1,4 +1,6 @@
 <script>
+import { useAuthStore } from '@/stores/auth';
+
 export default {
     data() {
         return {
@@ -6,8 +8,13 @@ export default {
         };
     },
     methods: {
-        handleSubmit() {
-            console.log('Email:', this.email);
+        async handleSubmit() {
+            const authStore = useAuthStore();            
+            try {
+                await authStore.forgotPassword(this.email);
+            } catch (error) {
+                console.error('Forgot password trigger failed:', error);
+            }
         },
     },
 };
@@ -22,7 +29,7 @@ export default {
                     <input class="form-input" placeholder=" " type="email" id="email" v-model="email" required />
                     <label class="form-label" for="email">Email:</label>
                 </div>
-                <button class="form-submit" type="submit">Sing up</button>
+                <button class="form-submit" type="submit">Sign up</button>
             </form>
         </div>
     </transition>

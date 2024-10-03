@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginForm from '@/components/LoginForm.vue'
 import RegisterForm from '@/components/RegisterForm.vue'
 import ResetPassword from '@/components/ResetForm.vue'
+import NewPassword from '@/components/NewPassword.vue'
 import Auth from '@/views/Auth.vue'
 import LocationList from '@/views/LocationList.vue'
 import Map from '@/views/Map.vue'
@@ -56,7 +57,8 @@ export default createRouter({
       children: [
         { path: 'login', component: LoginForm },
         { path: 'register', component: RegisterForm },
-        { path: 'forgot-password', component: ResetPassword }
+        { path: 'forgot-password', component: ResetPassword },
+        { path: 'reset-password', component: NewPassword }
       ]
     }
   ],

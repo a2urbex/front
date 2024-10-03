@@ -29,7 +29,7 @@ export default {
                     <input class="form-input" placeholder=" " type="email" id="email" v-model="email" required />
                     <label class="form-label" for="email">Email:</label>
                 </div>
-                <button class="form-submit" type="submit">Sign up</button>
+                <button class="form-submit" type="submit">Send reset email</button>
             </form>
         </div>
     </transition>

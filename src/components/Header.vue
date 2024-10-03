@@ -1,10 +1,16 @@
 <script setup>
 import { onMounted, computed, ref } from 'vue';
+import { useRegisterSW } from 'virtual:pwa-register/vue';
 import { useAuthStore } from '@/stores/auth';
+import { useVersionStore } from '@/stores/version';
 import { useRouter } from 'vue-router';
+import { toast } from 'vue3-toastify';
 
+const versionStore = useVersionStore();
 const authStore = useAuthStore();
 const router = useRouter();
+
+const version = computed(() => versionStore.status);
 
 const isLoggedIn = computed(() => authStore.token !== null);
 const userProfile = computed(() => authStore.userProfile);
@@ -28,7 +34,19 @@ const logout = async () => {
   }, 1500);
 };
 
+// PWA Service Worker Refresh Functionality
+const { needRefresh, updateServiceWorker } = useRegisterSW();
+
+const refreshPWA = () => {
+  toast.warning('Not Refreshed' , { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+  if (needRefresh.value) {
+    toast.success('Refreshed!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+    updateServiceWorker(true); // Force the update and reload the app
+  }
+};
+
 onMounted(async () => {
+  await versionStore.getVersion();
   if (isLoggedIn.value) {
     try {
       await authStore.fetchUserProfile();
@@ -51,7 +69,7 @@ onMounted(async () => {
 
     <div class="header__right">
       <!-- USER -->
-      <router-link  v-if="isLoggedIn" class="header__favorites" to="/friends">
+      <router-link v-if="isLoggedIn" class="header__favorites" to="/friends">
         <font-awesome-icon :icon="['fa', 'users']" />
       </router-link>
       <router-link v-if="isLoggedIn" class="header__favorites" to="/favorites">
@@ -79,37 +97,42 @@ onMounted(async () => {
     </div>
   </div>
 
+  <!-- Small Header (Mobile) -->
   <div v-if="isLoggedIn" class="header page-width d-none">
-      <router-link class="header__home" to="/locations"><font-awesome-icon :icon="['fa', 'house']" /></router-link>
-      <router-link class="header__favorites" to="/friends">
-        <font-awesome-icon :icon="['fa', 'users']" />
-      </router-link>
-      <router-link  class="header__map" to="/map">
-        <font-awesome-icon :icon="['fas', 'map-location-dot']" />
-      </router-link>
-      <router-link class="header__favorites" to="/favorites">
-        <font-awesome-icon :icon="['fa', 'heart']" />
-      </router-link>
-      <img :src="profileImageUrl" class="header__user-image" @click="toggleOpen" />
-      <div :class="{ 'header__user-info': true, 'open': isOpen }">
-        <span class="header__user-info-close" @click="toggleOpen"></span>
-        <div class="header__user-info-wrapper">
-          <a class="header__user-entry header__profile" :href="'/profile/'+ userProfile.id">
-            <font-awesome-icon :icon="['fa', 'user']" />My profile <span>@{{ userProfile.username }}</span>
-          </a>
-          <router-link class="header__user-entry header__settings" to="/profile">
-            <font-awesome-icon :icon="['fa', 'gear']" />Account settings
-          </router-link>
-          <router-link v-if="userProfile.isAdmin" class="header__user-entry header__admin" to="/admin">
-            <font-awesome-icon :icon="['fas', 'mobile-button']" />Admin
-          </router-link>
-          <span class="header__user-separator"></span>
-          <p class="header__user-entry header__logout" @click="logout">
-            <font-awesome-icon :icon="['fas', 'right-from-bracket']" />Sign out
-          </p>
+    <router-link class="header__home" to="/locations"><font-awesome-icon :icon="['fa', 'house']" /></router-link>
+    <router-link class="header__favorites" to="/friends">
+      <font-awesome-icon :icon="['fa', 'users']" />
+    </router-link>
+    <router-link class="header__map" to="/map">
+      <font-awesome-icon :icon="['fas', 'map-location-dot']" />
+    </router-link>
+    <router-link class="header__favorites" to="/favorites">
+      <font-awesome-icon :icon="['fa', 'heart']" />
+    </router-link>
+    <img :src="profileImageUrl" class="header__user-image" @click="toggleOpen" />
+    <div :class="{ 'header__user-info': true, 'open': isOpen }">
+      <span class="header__user-info-close" @click="toggleOpen"></span>
+      <div class="header__user-info-wrapper">
+        <a class="header__user-entry header__profile" :href="'/profile/'+ userProfile.id">
+          <font-awesome-icon :icon="['fa', 'user']" />My profile <span>@{{ userProfile.username }}</span>
+        </a>
+        <router-link class="header__user-entry header__settings" to="/profile">
+          <font-awesome-icon :icon="['fa', 'gear']" />Account settings
+        </router-link>
+        <router-link v-if="userProfile.isAdmin" class="header__user-entry header__admin" to="/admin">
+          <font-awesome-icon :icon="['fas', 'mobile-button']" />Admin
+        </router-link>
+        <div class="header__user-entry">
+          <p v-if="version === 'up-to-date'">Up to date</p>
+          <p v-if="version === 'outdated'"><button @click="refreshPWA">Refresh App</button></p>
         </div>
+        <span class="header__user-separator"></span>
+        <p class="header__user-entry header__logout" @click="logout">
+          <font-awesome-icon :icon="['fas', 'right-from-bracket']" />Sign out
+        </p>
       </div>
     </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>

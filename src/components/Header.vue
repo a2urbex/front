@@ -133,11 +133,11 @@ onMounted(async () => {
         </router-link>
         <div v-if="status === 'up-to-date'" class="header__user-entry refresh">
           <font-awesome-icon :icon="['fa', 'rotate-right']" />
-          <p class="uptodate" >Up to date </p><span>{{ code_version }}</span>
+          <p class="uptodate" >Up to date </p><span>v{{ code_version }}</span>
         </div>
         <div v-if="status === 'outdated'" @click="clearCache" class="header__user-entry refresh">
           <font-awesome-icon :icon="['fa', 'rotate-right']" />
-          <button class="outaded">Refresh App</button><span>Latest : {{ latest_version }}</span>
+          <button class="outaded">Refresh App</button><span>Latest : v{{ latest_version }}</span>
         </div>
         <span class="header__user-separator"></span>
         <p class="header__user-entry header__logout" @click="logout">

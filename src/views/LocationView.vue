@@ -35,14 +35,6 @@ const copyLink = (id) => {
         });
     }
 };
-
-const googleMapsUrl = computed(() => {
-    return `https://www.google.com/maps?t=k&q=${location.lat},${location.lon}`;
-});
-
-const wazeUrl = computed(() => {
-    return `https://waze.com/ul?q=${location.lat},${location.lon}&navigate=yes&zoom=17`;
-});
 </script>
 
 <template>
@@ -62,13 +54,13 @@ const wazeUrl = computed(() => {
                     <p class="location-card-display__category">
                         <font-awesome-icon :icon="['fas', 'font-awesome']" />{{ location.categoryName ? location.categoryName : 'Unknown' }}
                     </p>
-                    <a class="location-card__bottom-icon icon icon-earth" target="_blank" :href="googleMapsUrl">
+                    <a class="location-card__bottom-icon icon icon-earth" target="_blank" :href="`https://www.google.com/maps?t=k&q=${location.lat},${location.lon}`">
                         <font-awesome-icon :icon="['fas', 'earth-europe']" /> Open with Maps
                     </a>
-                    <a class="location-card__bottom-icon icon icon-waze" target="_blank" :href="wazeUrl">
+                    <a class="location-card__bottom-icon icon icon-waze" target="_blank"  :href="`https://waze.com/ul?q=${location.lat},${location.lon}&navigate=yes&zoom=17`">
                         <font-awesome-icon :icon="['fab', 'waze']" /> Open with Waze
                     </a>
-                </div>
+                </div> 
             </div>
         </div>
     </transition>

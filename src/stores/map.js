@@ -36,7 +36,7 @@ export const useMapStore = defineStore('Map', {
     },
     async loadLocation(filters) {
       try {
-        const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/map`, this, filters);
+        const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/map`, filters);
         return data.list || []
       } catch (error) {
         console.error('Error fetching favorites:', error);
@@ -44,9 +44,8 @@ export const useMapStore = defineStore('Map', {
     },
     async loadFavorite(id) {
       try {
-        const data = await request('POST', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`, this);
-        console.log(data)
-        // return data.list || []
+        const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`);
+        return data.list || []
       } catch (error) {
         console.error('Error fetching favorites:', error);
       }

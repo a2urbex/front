@@ -16,7 +16,7 @@ export const useLocationStore = defineStore('location', {
             this.loading = true; 
             try {
                 this.selectedFilters = filters;
-                const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, this, filters);
+                const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, filters);
                 this.locationsList = data.list || [];
                 this.currentPage = page;
                 this.totalPages = Math.ceil(data.count / import.meta.env.VITE_LOCATIONS_PER_PAGE); 
@@ -29,7 +29,7 @@ export const useLocationStore = defineStore('location', {
         async getLocation(id){
             this.loading = true; 
             try {
-                const data = await request('GET', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/${id}`, this);
+                const data = await request('GET', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/${id}`);
                 console.log(data);
                 this.location  = data;
             } catch (error) {
@@ -40,7 +40,7 @@ export const useLocationStore = defineStore('location', {
         },
         async getFilters() {
             try {
-                const data = await request('GET', `${import.meta.env.VITE_LOCATIONS_FILTERS_ENDPOINT}`, this);
+                const data = await request('GET', `${import.meta.env.VITE_LOCATIONS_FILTERS_ENDPOINT}`);
                 return data;
             } catch (error) {
                 throw error;

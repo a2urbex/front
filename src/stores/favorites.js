@@ -17,7 +17,7 @@ export const useFavoritesStore = defineStore('Favorites', {
         async getSummary() {
             this.loading = true; 
             try {
-                const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/summary`, this);
+                const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/summary`);
                 this.favoriteList = data || [];
             } catch (error) {
                 throw error;
@@ -29,7 +29,7 @@ export const useFavoritesStore = defineStore('Favorites', {
         async getList() {
             this.loading = true; 
             try {
-                const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}`, this);
+                const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}`);
                 this.locationsList = data || [];
             } catch (error) {
                 throw error;
@@ -41,7 +41,7 @@ export const useFavoritesStore = defineStore('Favorites', {
         async getFavorites(id) {
             this.loading = true;
             try {
-                const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`, this);
+                const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`);
                 this.locationsListItems = {
                     name: data.name || '',
                     list: data.list || []
@@ -55,7 +55,7 @@ export const useFavoritesStore = defineStore('Favorites', {
 
         async addLocation(id, list){
             try {
-                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${list}/location/${id}`, this);
+                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${list}/location/${id}`);
                 toast.success('Added to your favorite list!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
                 throw error;
@@ -70,7 +70,7 @@ export const useFavoritesStore = defineStore('Favorites', {
 
         async updateVisibility(id){
             try {
-                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}/disable`, this);
+                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}/disable`);
                 await this.getList();  // Ensure that the list is updated after visibility change
                 toast.success('Successfully updated visibility!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
@@ -80,7 +80,7 @@ export const useFavoritesStore = defineStore('Favorites', {
 
         async updatePrivacy(id){
             try {
-                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}/share`, this);
+                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}/share`);
                 await this.getList();  // Ensure that the list is updated after privacy change
                 toast.success('Successfully updated privacy!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
@@ -90,7 +90,7 @@ export const useFavoritesStore = defineStore('Favorites', {
 
         async deleteList(id){
             try {
-                await request('DELETE', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`, this);
+                await request('DELETE', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`);
                 await this.getList();  // Ensure that the list is updated after deletion
                 toast.success('List successfully deleted!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {

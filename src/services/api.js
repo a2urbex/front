@@ -1,16 +1,15 @@
 import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
 
-export function request(method, route, store, body) {
+export function request(method, route, body) {
+    const auth = useAuthStore();
+
     const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     };
+    if (auth?.token) headers['Authorization'] = `Bearer ${auth.token}`;
     
-    if (store.token) {
-        headers['Authorization'] = `Bearer ${store.token}`;
-    }
-
     const params = {
         method: method,
         headers: headers,
@@ -20,7 +19,6 @@ export function request(method, route, store, body) {
     return fetch(`${import.meta.env.VITE_API_BASE_URL}${route}`, params)
         .then((res) => {
             if(res.status === 401) {
-                const auth = useAuthStore();
                 auth.logout();
             } else {
                 if (!res.ok) {

@@ -13,8 +13,7 @@ export const useProfileStore = defineStore('profile', {
         async getFriends() {
             this.loading = true;
             try {
-                console.log('GET', `${import.meta.env.VITE_FRIENDS_ENDPOINT}`, this)
-                const data = await request('GET', `${import.meta.env.VITE_FRIENDS_ENDPOINT}`, this);
+                const data = await request('GET', `${import.meta.env.VITE_FRIENDS_ENDPOINT}`);
                 this.friendsList = data;
             } catch (error) {
                 console.error('Failed to fetch friends :', error);
@@ -26,7 +25,7 @@ export const useProfileStore = defineStore('profile', {
         async getProfile(id) {
             this.loading = true;
             try {
-                const data = await request('GET', `${import.meta.env.VITE_PROFILE_ENDPOINT}/${id}`, this);
+                const data = await request('GET', `${import.meta.env.VITE_PROFILE_ENDPOINT}/${id}`);
                 this.viewProfile = data;
             } catch (error) {
                 console.error('Failed to fetch profile:', error);

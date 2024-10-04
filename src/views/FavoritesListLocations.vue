@@ -1,14 +1,18 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
+
 import { useFavoritesStore } from '@/stores/favorites';
+import { useMapStore } from '@/stores/map';
+
 import LocationCard from '@/components/LocationCard.vue';
 import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
 import PreLoader from '../components/PreLoader.vue';
 
 
-const favoritesStore = useFavoritesStore();
 const route = useRoute();
+const favoritesStore = useFavoritesStore();
+const mapStore = useMapStore();
 
 const locationsListItems = computed(() => favoritesStore.locationsListItems.list.list || []);
 const selectedLocation = ref(null);
@@ -20,9 +24,9 @@ function showLocationCardDisplay(location) {
 
 onMounted(async () => {
     const id = route.params.id;
-    if (id) {
-        await favoritesStore.getFavorites(id);
-    }
+    if (id) await favoritesStore.getFavorites(id);
+    mapStore.type = 'favorite';
+    mapStore.typeId = id;
 });
 
 const listName = computed(() => favoritesStore.locationsListItems.name || 'No List Name');

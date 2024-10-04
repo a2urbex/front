@@ -1,12 +1,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useLocationStore } from '@/stores/location';
+import { useMapStore } from '@/stores/map';
 import LocationCard from '@/components/LocationCard.vue';
 import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
 import Filters from '@/components/Filters.vue';
 import PreLoader from '../components/PreLoader.vue';
 
 const locationStore = useLocationStore();
+const mapStore = useMapStore();
 
 const locationsList = computed(() => locationStore.locationsList);
 const currentPage = computed(() => locationStore.currentPage);
@@ -45,6 +47,7 @@ function isLargeItem(index) {
 
 onMounted(() => {
     locationStore.fetchLocations(1);
+    mapStore.type = 'location';
 });
 </script>
 

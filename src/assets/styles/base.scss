@@ -58,3 +58,13 @@ a {
   opacity: 0;
   transform: translateX(30px);
 }
+
+.map-enter-active,
+.map-leave-active {
+  transition: all 0.3s ease;
+}
+
+.map-enter-from,
+.map-leave-to {
+  transform: translateY(100%);
+}

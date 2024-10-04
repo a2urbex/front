@@ -3,11 +3,13 @@ import { onMounted, computed, ref } from 'vue';
 import { useRegisterSW } from 'virtual:pwa-register/vue';
 import { useAuthStore } from '@/stores/auth';
 import { useVersionStore } from '@/stores/version';
+import { useMapStore } from '@/stores/map';
 import { useRouter } from 'vue-router';
 import { toast } from 'vue3-toastify';
 
 const versionStore = useVersionStore();
 const authStore = useAuthStore();
+const mapStore = useMapStore();
 const router = useRouter();
 
 const latest_version = computed(() => versionStore.latest_version);
@@ -112,9 +114,9 @@ onMounted(async () => {
     <router-link class="header__favorites" to="/friends">
       <font-awesome-icon :icon="['fa', 'users']" />
     </router-link>
-    <router-link class="header__map" to="/map">
+    <div class="header__map" @click="mapStore.open = !mapStore.open">
       <font-awesome-icon :icon="['fas', 'map-location-dot']" />
-    </router-link>
+    </div>
     <router-link class="header__favorites" to="/favorites">
       <font-awesome-icon :icon="['fa', 'heart']" />
     </router-link>

@@ -33,9 +33,6 @@ const toggleOpen = () => {
 
 const logout = async () => {
   authStore.logout();
-  setTimeout(() => {
-    router.push('/login');
-  }, 1500);
 };
 
 const clearCache = async () => {
@@ -63,9 +60,6 @@ onMounted(async () => {
       await authStore.fetchUserProfile();
     } catch (error) {
       authStore.logout();
-      setTimeout(() => {
-        router.push('/login');
-      }, 1500);
     }
   }
 });

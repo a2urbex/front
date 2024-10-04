@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { request } from '@/services/api';
 import { toast } from 'vue3-toastify';
+import router from '../router';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -56,6 +57,10 @@ export const useAuthStore = defineStore('auth', {
             this.userProfile = {};
             toast.warning('Logout successful!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             localStorage.removeItem('authToken');
+
+            setTimeout(() => {
+                router.push('/login');
+              }, 1500);
         },
 
         async validateToken() {

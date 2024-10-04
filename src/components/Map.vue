@@ -1,18 +1,26 @@
 <script setup>
-import { onMounted, watch } from 'vue';
+import { watch } from 'vue';
 import { GoogleMap, Marker } from 'vue3-google-map';
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute()
 
 import { useMapStore } from '@/stores/map';
-
 const mapStore = useMapStore();
 
 const apiKey = import.meta.env.VITE_MAPS_KEY;
 const center = { lat: 46.71109, lng: 1.7191036 };
 const zoom = 6;
 
-watch([mapStore.type, mapStore.typeId, mapStore.open], async ([newType, newTypeId, newOpen], []) => {
-  console.log(newType, newTypeId, newOpen)
+watch(() => route.fullPath, async () => {
+  mapStore.open = false
+}) 
+
+watch(() => mapStore.open, async (newOpen, oldOpen) => {
+  console.log(newOpen)
+  console.log(mapStore.type, mapStore.typeId)
 });
+
 
 </script>
 

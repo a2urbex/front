@@ -47,7 +47,7 @@ function isLargeItem(index) {
 
 onMounted(() => {
     locationStore.fetchLocations(1);
-    mapStore.type = 'location';
+    mapStore.setType('location')
 });
 </script>
 

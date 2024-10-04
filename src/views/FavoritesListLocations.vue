@@ -14,7 +14,7 @@ const route = useRoute();
 const favoritesStore = useFavoritesStore();
 const mapStore = useMapStore();
 
-const locationsListItems = computed(() => favoritesStore.locationsListItems.list.list || []);
+const locationsListItems = computed(() => favoritesStore.locationsListItems.list || []);
 const selectedLocation = ref(null);
 const isLoading = computed(() => favoritesStore.loading);
 
@@ -25,16 +25,10 @@ function showLocationCardDisplay(location) {
 onMounted(async () => {
     const id = route.params.id;
     if (id) await favoritesStore.getFavorites(id);
-    mapStore.type = 'favorite';
-    mapStore.typeId = id;
+    mapStore.setType('favorite', id);
 });
 
 const listName = computed(() => favoritesStore.locationsListItems.name || 'No List Name');
-
-watch(() => favoritesStore.locationsListItems.list, (newValue) => {
-    console.log('Locations List Items updated:', newValue);
-});
-
 </script>
 
 <template>

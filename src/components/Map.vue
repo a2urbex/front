@@ -14,11 +14,11 @@ const zoom = 6;
 
 watch(() => route.fullPath, async () => {
   mapStore.open = false
+  mapStore.locations = []
 }) 
 
-watch(() => mapStore.open, async (newOpen, oldOpen) => {
-  console.log(newOpen)
-  console.log(mapStore.type, mapStore.typeId)
+watch(() => mapStore.open, async (open) => {
+  if(open) mapStore.getMapLocations();
 });
 
 

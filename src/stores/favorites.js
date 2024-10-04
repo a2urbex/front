@@ -42,10 +42,9 @@ export const useFavoritesStore = defineStore('Favorites', {
             this.loading = true;
             try {
                 const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`, this);
-                console.log('API Response:', data);
                 this.locationsListItems = {
                     name: data.name || '',
-                    list: data.list || { list: [] }
+                    list: data.list || []
                 };
             } catch (error) {
                 console.error('Error fetching favorites:', error);

@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, computed } from 'vue';
+import { computed } from 'vue';
 import { useFavoritesStore } from '@/stores/favorites';
 import { toast } from 'vue3-toastify';
 

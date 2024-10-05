@@ -51,7 +51,18 @@ export const useFavoritesStore = defineStore('Favorites', {
             } finally {
                 this.loading = false;
             }
-        },            
+        },    
+        
+        async createNewList(name, item){
+            try {
+                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${list}/location/${id}`);
+                toast.success('Favorite list created and updated!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+            } catch (error) {
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
 
         async addLocation(id, list){
             try {

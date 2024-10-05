@@ -221,4 +221,19 @@
         }
 
     }
+
+    .router-link-active{
+        position: relative;
+        &:after{
+            content: '';
+            background-color: #ffffff;
+            width: 5px;
+            height: 5px;
+            border-radius: 10px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -20px;
+        }
+    }
 }

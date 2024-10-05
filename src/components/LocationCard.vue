@@ -31,7 +31,7 @@ const openLocationCardDisplay = () => {
 
 <template>
     <div class="location-card">
-        <FavoritesModal :id="location.id" />
+        <FavoritesModal :fids="location.fids" :id="location.id" />
         <div class="location-card__top" @click="openLocationCardDisplay">
             <img :src="location.image" alt="Location image">
             <div class="location-card__top-overlay"></div>

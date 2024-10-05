@@ -49,7 +49,7 @@ const copyLink = (id) => {
                 </button>
                 <img :src="location.image" alt="Location image">
                 <div class="location-card-display__bottom">
-                    <FavoritesModal/>
+                    <FavoritesModal :fids="location.fids" :id="location.id" />
                     <h2>{{ location.name }}</h2>
                     <p class="location-card-display__category">
                         <font-awesome-icon :icon="['fas', 'font-awesome']" />{{ location.categoryName ? location.categoryName : 'Unknown' }}

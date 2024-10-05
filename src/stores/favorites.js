@@ -56,7 +56,7 @@ export const useFavoritesStore = defineStore('Favorites', {
         async addLocation(id, list){
             try {
                 await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${list}/location/${id}`);
-                toast.success('Added to your favorite list!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+                toast.success('Favorite list updated!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
                 throw error;
             } finally {

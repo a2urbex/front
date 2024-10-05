@@ -12,10 +12,13 @@ export const useLocationStore = defineStore('location', {
         loading: false,
     }),
     actions: {
-        async fetchLocations(page = 1, filters = {}) {
-            this.loading = true; 
+        async fetchLocations(page = 1, filters = {}, loading) {
+           if (loading != false) {
+            this.loading = true;
+           } 
             try {
                 this.selectedFilters = filters;
+                console.log('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, filters)
                 const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, filters);
                 this.locationsList = data.list || [];
                 this.currentPage = page;

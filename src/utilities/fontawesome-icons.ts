@@ -31,7 +31,9 @@ import {
     faTrash,
     faArrowUpRightFromSquare,
     faShare,
-    faRotateRight
+    faRotateRight,
+    faPlus,
+    faCircleCheck
     
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -62,7 +64,9 @@ library.add(
     faInstagram,
     faYoutube,
     faShare,
-    faRotateRight
+    faRotateRight,
+    faPlus,
+    faCircleCheck
 );
 
 export default FontAwesomeIcon;

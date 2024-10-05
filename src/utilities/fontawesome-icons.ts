@@ -20,7 +20,6 @@ import {
     faMobileButton,
     faRightFromBracket,
     faHeart,
-    faHouse,
     faMapLocationDot, 
     faLink,
     faUserPlus,
@@ -33,7 +32,18 @@ import {
     faShare,
     faRotateRight,
     faPlus,
-    faCircleCheck
+    faCircleCheck,
+    faChessRook,
+    faHotel,
+    faFilm,
+    faTrain,
+    faHospital,
+    faHouse,
+    faIndustry,
+    faBuilding,
+    faUtensils,
+    faJetFighterUp,
+    faMapPin
     
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -50,7 +60,6 @@ library.add(
     faRightFromBracket,
     faHeart,
     faUsers,
-    faHouse,
     faMapLocationDot,
     faLink,
     faUserPlus,
@@ -66,7 +75,18 @@ library.add(
     faShare,
     faRotateRight,
     faPlus,
-    faCircleCheck
+    faCircleCheck,
+    faChessRook,
+    faHotel,
+    faFilm,
+    faTrain,
+    faHospital,
+    faHouse,
+    faIndustry,
+    faBuilding,
+    faUtensils,
+    faJetFighterUp,
+    faMapPin
 );
 
 export default FontAwesomeIcon;

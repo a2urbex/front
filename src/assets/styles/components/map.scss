@@ -6,4 +6,119 @@
   left: 0;
   background-color: black;
   z-index: 5;
+
+  .map-overlay {
+    position: absolute;
+    bottom: 1rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    &-inner {
+      position: relative;
+      min-height: 200px;
+      background-color: #303030;
+      border-radius: 10px;
+      max-width: 500px;
+      padding-bottom: 20px;
+      width: calc(100% - 20px);
+      overflow: hidden;
+    }
+
+    .top {
+      position: absolute;
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 8px;
+
+      &-left {
+        .pin-category {
+          background-color: #6b9cf6;
+          color: white;
+          padding: 0 5px;
+          border-radius: 5px;
+
+          span {
+            margin-left: 3px;
+            text-transform: capitalize;
+          }
+        }
+      }
+
+      &-right {
+        display: flex;
+        column-gap: 20px;
+  
+        &-item {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #1c1c1c;
+          width: 25px;
+          height: 25px;
+          border-radius: 50%;
+        }
+      }
+    }
+
+    &__close {
+      align-items: center;
+      background-color: #1c1c1c;
+      border-radius: 50%;
+      display: flex;
+      height: 25px;
+      justify-content: center;
+      position: absolute;
+      right: 8px;
+      top: 6px;
+      width: 25px;
+      z-index: 10;
+    }
+
+    &-image {
+      background-color: #3c3c3c;
+      background-position: 50%;
+      background-repeat: no-repeat;
+      background-size: cover;
+      height: 150px;
+      width: 100%;
+    }
+
+    &-title {
+      text-align: center;
+      font-size: 14px;
+      padding: 0 20px;
+      margin-bottom: 0;
+    }
+
+    &-action {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px;
+
+      > * {
+        width: 40px;
+        height: 40px;
+        border: 5px;
+        font-size: 22px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .pin {
+        &-waze {
+          background-color: rgba(129,209,255,.129);
+          color: #81d1ff;
+        }
+        &-maps {
+         background-color: rgba(52,168,81,.188); 
+         color: #34a851;
+        }
+      }
+    }
+  }
 }

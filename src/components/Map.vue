@@ -1,18 +1,19 @@
 <script setup>
-import { toRaw, watch } from 'vue';
-import { GoogleMap, Marker, } from 'vue3-google-map';
+import { toRaw, watch, ref } from 'vue';
+import { GoogleMap, Marker } from 'vue3-google-map';
 import { useRoute } from 'vue-router';
 
-const route = useRoute()
-
 import { useMapStore } from '@/stores/map';
+
+const route = useRoute()
 const mapStore = useMapStore();
 
 const apiKey = import.meta.env.VITE_MAPS_KEY;
 const center = { lat: 46.71109, lng: 1.7191036 };
 const zoom = 6;
-const markerOptions = { position: center, label: 'L', title: 'LADY LIBERTY' }
-const pinOptions = { background: '#FBBC04' }
+
+const overlayOpen = ref(false)
+const itemSelected = ref(null)
 
 watch(() => route.fullPath, async () => {
   mapStore.open = false
@@ -21,9 +22,12 @@ watch(() => route.fullPath, async () => {
 
 watch(() => mapStore.open, async (open) => {
   if(open) mapStore.getMapLocations();
+  if(!open) overlayOpen.value = false
 });
 
 const displayOverlay = (item) => {
+  overlayOpen.value = true
+  itemSelected.value = toRaw(item)
   console.log(toRaw(item))
 }
 
@@ -54,6 +58,38 @@ const displayOverlay = (item) => {
             }"
           />
         </GoogleMap>
+
+        <transition name="map" mode="out-in">
+            <div class="map-overlay" v-if="overlayOpen">
+              <div class="map-overlay-inner">
+                <div class="top">
+                  <div class="top-left">
+                    <div class="pin-category">
+                      <font-awesome-icon :icon="['fa', itemSelected?.categoryIcon || 'fa-map-pin' ]" />
+                      <span>{{ itemSelected?.categoryName || 'other' }}</span>
+                    </div>
+                  </div>
+                  <div class="top-right">
+                    <div class="top-right-item" @click="() => overlayOpen = false">
+                      <font-awesome-icon :icon="['fa', 'xmark']" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="map-overlay-image" :style="{ 'background-image': `url(${itemSelected?.image})` }"></div>
+                <p class="map-overlay-title">{{ itemSelected?.name }}</p>
+
+                <div class="map-overlay-action">
+                  <a class="pin-waze" target="_blank" :href="`https://waze.com/ul?q=${itemSelected?.lat},${itemSelected?.lon}&navigate=yes&zoom=17`">
+                    <font-awesome-icon :icon="['fab', 'waze']" />
+                  </a>
+                  <a class="pin-maps" target="_blank" :href="`https://www.google.com/maps?t=k&q=${itemSelected?.lat},${itemSelected?.lon}`">
+                    <font-awesome-icon :icon="['fas', 'earth-europe']" />
+                  </a>
+                </div>
+              </div>
+            </div>
+        </transition>
       </div>
   </transition>
 </template>

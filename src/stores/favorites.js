@@ -46,6 +46,7 @@ export const useFavoritesStore = defineStore('Favorites', {
                     name: data.name || '',
                     list: data.list || []
                 };
+                console.log(this.locationsListItems)
             } catch (error) {
                 console.error('Error fetching favorites:', error);
             } finally {
@@ -53,14 +54,12 @@ export const useFavoritesStore = defineStore('Favorites', {
             }
         },    
         
-        async createNewList(name, item){
+        async createNewList(name, locationId){
             try {
-                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${list}/location/${id}`);
+                await request('POST', `${import.meta.env.VITE_FAVORITES_ENDPOINT}`,  { name, locationId });
                 toast.success('Favorite list created and updated!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
                 throw error;
-            } finally {
-                this.loading = false;
             }
         },
 
@@ -70,8 +69,6 @@ export const useFavoritesStore = defineStore('Favorites', {
                 toast.success('Favorite list updated!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             } catch (error) {
                 throw error;
-            } finally {
-                this.loading = false;
             }
         },
 

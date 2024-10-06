@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useAuthStore } from '@/stores/auth';
@@ -22,28 +22,37 @@ const favoritesStore = useFavoritesStore();
 const authStore = useAuthStore();
 
 const isLoggedIn = computed(() => authStore.token !== null);
+const fidsRef = computed(() => locationStore.location?.fids || []);
 const favoriteList = computed(() => favoritesStore.favoriteList);
-const selectedItemId = ref(null);
 const isActive = ref(false);
 
 const isCreatingList = ref(false);
 const newListName = ref('');
 const inputRef = ref(null);
 
+watch(isActive, async (newValue) => {
+  if (newValue) {
+    await favoritesStore.getSummary();
+    await locationStore.getLocation(props.id);
+  }
+});
+
 const toggleActive = () => {
   isActive.value = !isActive.value;
 };
 
-const addToSelectedList = (id) => {
-    favoritesStore.addLocation(props.id, id);
-    locationStore.fetchLocations(locationStore.currentPage, locationStore.selectedFilters, false);
-};
+const isItemInFids = (itemId) => fidsRef.value.includes(itemId);
 
-const isItemInFids = (itemId) => props.fids.includes(itemId);
+const addToSelectedList = async (id) => {
+  await favoritesStore.addLocation(props.id, id);
+  await locationStore.getLocation(props.id);
+  await favoritesStore.getSummary();
+  locationStore.fetchLocations(locationStore.currentPage, locationStore.selectedFilters, false);
+};
 
 const handleCreateList = async () => {
   isCreatingList.value = true;
-  
+
   await nextTick(() => {
     if (inputRef.value) {
       inputRef.value.focus(); 
@@ -53,12 +62,15 @@ const handleCreateList = async () => {
   });
 };
 
-const submitNewList = () => {
+const submitNewList = async () => {
   if (newListName.value.trim()) {
-    favoritesStore.createNewList(newListName.value);  
+    await favoritesStore.createNewList(newListName.value, props.id);  
     newListName.value = '';
   }
-  isCreatingList.value = false; 
+  isCreatingList.value = false;
+  await locationStore.getLocation(props.id);
+  await favoritesStore.getSummary();
+  locationStore.fetchLocations(locationStore.currentPage, locationStore.selectedFilters, false);
 };
 
 const handleInputBlur = () => {

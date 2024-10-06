@@ -3,7 +3,6 @@ import { onMounted, computed } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-// import PreLoader from '../components/PreLoader.vue';
 
 const locationStore = useLocationStore();
 const authStore = useAuthStore();
@@ -11,7 +10,6 @@ const authStore = useAuthStore();
 const route = useRoute();
 const id = route.params.id;
 
-// const isLoading = computed(() => locationStore.loading);
 const isLoggedIn = computed(() => authStore.token !== null);
 const location = computed(() => locationStore.location);
 import FavoritesModal from '@/components/FavoriteModal.vue';

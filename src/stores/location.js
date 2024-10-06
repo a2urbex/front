@@ -18,7 +18,6 @@ export const useLocationStore = defineStore('location', {
            } 
             try {
                 this.selectedFilters = filters;
-                console.log('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, filters)
                 const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, filters);
                 this.locationsList = data.list || [];
                 this.currentPage = page;
@@ -33,7 +32,6 @@ export const useLocationStore = defineStore('location', {
             this.loading = true; 
             try {
                 const data = await request('GET', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/${id}`);
-                console.log(data);
                 this.location  = data;
             } catch (error) {
                 console.error('Error fetching location:', error);

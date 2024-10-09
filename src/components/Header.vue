@@ -83,9 +83,9 @@ onMounted(async () => {
       <img v-if="isLoggedIn" :src="profileImageUrl" class="header__user-image" @click="toggleOpen" />
       <div v-if="isLoggedIn" :class="{ 'header__user-info': true, 'open': isOpen }">
         <div class="header__user-info-wrapper">
-          <a class="header__user-entry header__profile" :href="'/profile/'+ userProfile.id">
+          <router-link :to="'/profile/'+ userProfile.id" class="header__user-entry header__profile" >
             <font-awesome-icon :icon="['fa', 'user']" />My profile <span>@{{ userProfile.username }}</span>
-          </a>
+          </router-link>
           <router-link class="header__user-entry header__settings" to="/profile">
             <font-awesome-icon :icon="['fa', 'gear']" />Account settings
           </router-link>
@@ -118,9 +118,9 @@ onMounted(async () => {
     <div :class="{ 'header__user-info': true, 'open': isOpen }">
       <span class="header__user-info-close" @click="toggleOpen"></span>
       <div class="header__user-info-wrapper">
-        <a class="header__user-entry header__profile" :href="'/profile/'+ userProfile.id">
+        <router-link class="header__user-entry header__profile" :to="'/profile/'+ userProfile.id">
           <font-awesome-icon :icon="['fa', 'user']" />My profile <span>@{{ userProfile.username }}</span>
-        </a>
+        </router-link>
         <router-link class="header__user-entry header__settings" to="/profile">
           <font-awesome-icon :icon="['fa', 'gear']" />Account settings
         </router-link>

@@ -56,12 +56,12 @@ onMounted(async () => {
     <!-- Friends Tab -->
     <div v-if="activeTab === 'friends'" class="friends__list">
       <div v-if="friendsList?.friends?.length" v-for="(friend, index) in friendsList.friends" :key="index" class="friends__item">
-        <a :href="'/profile/' + friend.id">
+        <router-link :to="'/profile/' + friend.id">
           <div class="friends__item-image-wrapper">
             <img v-if="friend.image" class="friends__item-image" :src="getFriendImageUrl(friend)" :alt="friend.firstname">
           </div>
           <div class="friends__item-text">{{ friend.username }}</div>
-        </a>
+        </router-link>
         <div class="friends__item-action">
           <button disabled>Remove</button>
         </div>
@@ -72,12 +72,12 @@ onMounted(async () => {
     <!-- Pending Tab -->
     <div v-if="activeTab === 'pending'" class="friends__list">
       <div v-if="friendsList?.pending?.length" v-for="(friend, index) in friendsList.pending" :key="index" class="friends__item">
-        <a :href="'/profile/' + friend.id">
+        <router-link :to="'/profile/' + friend.id">
           <div class="friends__item-image-wrapper">
             <img v-if="friend.image" class="friends__item-image" :src="getFriendImageUrl(friend)" :alt="friend.firstname">
           </div>
           <div class="friends__item-text">{{ friend.username }}</div>
-        </a>
+        </router-link>
       </div>
       <p v-else class="friends__no-result">No pending requests</p>
     </div>
@@ -85,12 +85,12 @@ onMounted(async () => {
     <!-- Waiting Tab -->
     <div v-if="activeTab === 'waiting'" class="friends__list">
       <div v-if="friendsList?.waiting?.length" v-for="(friend, index) in friendsList.waiting" :key="index" class="friends__item">
-        <a :href="'/profile/' + friend.id">
+        <router-link :to="'/profile/' + friend.id">
           <div class="friends__item-image-wrapper">
             <img v-if="friend.image" class="friends__item-image" :src="getFriendImageUrl(friend)" :alt="friend.firstname">
           </div>
           <div class="friends__item-text">{{ friend.username }}</div>
-        </a>
+        </router-link>
       </div>
       <p v-else class="friends__no-result">No waiting requests</p>
     </div>

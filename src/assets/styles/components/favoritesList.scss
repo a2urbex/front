@@ -33,21 +33,21 @@
             padding: .8rem;
             min-width: 100%;
         }
-        &:hover{
-            background-color: $background;
-            transform: scale(1.02);
-            box-shadow: $dark-background 0px 0px 8px 0px;
+
+        &.active{
+            transform: translateY(-100%);
+            .favorite-friend{
+                visibility: visible;
+                opacity: 1;
+                height: auto;
+            }
         }
         &-selected{
             transform: scale(1.1);
             z-index: 1;
             &:hover{
-                transform: scale(1.2);
                 .favorites-list-editor{
                     background-color: $background;
-                }
-                @media (max-width: $md) {
-                    transform: scale(1.1);
                 }
             }
             

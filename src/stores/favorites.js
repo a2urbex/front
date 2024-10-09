@@ -12,6 +12,7 @@ export const useFavoritesStore = defineStore('Favorites', {
         },
         favoriteList: [],
         loading: false,
+        friends : []
     }),
     actions: {
         async getSummary() {
@@ -72,8 +73,25 @@ export const useFavoritesStore = defineStore('Favorites', {
             }
         },
 
-        async getCurrentParams() {
-            // TODO
+        async getUserInList(list, search) {
+            try {
+                const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${list}/search?string=${search}`);
+                this.friends = data;
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async addUserInlist(list, userId){
+            try {
+                console.log('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${list}/user/${userId}`)
+                await request('PUT', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${list}/user/${userId}`);
+                toast.success('Successfully added user!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+                this.getList();
+                this.getUserInList(list, '');
+            } catch (error) {
+                throw error;
+            }
         },
 
         async updateVisibility(id){

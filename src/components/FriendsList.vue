@@ -60,7 +60,7 @@ onMounted(async () => {
           <div class="friends__item-image-wrapper">
             <img v-if="friend.image" class="friends__item-image" :src="getFriendImageUrl(friend)" :alt="friend.firstname">
           </div>
-          <div class="friends__item-text">{{ friend.firstname }}</div>
+          <div class="friends__item-text">{{ friend.username }}</div>
         </a>
         <div class="friends__item-action">
           <button disabled>Remove</button>
@@ -76,7 +76,7 @@ onMounted(async () => {
           <div class="friends__item-image-wrapper">
             <img v-if="friend.image" class="friends__item-image" :src="getFriendImageUrl(friend)" :alt="friend.firstname">
           </div>
-          <div class="friends__item-text">{{ friend.firstname }}</div>
+          <div class="friends__item-text">{{ friend.username }}</div>
         </a>
       </div>
       <p v-else class="friends__no-result">No pending requests</p>
@@ -89,7 +89,7 @@ onMounted(async () => {
           <div class="friends__item-image-wrapper">
             <img v-if="friend.image" class="friends__item-image" :src="getFriendImageUrl(friend)" :alt="friend.firstname">
           </div>
-          <div class="friends__item-text">{{ friend.firstname }}</div>
+          <div class="friends__item-text">{{ friend.username }}</div>
         </a>
       </div>
       <p v-else class="friends__no-result">No waiting requests</p>

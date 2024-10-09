@@ -1,6 +1,6 @@
 <script setup>
-import { onMounted, ref, computed } from 'vue';
-import FavoritesEditor from '@/components/FavoritesEditor.vue'
+import { onMounted, onBeforeUnmount, ref, computed } from 'vue';
+import FavoritesEditor from '@/components/FavoritesEditor.vue';
 import { useFavoritesStore } from '@/stores/favorites';
 import PreLoader from '../components/PreLoader.vue';
 
@@ -10,27 +10,62 @@ const favoritesStore = useFavoritesStore();
 const locationsList = computed(() => favoritesStore.locationsList);
 const isLoading = computed(() => favoritesStore.loading);
 
-const selectedLocationId = ref(null);
+const selectedLocationId = ref(null); 
+const activeFavoriteId = ref(null); 
 
 const selectLocation = (locationId) => {
     selectedLocationId.value = locationId;
 };
 
+const setActiveFavorite = (favoriteId) => {
+    activeFavoriteId.value = favoriteId;
+};
+
+const removeActiveFavorite = () => {
+    activeFavoriteId.value = null;
+};
+
+const handleClickOutside = (event) => {
+    const activeEntry = document.querySelector('.favorites__entry.active');
+    const selectedEntry = document.querySelector('.favorites__entry-selected');
+
+    // Remove active state if clicked outside the active entry
+    if (activeEntry && !activeEntry.contains(event.target)) {
+        removeActiveFavorite(); 
+    }
+
+    // Remove selected state if clicked outside the selected entry
+    if (selectedEntry && !selectedEntry.contains(event.target)) {
+        selectedLocationId.value = null;
+    }
+};
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
+
+// Fetch list on component mount
 onMounted(async () => {
     await favoritesStore.getList();
 });
 </script>
 
 <template>
-     <transition name="fade" mode="out-in">
+    <transition name="fade" mode="out-in">
         <PreLoader msg="Favorites" v-if="isLoading" key="preloader" /> 
     </transition>
     
     <div class="favorites__container">
         <h2>Favorites</h2>
         <div class="favorites page-width">
-            <div class="favorites__entry" v-for="(favorite) in locationsList" :key="favorite.id"
-                :class="{ 'favorites__entry-selected': favorite.id === selectedLocationId }"
+            <div class="favorites__entry" 
+                v-for="(favorite) in locationsList" 
+                :key="favorite.id"
+                :class="{ 'favorites__entry-selected': favorite.id === selectedLocationId, 'active': favorite.id === activeFavoriteId }"
                 @click="selectLocation(favorite.id)">
                 <div class="favorites__content">
                     <h3>{{ favorite.name }}</h3>
@@ -40,8 +75,8 @@ onMounted(async () => {
                             <img v-if="user.image" :src="`${API_BASE_URL}/${user.image}`" :alt="user.name">
                         </div>
                     </div>
-                    <div class="favorites__content-edit">
-                        <FavoritesEditor :favorite="favorite" />
+                    <div class="favorites__content-edit">                        
+                        <FavoritesEditor :favorite="favorite" @set-active="setActiveFavorite" />
                     </div>
                 </div>
             </div>

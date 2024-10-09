@@ -13,7 +13,7 @@ export function request(method, route, body) {
     const params = {
         method: method,
         headers: headers,
-        body: method === 'POST' ? JSON.stringify(body) : undefined
+        body:  ['POST', 'PUT'].includes(method) ? JSON.stringify(body) : undefined
     };
 
     return fetch(`${import.meta.env.VITE_API_BASE_URL}${route}`, params)

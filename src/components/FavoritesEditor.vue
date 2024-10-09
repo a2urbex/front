@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useFavoritesStore } from '@/stores/favorites';
+import FavoritesFriend from './FavoriteFriend.vue';
 import { toast } from 'vue3-toastify';
 
 const favoritesStore = useFavoritesStore();
@@ -8,6 +9,8 @@ const favoritesStore = useFavoritesStore();
 const props = defineProps({
     favorite: Object,
 });
+
+const emit = defineEmits(['set-active']); 
 
 const truncatedName = computed(() => {
     const maxLength = 25;
@@ -17,8 +20,7 @@ const truncatedName = computed(() => {
     return props.favorite.name;
 });
 
-
-// VISIBIITY
+// VISIBILITY
 const visibilityIcon = computed(() => {
     return props.favorite && props.favorite.disabled === 1 ? 'eye' : 'eye-slash';
 });
@@ -40,7 +42,6 @@ const updatePrivacy = () => {
     }
 };
 
-
 // COPY LINK
 const copyLink = () => {
     if (props.favorite && props.favorite.id) {
@@ -60,6 +61,10 @@ const deleteFavorite = () => {
     }
 };
 
+const handleShareClick = () => {
+    emit('set-active', props.favorite.id); 
+};
+
 </script>
 
 <template>
@@ -68,12 +73,14 @@ const deleteFavorite = () => {
         <router-link class="favorites-list-editor__link" :to="`/favorites/${favorite.id}`"><font-awesome-icon :icon="['fas', 'fa-arrow-up-right-from-square']" /></router-link>
         <div class="favorites-list-editor__actions">
            <button class="icon icon-visibility" @click="updateVisibility"><font-awesome-icon :icon="['fas', visibilityIcon]"/></button>
-           <button class="icon icon-open" @click="updatePrivacy"><font-awesome-icon :icon="['fas', privacyIcon]"/></button>
-           <button class="icon icon-share"><font-awesome-icon :icon="['fas', 'user-plus']" /></button>
-           <button class="icon icon-copy-link" @click="copyLink"><font-awesome-icon :icon="['fas', 'link']"/></button>
-           <span></span>
-           <button class="icon icon-delete action-delete" @click="deleteFavorite"><font-awesome-icon :icon="['fas', 'trash']" /></button>
+           <button v-if="favorite.name !== 'like'" class="icon icon-open" @click="updatePrivacy"><font-awesome-icon :icon="['fas', privacyIcon]"/></button>
+           <button v-if="favorite.name !== 'like'" class="icon icon-share" @click="handleShareClick"><font-awesome-icon :icon="['fas', 'user-plus']" /></button>
+           <button v-if="favorite.name !== 'like'" class="icon icon-copy-link" @click="copyLink"><font-awesome-icon :icon="['fas', 'link']"/></button>
+           <span v-if="favorite.name !== 'like'" ></span>
+           <button v-if="favorite.name !== 'like'" class="icon icon-delete action-delete" @click="deleteFavorite"><font-awesome-icon :icon="['fas', 'trash']" /></button>
         </div>
+
+        <FavoritesFriend :favorite="favorite" />
     </div>
 </template>
 

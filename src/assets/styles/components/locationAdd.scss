@@ -1,0 +1,114 @@
+@import '@/assets/styles/base.scss';
+
+.location-add{
+    position: fixed;
+    bottom: 80px;
+    z-index: 4;
+    background: linear-gradient(180deg, $background 0%,  $dark-background 90%);
+    width: 100%;
+    padding: 2rem 0rem;
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
+    
+    @media (min-width: $md){
+        width: 30rem;
+        bottom: 0;
+        right: 0;
+    }
+    .form {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding: 1rem 0rem;
+
+        &-navigation{
+            display: flex;
+            width: 80%;
+            margin: auto;
+            gap: 1rem;
+
+            button{
+                background-color: $background;
+                color: $contrast-5;
+                font-weight: $font-weight-bold;
+                border: none;
+                border-radius: .2rem;            
+            }
+        }
+
+        &-group {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            justify-content: center;
+        }
+    
+        &-checkbox {
+            accent-color: $contrast-2;
+            filter: invert(1);
+            opacity: .8;
+            height: 1rem;
+            width: 1rem;
+            cursor: pointer;
+    
+            &-label {
+                font-weight: $font-weight-medium;
+                color: $contrast-3;
+                margin-left: 0.6rem;
+                cursor: pointer;
+            }
+        }
+    
+        &-input {
+            width: calc(100% - 2rem);
+            padding: 0.8rem 1rem;
+            background-color: $contrast-1;
+            border: none;
+            border-radius: 5px;
+            font-size: $font-size-small;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+    
+        &-label {
+            position: absolute;
+            top: 50%;
+            left: 2rem;
+            transform: translateY(-50%);
+            color: $contrast-4;
+            font-size: $font-size-small;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+    
+        &-input:focus {
+            background-color: $contrast-2;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
+            display: block;
+        }
+
+        button{
+            width: 80%;
+            margin: auto;
+            padding: .5rem;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+
+    }
+    
+    .form-input:focus+.form-label,
+    .form-input:not(:placeholder-shown)+.form-label {
+        transform: translateY(-3.5em);
+        font-size: $font-size-xsmall;
+        color: $contrast-4;
+    }
+}

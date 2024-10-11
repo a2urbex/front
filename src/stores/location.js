@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { request } from '@/services/api';
+import { toast } from 'vue3-toastify';
 
 export const useLocationStore = defineStore('location', {
     state: () => ({
@@ -44,6 +45,18 @@ export const useLocationStore = defineStore('location', {
                 const data = await request('GET', `${import.meta.env.VITE_LOCATIONS_FILTERS_ENDPOINT}`);
                 return data;
             } catch (error) {
+                throw error;
+            }
+        },
+
+        async addLocation(formData) {
+            try {
+                const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}`, formData); 
+                this.fetchLocations(1);
+                toast.success('Added successfully!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+                return data;
+            } catch (error) {
+                console.error('Error adding location:', error);
                 throw error;
             }
         }

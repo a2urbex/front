@@ -5,13 +5,13 @@ import { useAuthStore } from '@/stores/auth';
 import { useVersionStore } from '@/stores/version';
 import { useMapStore } from '@/stores/map';
 import { useRouter } from 'vue-router';
-import { toast } from 'vue3-toastify';
 
 const versionStore = useVersionStore();
 const authStore = useAuthStore();
 const mapStore = useMapStore();
 const router = useRouter();
 
+const emit = defineEmits(['toggle-add-location']);
 const latest_version = computed(() => versionStore.latest_version);
 const code_version = computed(() => versionStore.code_version);
 const status = computed(() => versionStore.status);
@@ -29,6 +29,11 @@ const isOpen = ref(false);
 
 const toggleOpen = () => {
   isOpen.value = !isOpen.value;
+};
+
+const handleAddLocation = () => {
+  isOpen.value = false;
+  emit('toggle-add-location');
 };
 
 const logout = async () => {
@@ -89,6 +94,9 @@ onMounted(async () => {
           <router-link class="header__user-entry header__settings" to="/profile">
             <font-awesome-icon :icon="['fa', 'gear']" />Account settings
           </router-link>
+          <p class="header__user-entry header__settings" @click="handleAddLocation">
+            <font-awesome-icon :icon="['fa', 'plus']" /> Add Location
+          </p>
           <router-link v-if="userProfile.isAdmin" class="header__user-entry header__admin" to="/admin">
             <font-awesome-icon :icon="['fas', 'mobile-button']" />Admin
           </router-link>
@@ -124,6 +132,9 @@ onMounted(async () => {
         <router-link class="header__user-entry header__settings" to="/profile">
           <font-awesome-icon :icon="['fa', 'gear']" />Account settings
         </router-link>
+        <p class="header__user-entry header__settings" @click="handleAddLocation">
+          <font-awesome-icon :icon="['fa', 'plus']" /> Add Location
+        </p>
         <router-link v-if="userProfile.isAdmin" class="header__user-entry header__admin" to="/admin">
           <font-awesome-icon :icon="['fas', 'mobile-button']" />Admin
         </router-link>

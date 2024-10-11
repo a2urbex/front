@@ -1,17 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
+// AUTH
 import LoginForm from '@/components/LoginForm.vue'
 import RegisterForm from '@/components/RegisterForm.vue'
 import ResetPassword from '@/components/ResetForm.vue'
 import NewPassword from '@/components/NewPassword.vue'
 import Auth from '@/views/Auth.vue'
-import LocationList from '@/views/LocationList.vue'
-import HomeView from '@/views/Home.vue'
-import LocationView from '@/views/LocationView.vue'
+
+// FAVORITES
 import FavoritesListView from '@/views/FavoritesList.vue'
 import FavoritesDetailView from '@/views/FavoritesListLocations.vue'
-import WorkInProgress from '@/components/WorkInProgress.vue'
+
+// LOCATIONS
+import LocationView from '@/views/LocationView.vue'
+import LocationList from '@/views/LocationList.vue'
+import LocationAdd from '@/components/LocationAdd.vue'
+
+// USER
 import FriendsList from '@/components/FriendsList.vue'
 import Profile from '@/components/ProfileVue.vue'
+
+// NAVIGATION 
+import HomeView from '@/views/Home.vue'
 
 export default createRouter({
   history: createWebHistory(),
@@ -19,6 +29,10 @@ export default createRouter({
     {
       path: '/',
       component: HomeView
+    },
+    {
+      path: '/location/add',
+      component : LocationAdd
     },
     {
       path: '/locations',

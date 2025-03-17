@@ -1,8 +1,9 @@
 <script setup>
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { toast } from 'vue3-toastify';
 
 const locationStore = useLocationStore();
 const authStore = useAuthStore();
@@ -12,8 +13,9 @@ const id = route.params.id;
 
 const isLoggedIn = computed(() => authStore.token !== null);
 const location = computed(() => locationStore.location);
-import FavoritesModal from '@/components/FavoriteModal.vue';
+const imageError = ref(false);
 
+import FavoritesModal from '@/components/FavoriteModal.vue';
 
 onMounted(async () => {
   try {
@@ -21,6 +23,10 @@ onMounted(async () => {
   } catch (error) {
   }
 });
+
+const handleImageError = () => {
+    imageError.value = true;
+};
 
 const routePath = isLoggedIn.value ? '/locations' : '/';
 const copyLink = (id) => {
@@ -35,7 +41,7 @@ const copyLink = (id) => {
 };
 </script>
 
-<template>
+<template> 
     <transition name="translate" mode="out-in" appear>
         <div class="location-card-display">
             <div class="location-card-display__container">
@@ -45,7 +51,14 @@ const copyLink = (id) => {
                 <button class="share-button" @click="copyLink(location.id)">
                     <font-awesome-icon :icon="['fa', 'share']" />
                 </button>
-                <img :src="location.image" alt="Location image">
+                <template v-if="!imageError && location.image">
+                    <img 
+                        :src="location.image" 
+                        alt="Location image"
+                        @error="handleImageError"
+                    >
+                </template>
+                <p v-else class="image-error">😭 Image not available</p>
                 <div class="location-card-display__bottom">
                     <FavoritesModal :fids="location.fids" :id="location.id" />
                     <h2>{{ location.name }}</h2>

@@ -8,7 +8,7 @@
         background-color: $contrast-1;
         color: $contrast-4;
         position: fixed;
-        z-index: 4;
+        z-index: 6;
         top: 0.6rem;
         left: 50%;
         transform: translateX(-50%);
@@ -19,27 +19,14 @@
             left: 0;
             top: 0;
             width: 100%;
-            transition: all 2s;
+            transition: all 1s;
             background-color: $background;
         }
 
         .active {
             @media (max-width: $md) {
-                background: linear-gradient(180deg, $background 0%, rgba($dark-background, 98%) 70%,  rgba($dark-background, 95%) 100%);
+                background: linear-gradient(180deg, $background 0%, rgba($dark-background, 80%) 70%,  rgba($dark-background, 95%) 100%);
                 backdrop-filter: blur(5px);
-            }
-            &>.filter__wrapper-close {
-                @media (max-width: $md) {
-                display: block;
-                border: none;
-                background-color: $contrast-1;
-                color: $contrast;
-                border-radius: 4rem;
-                padding: .4rem;
-                width: 2rem;
-                height: 2rem;
-                font-size: $font-size-small;
-                }
             }
             &>.filter__filters{
                 @media (max-width: $md) {
@@ -53,9 +40,9 @@
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
+                top: 0;
             }
         }
-
     }
 
     &__wrapper {
@@ -74,6 +61,7 @@
             gap: 1rem;
             padding: 1rem;
             box-shadow: $dark-background 0px 0px 9px 4px;
+            top: -100%;
         }
         &-close {
             display: none;
@@ -84,10 +72,19 @@
         width: 100%;
 
         @media (max-width: $md) {
-            height: 3rem;
-            border-radius: 34rem;
             overflow: hidden;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .5rem;
+        }
+
+        &-close{
+            background-color: transparent;
+            border: none;
+            color: $contrast;
+            height: fit-content;
         }
 
         input {
@@ -99,9 +96,10 @@
             border-radius: 25%;
 
             @media (max-width: $md) {
-                padding-left: 4rem;
-                border-radius: 0;
-                font-size: $font-size-small;
+                padding: .5rem 2rem;
+                height: fit-content;
+                border-radius: .4rem;
+                font-size: $font-size-xsmall;
             }
 
             &:focus {
@@ -139,12 +137,20 @@
         padding: 0.4rem 0.7rem;
         border-radius: 4rem;
 
+
         @media (max-width: $md) {
             width: fit-content;
+            background-color: transparent;
             position: absolute;
-            top: 50%;
-            left: 0.4rem;
-            transform: translateY(-50%);
+            color: $contrast-4;
+            left: .5rem;
+            padding: 0;
+            left: .8rem;
+            top: .1rem;
+
+            svg{
+                height: .8rem;
+            }
         }
     }
 

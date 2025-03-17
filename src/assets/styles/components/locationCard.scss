@@ -23,6 +23,7 @@
         height: 100%;
         position: relative;
         cursor: pointer;
+        background-color: $contrast-1;
 
         img {
             border-radius: 6px;
@@ -32,7 +33,7 @@
             margin-bottom: 10px;
             display: block;
             background-color: $contrast-1;
-            background-image: url('/default.png');
+            // background-image: url('/default.png');
             background-size: cover;
             background-position: center;
         }
@@ -52,7 +53,7 @@
             left: 0;
             padding: 1rem;
             margin: 0;
-            font-size: $font-size-small;
+            font-size: $font-size-xsmall;
 
             @media (max-width: $md) {
                 padding: .5rem;

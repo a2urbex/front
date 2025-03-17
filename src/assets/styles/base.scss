@@ -68,3 +68,14 @@ a {
 .map-leave-to {
   transform: translateY(100%);
 }
+
+.image-error{
+  text-align: center;
+  color: $contrast;
+  margin: 0;
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

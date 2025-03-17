@@ -1,12 +1,27 @@
 <script setup>
-import { ref, onMounted, toRaw } from 'vue';
+import { ref, onMounted, toRaw, computed } from 'vue';
 import { useLocationStore } from '@/stores/location';
+import { useFilterUIStore } from '@/stores/filterUI';
+import { useAuthStore } from '@/stores/auth';
 
 const locationStore = useLocationStore();
+const filterUIStore = useFilterUIStore();
+const authStore = useAuthStore();
 const filters = ref({});
 const selectedFilters = ref({});
 const query = ref('');
-const showContent = ref(false);
+
+const isAdmin = computed(() => authStore.userProfile?.isAdmin || false);
+
+const filteredFilters = computed(() => {
+  if (!filters.value) return {};
+  
+  const filtersCopy = { ...filters.value };
+  if (!isAdmin.value && 'sources' in filtersCopy) {
+    delete filtersCopy.sources;
+  }
+  return filtersCopy;
+});
 
 onMounted(async () => {
   try {
@@ -51,19 +66,19 @@ function applyFilters() {
 
 <template>
   <div class="filter__container" v-if="filters && Object.keys(filters).length > 0">
-    <div class="filter__wrapper" :class="{ active: showContent }">
-      <button @click="showContent = false" class="filter__wrapper-close d-none">
-        <font-awesome-icon :icon="['fas', 'xmark']" />
-      </button>
+    <div class="filter__wrapper" :class="{ active: filterUIStore.showContent }">
       <div class="filter__search">
-        <div class="filter__icon d-none" @click="showContent = true">
+        <div class="filter__icon d-none" @click="filterUIStore.setShowContent(true)">
           <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
         </div>
-        <input type="text" placeholder="Search locations..." @click="showContent = true" v-model="query" @input="applyFilters" />
+        <input type="text" placeholder="Search locations..." @click="filterUIStore.setShowContent(true)" v-model="query" @input="applyFilters" />
+        <button @click="filterUIStore.setShowContent(false)" class="filter__search-close d-none">
+          Cancel
+        </button>
       </div>
 
       <div class="filter__filters">
-        <div v-for="(filterItems, filterKey) in filters" :key="filterKey" class="filter-section">
+        <div v-for="(filterItems, filterKey) in filteredFilters" :key="filterKey" class="filter-section">
           <input class="filter__item" type="radio" name="identifier"
             :id="filterKey.charAt(0).toUpperCase() + filterKey.slice(1)">
           <label :for="filterKey.charAt(0).toUpperCase() + filterKey.slice(1)">

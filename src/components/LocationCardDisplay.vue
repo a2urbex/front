@@ -1,11 +1,13 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { toast } from 'vue3-toastify';
 import FavoritesModal from './FavoriteModal.vue';
 
 const props = defineProps({
     location: Object
 });
+
+const imageError = ref(false);
 
 // COPY LINK
 const copyLink = (id) => {
@@ -17,6 +19,10 @@ const copyLink = (id) => {
             toast.error('Failed to copy link', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
         });
     }
+};
+
+const handleImageError = () => {
+    imageError.value = true;
 };
 
 const googleMapsUrl = computed(() => {
@@ -39,7 +45,14 @@ const wazeUrl = computed(() => {
                     <button class="share-button" @click="copyLink(location.id)">
                         <font-awesome-icon :icon="['fa', 'share']" />
                     </button>
-                    <img :src="location.image" alt="Location image">
+                    <template v-if="!imageError && location.image">
+                        <img 
+                            :src="location.image" 
+                            alt="Location image"
+                            @error="handleImageError"
+                        >
+                    </template>
+                    <p v-else class="image-error">😭 Image not available</p>
                     <div class="location-card-display__bottom">
                         <FavoritesModal :fids="location.fids" :id="location.id" />
                         <h2>{{ location.name }}</h2>

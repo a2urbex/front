@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useLocationStore } from '@/stores/location';
+import { toast } from 'vue3-toastify';
 
 const locationStore = useLocationStore();
 
@@ -14,6 +15,8 @@ const imagePreview = ref(null);
 const currentStep = ref(1);
 const totalSteps = 5;
 
+const emit = defineEmits(['close']);
+
 const handleFileChange = (event) => {
   const file = event.target.files[0];
   image.value = file;
@@ -23,7 +26,43 @@ const handleFileChange = (event) => {
 };
 
 const nextStep = () => {
-  if (currentStep.value < totalSteps) {
+  let canProceed = true;
+  
+  switch (currentStep.value) {
+    case 1:
+      canProceed = name.value.trim() !== '';
+      if (!canProceed) toast.error('Name is required', {
+        position: "top-center",
+        autoClose: 1000,
+        pauseOnHover: true,
+        theme: "dark"
+      });
+      break;
+    case 2:
+      canProceed = description.value.trim() !== '';
+      if (!canProceed) toast.error('Description is required', {
+        position: "top-center",
+        autoClose: 1000,
+        pauseOnHover: true,
+        theme: "dark"
+      });
+      break;
+    case 3:
+      // Image is optional, always allow proceeding
+      canProceed = true;
+      break;
+    case 4:
+      canProceed = lat.value.trim() !== '';
+      if (!canProceed) toast.error('Latitude is required', {
+        position: "top-center",
+        autoClose: 1000,
+        pauseOnHover: true,
+        theme: "dark"
+      });
+      break;
+  }
+
+  if (canProceed && currentStep.value < totalSteps) {
     currentStep.value++;
   }
 };
@@ -49,13 +88,19 @@ const submitForm = () => {
   locationStore.addLocation(formData);
 };
 
+const handleClose = () => {
+  emit('close');
+};
+
 </script>
 
 <template>
     <transition name="map" mode="out-in" appear>
     <div class="location-add">
+      <button type="button" class="location-add__close" @click="handleClose">Cancel</button>
+
         <div class="location-add__title center">
-        <h2>Add location (temp)</h2>
+        <h2>Add location</h2>
         <p>Step {{ currentStep }} of {{ totalSteps }}</p>
         </div>
         <div class="location-add__content">
@@ -102,7 +147,8 @@ const submitForm = () => {
             </div>
         </form>
         </div>
-    </div>
+    </div>                        
+
     </transition>
 </template>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import FavoritesModal from './FavoriteModal.vue';
 
 const props = defineProps({
@@ -7,6 +7,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['open-location']);
+const imageError = ref(false);
 
 const googleMapsUrl = computed(() => {
     return `https://www.google.com/maps?t=k&q=${props.location.lat},${props.location.lon}`;
@@ -24,6 +25,10 @@ const truncatedName = computed(() => {
     return props.location.name;
 });
 
+const handleImageError = () => {
+    imageError.value = true;
+};
+
 const openLocationCardDisplay = () => {
     emit('open-location', props.location);
 };
@@ -33,7 +38,14 @@ const openLocationCardDisplay = () => {
     <div class="location-card">
         <FavoritesModal :fids="location.fids" :id="location.id" />
         <div class="location-card__top" @click="openLocationCardDisplay">
-            <img :src="location.image" alt="Location image">
+            <template v-if="!imageError && location.image">
+                <img 
+                    :src="location.image" 
+                    alt="Location image"
+                    @error="handleImageError"
+                >
+            </template>
+            <p v-else class="image-error">😭 Image not available</p>
             <div class="location-card__top-overlay"></div>
             <h2>{{ truncatedName }}</h2>
         </div>

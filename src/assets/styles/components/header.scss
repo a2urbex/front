@@ -58,6 +58,11 @@
         font-size: 1.4rem;
     }
 
+    &__search{
+        background-color: $dark-background;
+        border: none;
+    }
+
     &__connect {
         background-color: $blue;
         color: $contrast;

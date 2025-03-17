@@ -5,11 +5,13 @@ import { useAuthStore } from '@/stores/auth';
 import { useVersionStore } from '@/stores/version';
 import { useMapStore } from '@/stores/map';
 import { useRouter } from 'vue-router';
+import { useFilterUIStore } from '@/stores/filterUI';
 
 const versionStore = useVersionStore();
 const authStore = useAuthStore();
 const mapStore = useMapStore();
 const router = useRouter();
+const filterUIStore = useFilterUIStore();
 
 const emit = defineEmits(['toggle-add-location']);
 const latest_version = computed(() => versionStore.latest_version);
@@ -58,6 +60,10 @@ const clearCache = async () => {
   window.location.reload();
 };
 
+const isLocationsRoute = computed(() => {
+  return router.currentRoute.value.path === '/locations';
+});
+
 onMounted(async () => {
   await versionStore.getVersion();
   if (isLoggedIn.value) {
@@ -88,20 +94,20 @@ onMounted(async () => {
       <img v-if="isLoggedIn" :src="profileImageUrl" class="header__user-image" @click="toggleOpen" />
       <div v-if="isLoggedIn" :class="{ 'header__user-info': true, 'open': isOpen }">
         <div class="header__user-info-wrapper">
-          <router-link :to="'/profile/'+ userProfile.id" class="header__user-entry header__profile" >
+          <router-link :to="'/profile/'+ userProfile.id" class="header__user-entry header__profile" @click="toggleOpen">
             <font-awesome-icon :icon="['fa', 'user']" />My profile <span>@{{ userProfile.username }}</span>
           </router-link>
-          <router-link class="header__user-entry header__settings" to="/profile">
+          <router-link class="header__user-entry header__settings" to="/profile" @click="toggleOpen">
             <font-awesome-icon :icon="['fa', 'gear']" />Account settings
           </router-link>
           <p class="header__user-entry header__settings" @click="handleAddLocation">
             <font-awesome-icon :icon="['fa', 'plus']" /> Add Location
           </p>
-          <router-link v-if="userProfile.isAdmin" class="header__user-entry header__admin" to="/admin">
+          <router-link v-if="userProfile.isAdmin" class="header__user-entry header__admin" to="/admin" @click="toggleOpen">
             <font-awesome-icon :icon="['fas', 'mobile-button']" />Admin
           </router-link>
           <span class="header__user-separator"></span>
-          <p class="header__user-entry header__logout" @click="logout">
+          <p class="header__user-entry header__logout" @click="() => { logout(); toggleOpen(); }">
             <font-awesome-icon :icon="['fas', 'right-from-bracket']" />Sign out
           </p>
         </div>
@@ -119,35 +125,41 @@ onMounted(async () => {
     <div class="header__map" @click="mapStore.open = !mapStore.open">
       <font-awesome-icon :icon="['fas', 'map-location-dot']" />
     </div>
-    <router-link class="header__favorites" to="/favorites">
+    <button v-if="isLocationsRoute" @click="filterUIStore.setShowContent(true)" class="header__search filter__wrapper-close d-none">
+      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+    </button>
+    <router-link v-else class="header__favorites" to="/favorites">
       <font-awesome-icon :icon="['fa', 'heart']" />
     </router-link>
     <img :src="profileImageUrl" class="header__user-image" @click="toggleOpen" />
     <div :class="{ 'header__user-info': true, 'open': isOpen }">
       <span class="header__user-info-close" @click="toggleOpen"></span>
       <div class="header__user-info-wrapper">
-        <router-link class="header__user-entry header__profile" :to="'/profile/'+ userProfile.id">
+        <router-link class="header__user-entry header__profile" :to="'/profile/'+ userProfile.id" @click="toggleOpen">
           <font-awesome-icon :icon="['fa', 'user']" />My profile <span>@{{ userProfile.username }}</span>
         </router-link>
-        <router-link class="header__user-entry header__settings" to="/profile">
+        <router-link class="header__user-entry header__settings" to="/profile" @click="toggleOpen">
           <font-awesome-icon :icon="['fa', 'gear']" />Account settings
         </router-link>
         <p class="header__user-entry header__settings" @click="handleAddLocation">
           <font-awesome-icon :icon="['fa', 'plus']" /> Add Location
         </p>
-        <router-link v-if="userProfile.isAdmin" class="header__user-entry header__admin" to="/admin">
+        <router-link class="header__user-entry" to="/favorites" @click="toggleOpen">
+          <font-awesome-icon :icon="['fa', 'heart']" /> Favorites
+        </router-link>
+        <router-link v-if="userProfile.isAdmin" class="header__user-entry header__admin" to="/admin" @click="toggleOpen">
           <font-awesome-icon :icon="['fas', 'mobile-button']" />Admin
         </router-link>
-        <div v-if="status === 'up-to-date'" class="header__user-entry refresh">
+        <div v-if="status === 'up-to-date'" class="header__user-entry refresh" @click="toggleOpen">
           <font-awesome-icon :icon="['fa', 'rotate-right']" />
           <p class="uptodate" >Up to date </p><span>v{{ code_version }}</span>
         </div>
-        <div v-if="status === 'outdated'" @click="clearCache" class="header__user-entry refresh">
+        <div v-if="status === 'outdated'" @click="() => { clearCache(); toggleOpen(); }" class="header__user-entry refresh">
           <font-awesome-icon :icon="['fa', 'rotate-right']" />
           <button class="outaded">Refresh App</button><span>Latest : v{{ latest_version }}</span>
         </div>
         <span class="header__user-separator"></span>
-        <p class="header__user-entry header__logout" @click="logout">
+        <p class="header__user-entry header__logout" @click="() => { logout(); toggleOpen(); }">
           <font-awesome-icon :icon="['fas', 'right-from-bracket']" />Sign out
         </p>
       </div>

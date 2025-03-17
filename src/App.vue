@@ -19,7 +19,7 @@ const toggleAddLocation = () => {
   <MapComponent />
 
   <!-- Add Location -->
-  <AddLocationComponent v-if="showAddLocation" />
+  <AddLocationComponent v-if="showAddLocation" @close="showAddLocation = false" />
 
   <!-- Content -->
   <router-view />

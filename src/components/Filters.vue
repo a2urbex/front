@@ -26,6 +26,7 @@ const filteredFilters = computed(() => {
 onMounted(async () => {
   try {
     filters.value = await locationStore.getFilters();
+    await locationStore.fetchLocations(1, {});
   } catch (error) {
     console.error('Error fetching filters:', error);
   }
@@ -62,6 +63,13 @@ function applyFilters() {
 
   locationStore.fetchLocations(1, cleanedFilters);
 }
+
+function clearFilters() {
+  selectedFilters.value = {};
+  query.value = '';
+  applyFilters();
+  filterUIStore.setShowContent(false);
+}
 </script>
 
 <template>
@@ -72,8 +80,8 @@ function applyFilters() {
           <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
         </div>
         <input type="text" placeholder="Search locations..." @click="filterUIStore.setShowContent(true)" v-model="query" @input="applyFilters" />
-        <button @click="filterUIStore.setShowContent(false)" class="filter__search-close d-none">
-          Cancel
+        <button @click="clearFilters" class="filter__search-close">
+          Clear
         </button>
       </div>
 
@@ -101,12 +109,16 @@ function applyFilters() {
           </label>
         </div>
       </div>
-      <div class="filter__results" v-if="locationStore.totalLocations !== null">
+      <div class="filter__results d-none" v-if="locationStore.totalLocations !== null">
         {{ locationStore.totalLocations }} location{{ locationStore.totalLocations !== 1 ? 's' : '' }} found
       </div>
       <div class="filter__icon m-none">
         <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
       </div>
+
+      <button class="filter__submit d-none" @click="filterUIStore.setShowContent(false)">
+          Submit
+      </button>
     </div>
   </div>
   <div v-else>

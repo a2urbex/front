@@ -12,6 +12,7 @@ export const useLocationStore = defineStore('location', {
         selectedFilters: {},
         location: '',
         loading: false,
+        totalLocations: null,
     }),
     actions: {
         async fetchLocations(page = 1, filters = {}, loading) {
@@ -21,7 +22,10 @@ export const useLocationStore = defineStore('location', {
             try {
                 this.selectedFilters = filters;
                 const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, filters);
+                console.log('API Response:', data);
                 this.locationsList = data.list || [];
+                this.totalLocations = data.total || data.count || data.locationsList?.length || 0;
+                console.log('Total Locations set to:', this.totalLocations);
                 this.currentPage = page;
                 this.hasMore = (data.list || []).length === parseInt(import.meta.env.VITE_LOCATIONS_PER_PAGE);
                 

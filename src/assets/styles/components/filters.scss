@@ -85,6 +85,11 @@
             border: none;
             color: $contrast;
             height: fit-content;
+            display: none;
+
+            @media (max-width: $md) {
+                display: block;
+            }
         }
 
         input {
@@ -183,7 +188,6 @@
         }
         &-close {
             display: none;
-      
         }
 
         &-content {
@@ -290,5 +294,27 @@
                 display: block;
             }
         }
+    }
+
+    &__results {
+        padding: 0.5rem 1rem;
+        font-size: $font-size-xsmall;
+        color: $contrast-4;
+        margin: 0 auto;
+    
+    }
+
+    &__submit {
+      width: 80%;
+      background-color: $blue;
+      color: $contrast;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: .2rem;
+      position: absolute;
+      bottom: 3rem;  
+      left: 0;  
+      right: 0;
+      margin: 0 auto;
     }
 }

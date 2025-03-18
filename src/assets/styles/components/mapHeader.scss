@@ -5,11 +5,11 @@
     background-color: #161616;
     position: fixed;
     left: 0;
+    top: 0;
     width: 100%;
     z-index: 5;
     display: flex;
     justify-content: space-around;
-    margin-top: -1px;
         &-item {
             padding: 0.5rem 1rem;
             width: 100%;

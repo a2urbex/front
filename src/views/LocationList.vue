@@ -6,6 +6,7 @@ import LocationCard from '@/components/LocationCard.vue';
 import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
 import Filters from '@/components/Filters.vue';
 import PreLoader from '../components/PreLoader.vue';
+import MapHeader from '@/components/MapHeader.vue';
 
 const locationStore = useLocationStore();
 const mapStore = useMapStore();
@@ -92,6 +93,8 @@ onMounted(() => {
 </script>
 
 <template>
+    <MapHeader />
+
     <Filters />
     
     <transition name="fade" mode="out-in">

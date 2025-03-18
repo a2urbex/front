@@ -101,6 +101,9 @@ function applyFilters() {
           </label>
         </div>
       </div>
+      <div class="filter__results" v-if="locationStore.totalLocations !== null">
+        {{ locationStore.totalLocations }} location{{ locationStore.totalLocations !== 1 ? 's' : '' }} found
+      </div>
       <div class="filter__icon m-none">
         <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
       </div>

@@ -8,6 +8,7 @@ import { useMapStore } from '@/stores/map';
 import LocationCard from '@/components/LocationCard.vue';
 import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
 import PreLoader from '../components/PreLoader.vue';
+import MapHeader from '@/components/MapHeader.vue';
 
 
 const route = useRoute();
@@ -32,6 +33,7 @@ const listName = computed(() => favoritesStore.locationsListItems.name || 'No Li
 </script>
 
 <template>
+    <MapHeader />
 
     <transition name="fade" mode="out-in">
         <PreLoader msg="List" v-if="isLoading" key="preloader" /> 
@@ -40,7 +42,7 @@ const listName = computed(() => favoritesStore.locationsListItems.name || 'No Li
     <div class="locations-header page-width">
         <h1>{{ listName }}</h1> 
     </div>
-    <div class="locations-container page-width">
+    <div class="locations-container favorites-containers page-width">
         <LocationCard 
             v-for="location in locationsListItems" 
             :key="location.id" 

@@ -119,16 +119,14 @@ onMounted(async () => {
   <!-- Small Header (Mobile) -->
   <div v-if="isLoggedIn" class="header page-width d-none">
     <router-link class="header__home" to="/locations"><font-awesome-icon :icon="['fa', 'house']" /></router-link>
-    <router-link class="header__favorites" to="/friends">
-      <font-awesome-icon :icon="['fa', 'users']" />
-    </router-link>
-    <div class="header__map" @click="mapStore.open = !mapStore.open">
-      <font-awesome-icon :icon="['fas', 'map-location-dot']" />
-    </div>
     <button v-if="isLocationsRoute" @click="filterUIStore.setShowContent(true)" class="header__search filter__wrapper-close d-none">
       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
     </button>
-    <router-link v-else class="header__favorites" to="/favorites">
+    <router-link v-else class="header__favorites" to="/friends">
+      <font-awesome-icon :icon="['fa', 'users']" />
+    </router-link>
+    <p class="header__add" @click="handleAddLocation"><font-awesome-icon :icon="['fa', 'plus']" /></p>
+    <router-link class="header__favorites" to="/favorites">
       <font-awesome-icon :icon="['fa', 'heart']" />
     </router-link>
     <img :src="profileImageUrl" class="header__user-image" @click="toggleOpen" />
@@ -141,9 +139,6 @@ onMounted(async () => {
         <router-link class="header__user-entry header__settings" to="/profile" @click="toggleOpen">
           <font-awesome-icon :icon="['fa', 'gear']" />Account settings
         </router-link>
-        <p class="header__user-entry header__settings" @click="handleAddLocation">
-          <font-awesome-icon :icon="['fa', 'plus']" /> Add Location
-        </p>
         <router-link class="header__user-entry" to="/favorites" @click="toggleOpen">
           <font-awesome-icon :icon="['fa', 'heart']" /> Favorites
         </router-link>

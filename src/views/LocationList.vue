@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { useMapStore } from '@/stores/map';
 import LocationCard from '@/components/LocationCard.vue';
@@ -11,31 +11,10 @@ const locationStore = useLocationStore();
 const mapStore = useMapStore();
 
 const locationsList = computed(() => locationStore.locationsList);
-const currentPage = computed(() => locationStore.currentPage);
-const totalPages = computed(() => locationStore.totalPages);
 const isLoading = computed(() => locationStore.loading);
-
 const selectedLocation = ref(null);
-
-const pagesToShow = computed(() => {
-    if (totalPages.value <= 1) return [];
-
-    const pages = [];
-    const start = Math.max(1, currentPage.value - 2);
-    const end = Math.min(totalPages.value, currentPage.value + 2);
-
-    for (let i = start; i <= end; i++) {
-        pages.push(i);
-    }
-
-    return pages;
-});
-
-function goToPage(page) {
-    if (page >= 1 && page <= totalPages.value) {
-        locationStore.fetchLocations(page, locationStore.selectedFilters);
-    }
-}
+const loadMoreTrigger = ref(null);
+const visibleCards = ref(new Set());
 
 function showLocationCardDisplay(location) {
     selectedLocation.value = location;
@@ -45,9 +24,70 @@ function isLargeItem(index) {
     return index % 2 === 0; 
 }
 
+function setupCardObserver() {
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    visibleCards.value.add(entry.target.dataset.id);
+                }
+            });
+        },
+        {
+            threshold: 0.1,
+            rootMargin: '50px'
+        }
+    );
+
+    return observer;
+}
+
+function setupInfiniteScroll() {
+    const observer = new IntersectionObserver(
+        (entries) => {
+            const trigger = entries[0];
+            if (trigger.isIntersecting && !isLoading.value) {
+                locationStore.fetchNextPage();
+            }
+        },
+        {
+            rootMargin: '100px',
+        }
+    );
+
+    if (loadMoreTrigger.value) {
+        observer.observe(loadMoreTrigger.value);
+    }
+
+    return () => observer.disconnect();
+}
+
 onMounted(() => {
     locationStore.fetchLocations(1);
-    mapStore.setType('location')
+    mapStore.setType('location');
+    setupInfiniteScroll();
+
+    const cardObserver = setupCardObserver();
+    const observeCards = () => {
+        document.querySelectorAll('.locations-container .card-appear').forEach(card => {
+            cardObserver.observe(card);
+        });
+    };
+
+    // Observe initial cards
+    observeCards();
+
+    // Watch for new cards being added
+    const observer = new MutationObserver(observeCards);
+    observer.observe(document.querySelector('.locations-container'), {
+        childList: true
+    });
+
+    // Cleanup
+    onUnmounted(() => {
+        cardObserver.disconnect();
+        observer.disconnect();
+    });
 });
 </script>
 
@@ -55,7 +95,7 @@ onMounted(() => {
     <Filters />
     
     <transition name="fade" mode="out-in">
-        <PreLoader msg="Locations" v-if="isLoading" key="preloader" /> 
+        <PreLoader msg="Locations" v-if="isLoading && locationsList.length === 0" key="preloader" /> 
     </transition>
 
     <div class="locations-container page-width">
@@ -63,9 +103,15 @@ onMounted(() => {
             v-for="(location, index) in locationsList" 
             :key="location.id" 
             :location="location" 
-            :class="{'large': isLargeItem(index)}"
+            :class="{
+                'large': isLargeItem(index),
+                'card-appear': true,
+                'card-visible': visibleCards.has(location.id)
+            }"
+            :data-id="location.id"
             @open-location="showLocationCardDisplay" 
         />
+        <div ref="loadMoreTrigger" class="load-more-trigger"></div>
     </div>
 
     <LocationCardDisplay 
@@ -74,26 +120,10 @@ onMounted(() => {
         @close="selectedLocation = null"
     />
 
-    <div class="locations-container__paginate">
-        <div class="locations-container__paginate-buttons">
-            <button class="locations-container__paginate-ext" 
-                v-if="totalPages > 1 && currentPage > 3" 
-                @click="goToPage(1)">
-                1
-            </button>
-            <button 
-                v-for="page in pagesToShow" 
-                :key="page" 
-                @click="goToPage(page)" 
-                :class="{ active: page === currentPage }">
-                {{ page }}
-            </button>
-            <button class="locations-container__paginate-ext" 
-                v-if="totalPages > 1 && currentPage < totalPages" 
-                @click="goToPage(totalPages)">
-                {{ totalPages }}
-            </button>
-        </div>
+    <div v-if="isLoading && locationsList.length > 0" class="loading-more">
+        <svg class="loading-svg" viewBox="0 0 50 50">
+            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+        </svg>
     </div>
 </template>
 

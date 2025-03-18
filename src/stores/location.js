@@ -6,29 +6,85 @@ export const useLocationStore = defineStore('location', {
     state: () => ({
         token: localStorage.getItem('authToken') || null,
         locationsList: [],
+        nextPageCache: [],
         currentPage: 1,
-        totalPages: 1,
+        hasMore: true,
         selectedFilters: {},
         location: '',
         loading: false,
     }),
     actions: {
         async fetchLocations(page = 1, filters = {}, loading) {
-           if (loading != false) {
-            this.loading = true;
-           } 
+            if (loading != false) {
+                this.loading = true;
+            }
             try {
                 this.selectedFilters = filters;
                 const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, filters);
                 this.locationsList = data.list || [];
                 this.currentPage = page;
-                this.totalPages = Math.ceil(data.count / import.meta.env.VITE_LOCATIONS_PER_PAGE); 
+                this.hasMore = (data.list || []).length === parseInt(import.meta.env.VITE_LOCATIONS_PER_PAGE);
+                
+                // Pre-fetch next page
+                if (this.hasMore) {
+                    this.prefetchNextPage();
+                }
             } catch (error) {
                 console.error('Error fetching locations:', error);
             } finally {
                 this.loading = false;
             }
         },
+
+        async prefetchNextPage() {
+            try {
+                const nextPage = this.currentPage + 1;
+                const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${nextPage}`, this.selectedFilters);
+                this.nextPageCache = data.list || [];
+            } catch (error) {
+                console.error('Error pre-fetching next page:', error);
+            }
+        },
+
+        async fetchNextPage() {
+            if (this.loading || !this.hasMore) return;
+            
+            try {
+                this.loading = true;
+                
+                // Use cached data if available
+                if (this.nextPageCache.length > 0) {
+                    this.locationsList = [...this.locationsList, ...this.nextPageCache];
+                    this.currentPage += 1;
+                    this.hasMore = this.nextPageCache.length === parseInt(import.meta.env.VITE_LOCATIONS_PER_PAGE);
+                    this.nextPageCache = [];
+                    
+                    // Pre-fetch next page if there might be more
+                    if (this.hasMore) {
+                        this.prefetchNextPage();
+                    }
+                } else {
+                    // Fallback to regular fetch if cache is empty
+                    const nextPage = this.currentPage + 1;
+                    const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${nextPage}`, this.selectedFilters);
+                    const newLocations = data.list || [];
+                    
+                    this.locationsList = [...this.locationsList, ...newLocations];
+                    this.currentPage = nextPage;
+                    this.hasMore = newLocations.length === parseInt(import.meta.env.VITE_LOCATIONS_PER_PAGE);
+                    
+                    // Pre-fetch next page if there might be more
+                    if (this.hasMore) {
+                        this.prefetchNextPage();
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching more locations:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+
         async getLocation(id){
             this.loading = true; 
             try {

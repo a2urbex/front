@@ -8,6 +8,7 @@ const props = defineProps({
 
 const emit = defineEmits(['open-location']);
 const imageError = ref(false);
+const imageLoading = ref(true);
 
 const googleMapsUrl = computed(() => {
     return `https://www.google.com/maps?t=k&q=${props.location.lat},${props.location.lon}`;
@@ -25,8 +26,13 @@ const truncatedName = computed(() => {
     return props.location.name;
 });
 
+const handleImageLoad = () => {
+    imageLoading.value = false;
+};
+
 const handleImageError = () => {
     imageError.value = true;
+    imageLoading.value = false;
 };
 
 const openLocationCardDisplay = () => {
@@ -39,10 +45,13 @@ const openLocationCardDisplay = () => {
         <FavoritesModal :fids="location.fids" :id="location.id" />
         <div class="location-card__top" @click="openLocationCardDisplay">
             <template v-if="!imageError && location.image">
+                <div v-if="imageLoading" class="skeleton" style="width: 100%; height: 100%;"></div>
                 <img 
                     :src="location.image" 
                     alt="Location image"
                     @error="handleImageError"
+                    @load="handleImageLoad"
+                    :style="{ display: imageLoading ? 'none' : 'block' }"
                 >
             </template>
             <p v-else class="image-error">😭 Image not available</p>

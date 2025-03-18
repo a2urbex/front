@@ -20,6 +20,7 @@
         margin-bottom: 3rem;
         
         @media (max-width: $md) {
+            overflow: hidden;
             width: 100%;
             margin-top: 0rem;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));

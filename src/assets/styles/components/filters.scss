@@ -216,7 +216,6 @@
 
     &__item:checked+label {
         &>.filter__item-content-title {
-            background-color: $contrast-2;
             color: $contrast-5;
             font-weight: $font-weight-bold;
             border-radius: 4rem;
@@ -249,7 +248,6 @@
 
             @media (max-width: $md) {
                 position: inherit;
-                background-color: $contrast-2;
                 border-radius: 0 0 4px 4px;
             }
 
@@ -304,10 +302,10 @@
     
     }
 
-    &__submit {
+    &__clear {
       width: 80%;
-      background-color: $blue;
       color: $contrast;
+      background-color: $background;
       border: none;
       padding: 0.5rem 1rem;
       border-radius: .2rem;

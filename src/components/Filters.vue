@@ -80,8 +80,8 @@ function clearFilters() {
           <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
         </div>
         <input type="text" placeholder="Search locations..." @click="filterUIStore.setShowContent(true)" v-model="query" @input="applyFilters" />
-        <button @click="clearFilters" class="filter__search-close">
-          Clear
+        <button class="filter__search-close d-none" @click="filterUIStore.setShowContent(false)">
+            Close
         </button>
       </div>
 
@@ -116,9 +116,9 @@ function clearFilters() {
         <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
       </div>
 
-      <button class="filter__submit d-none" @click="filterUIStore.setShowContent(false)">
-          Submit
-      </button>
+      <button @click="clearFilters" class="filter__clear">
+          Clear
+        </button>
     </div>
   </div>
   <div v-else>

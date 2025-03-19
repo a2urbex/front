@@ -1,0 +1,124 @@
+@import '@/assets/styles/base.scss';
+
+.header-desktop {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    z-index: 6;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    padding-top: 1.2rem;
+    padding-bottom: 1.2rem;
+    background-color: $background;
+
+    &__left {
+        display: flex;
+        align-items: center;
+    }
+
+    &__right {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+
+        svg {
+            color: $contrast-4;
+        }
+    }
+
+    &__connect {
+        background-color: $blue;
+        color: $contrast;
+        font-size: $font-size-xsmall;
+        font-weight: $font-weight-bold;
+        width: fit-content;
+        border-radius: 1rem;
+        padding: 0.3rem 0.5rem;
+
+        &:hover {
+            background-color: $darker-blue;
+        }
+    }
+
+    &__home {
+        color: $contrast;
+        font-size: $font-size-xsmall;
+        font-weight: $font-weight-bold;
+    }
+
+    &__user {
+        &-image {
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 50%;
+            cursor: pointer;
+            background-image: url('/default-user.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        &-entry {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border-radius: .2rem;
+            font-weight: $font-weight-medium;
+            color: $contrast-3;
+            margin: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+
+            &:hover {
+                background-color: $contrast-1;
+                color: $contrast;
+            }
+
+            svg {
+                margin-right: .5rem;
+            }
+
+            span {
+                font-weight: 100;
+                color: $contrast-2;
+                font-weight: $font-weight-normal;
+            }
+        }
+
+        &-separator {
+            width: 100%;
+            height: 1px;
+            background-color: $contrast-1;
+        }
+
+        &-info {
+            position: absolute;
+            opacity: 0;
+            visibility: hidden;
+            right: 2rem;
+            top: 4.4rem;
+            min-width: 18rem;
+            transition: all .2s;
+            border-radius: .4rem;
+            padding: 0 0.4rem;
+            background-color: $background;
+            box-shadow: $dark-background 1px 7px 14px;
+
+            &-wrapper {
+                display: flex;
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 0.2rem;
+            }
+
+            &.open {
+                visibility: visible;
+                opacity: 1;
+                padding: 0.4rem;
+            }
+        }
+    }
+} 

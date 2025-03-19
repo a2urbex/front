@@ -95,7 +95,7 @@ const handleClose = () => {
 </script>
 
 <template>
-    <transition name="map" mode="out-in" appear>
+    <transition name="slide-up" mode="out-in" appear>
     <div class="location-add">
       <button type="button" class="location-add__close" @click="handleClose">Cancel</button>
 

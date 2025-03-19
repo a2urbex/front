@@ -2,6 +2,7 @@
 import { onMounted, computed, ref } from 'vue';
 import { useProfileStore } from '@/stores/profile';
 import PreLoader from '../components/PreLoader.vue';
+import { toast } from 'vue3-toastify';
 
 const profileStore = useProfileStore();
 const friendsList = computed(() => profileStore.friendsList);
@@ -12,6 +13,28 @@ const getFriendImageUrl = (friend) => {
   return friend.image
     ? `${import.meta.env.VITE_API_BASE_URL}${friend.image}`
     : '';
+};
+
+const removeFriend = async (friendId) => {
+  if (confirm('Are you sure you want to remove this friend?')) {
+    try {
+      await profileStore.removeFriend(friendId);
+      await profileStore.getFriends();
+      toast.success('Friend removed successfully', { 
+        position: toast.POSITION.TOP_CENTER, 
+        autoClose: 1000, 
+        pauseOnHover: true, 
+        theme: 'dark' 
+      });
+    } catch (error) {
+      toast.error('Failed to remove friend', { 
+        position: toast.POSITION.TOP_CENTER, 
+        autoClose: 1000, 
+        pauseOnHover: true, 
+        theme: 'dark' 
+      });
+    }
+  }
 };
 
 onMounted(async () => {
@@ -63,7 +86,7 @@ onMounted(async () => {
           <div class="friends__item-text">{{ friend.username }}</div>
         </router-link>
         <div class="friends__item-action">
-          <button disabled>Remove</button>
+          <button @click="removeFriend(friend.id)">Remove</button>
         </div>
       </div>
       <p v-else class="friends__no-result">No friends found</p>

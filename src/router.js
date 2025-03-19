@@ -23,6 +23,10 @@ import Profile from '@/components/ProfileVue.vue'
 // NAVIGATION 
 import HomeView from '@/views/Home.vue'
 
+// APP SETTINGS
+import AppSettingsView from '@/views/AppSettings.vue'
+
+
 export default createRouter({
   history: createWebHistory(),
   routes: [
@@ -59,6 +63,10 @@ export default createRouter({
       path: '/profile/:id',
       component: Profile,
       props: route => ({ id: route.params.id })
+    },
+    {
+      path: '/app-settings',
+      component: AppSettingsView
     },
     {
       path: '/',

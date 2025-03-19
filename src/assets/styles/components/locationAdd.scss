@@ -17,6 +17,7 @@
     }
 
     &__close{
+        color: $contrast;
         position: absolute;
         border: none;
         background-color: transparent;
@@ -119,4 +120,41 @@
         font-size: $font-size-xsmall;
         color: $contrast-4;
     }
+}
+
+// Map transition animations
+.map-enter-active,
+.map-leave-active {
+  transition: transform 0.3s ease-out;
+}
+
+.map-enter-from,
+.map-leave-to {
+  transform: translateY(100%);
+}
+
+.map-enter-to,
+.map-leave-from {
+  transform: translateY(0);
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-up-enter-from {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.slide-up-enter-to,
+.slide-up-leave-from {
+  transform: translateY(0);
+  opacity: 1;
 }

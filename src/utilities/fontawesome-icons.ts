@@ -17,6 +17,8 @@ import {
     faUser, 
     faUsers, 
     faGear,
+    faGavel,
+    faWrench,
     faMobileButton,
     faRightFromBracket,
     faHeart,
@@ -43,7 +45,8 @@ import {
     faBuilding,
     faUtensils,
     faJetFighterUp,
-    faMapPin
+    faMapPin,
+    faTriangleExclamation
     
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -86,7 +89,10 @@ library.add(
     faBuilding,
     faUtensils,
     faJetFighterUp,
-    faMapPin
+    faMapPin,
+    faGavel,
+    faWrench,
+    faTriangleExclamation
 );
 
 export default FontAwesomeIcon;

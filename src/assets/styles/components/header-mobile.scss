@@ -1,0 +1,205 @@
+@import '@/assets/styles/base.scss';
+
+.header-mobile {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0px;
+    right: 0px;
+    padding:1.2rem 1.5rem 2rem 1.5rem;
+    background-color: $dark-background;
+    z-index: 7;
+
+    h2{
+        text-align: left;
+        margin: 0;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    &>* {
+        width: 2rem;
+        display: flex;
+        font-size: 1.1rem;
+        justify-content: center;
+        align-items: center;
+    }
+
+    svg {
+        color: $contrast-5;
+    }
+
+    &__add {
+        background-color: $background;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        font-size: 1.4rem;
+        margin: 0;
+    }
+
+    &__search {
+        background-color: $dark-background;
+        border: none;
+    }
+
+    &__home {
+        font-size: 1.1rem;
+    }
+
+    &__profile{
+        padding: 1rem 1rem;
+        border-radius: .4rem;
+        background-color: $background;
+        color: $contrast;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        font-size: $font-size-medium;
+        font-weight: $font-weight-medium;
+        gap: 1rem;
+        & img{
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+        }
+    }
+
+    &__logout{
+        padding: 1rem 1rem;
+        border-radius: .4rem;
+        background-color: $background;
+        color: #c23333;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        font-size: $font-size-small;
+        font-weight: $font-weight-medium;
+        gap: 1rem;
+    }
+
+    &__user {
+        &-image {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            background-image: url('/default-user.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        &-entries{
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            padding: 1rem 0;
+            justify-content: space-between;
+        }
+        &-entry {
+            width: calc(50% - 0.5rem);
+            padding: 0.7rem 1rem;
+            font-size: $font-size-small;
+            border-radius: .4rem;
+            background-color: $background;
+            color: $contrast;
+            margin: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.3rem;
+            flex-direction: column;
+
+            &:hover {
+                background-color: $background;
+                color: $contrast-5;
+            }
+
+            .fa-heart{
+                color: #7507f1;
+            }
+
+            .fa-gear{
+                color: #e09999;
+            }
+
+            .fa-users{
+                color: #0099ff;
+            }
+
+            .fa-map-pin{
+                color: #eeee52;
+            }
+
+            .fa-triangle-exclamation{
+                color: #ff9f00;
+                animation: breathing 2s ease-in-out infinite;
+            }
+
+            @keyframes breathing {
+                0% { opacity: 0.4; }
+                50% { opacity: 1; }
+                100% { opacity: 0.4; }
+            }
+
+        }
+
+        &-separator {
+            width: 100%;
+            height: 1px;
+            background-color: $contrast-1;
+        }
+
+        &-info {
+            background: $dark-background;
+            transition: all .3s;
+            position: fixed;
+            left: 0px;
+            right: 0px;
+            width: 100%;
+            bottom: 6rem;
+            top: 100%;
+            padding: 1rem;
+            visibility: visible;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            z-index: 6;
+
+            &-close {
+                position: absolute;
+                top: 1rem;
+                right: 2rem;
+            }
+
+            &-wrapper {
+                width: 100%;
+                height: 100%;
+            }
+
+            &.open {
+                padding: 1rem 1rem 2rem 1rem;
+                top: 0%;
+            }
+        }
+    }
+
+    >.router-link-active {
+        position: relative;
+
+        &:after {
+            content: '';
+            background-color: #ffffff;
+            width: 5px;
+            height: 5px;
+            border-radius: 10px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -20px;
+        }
+    }
+} 

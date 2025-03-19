@@ -22,6 +22,17 @@ export const useProfileStore = defineStore('profile', {
                 this.loading = false;
             }
         },
+        async removeFriend(id) {
+            this.loading = true;
+            try {
+                await request('DELETE', `${import.meta.env.VITE_FRIENDS_ENDPOINT}/${id}`);
+            } catch (error) {
+                console.error('Failed to remove friend:', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
         async getProfile(id) {
             this.loading = true;
             try {

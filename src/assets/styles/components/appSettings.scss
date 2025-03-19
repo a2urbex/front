@@ -1,0 +1,56 @@
+@import '@/assets/styles/base.scss';
+
+.app-settings{
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 0rem;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    &__logo{
+        width: 4rem;
+        border-radius: .4rem;
+    }
+    &__title{
+        margin-bottom: 1rem;
+        font-weight: 500;
+        color: $contrast-2;
+    }
+
+    &__version{
+        margin: 0;
+        font-weight: 500;
+        color: $contrast-2;
+    }
+
+    &__button{
+        margin-top: 1rem; 
+    }
+    
+    .uptodate, .outaded  {
+        padding: .2rem 1rem;
+        line-height: 1.2rem;
+        border: none;
+        border-radius: 5rem;
+        color: $contrast;
+        font-weight: 500;
+        font-size: 1rem;
+        margin: 0;
+        cursor: pointer;
+        display: flex;
+        gap: .5rem;
+        align-items: center;
+    }
+
+    .uptodate{
+        background-color: rgb(78, 182, 47);
+    }
+
+    .outaded {
+        background-color: rgb(199, 130, 28);
+    }
+}

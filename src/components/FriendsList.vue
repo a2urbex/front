@@ -2,6 +2,7 @@
 import { onMounted, computed, ref } from 'vue';
 import { useProfileStore } from '@/stores/profile';
 import PreLoader from '../components/PreLoader.vue';
+import UserSearch from '../components/UserSearch.vue';
 import { toast } from 'vue3-toastify';
 
 const profileStore = useProfileStore();
@@ -37,6 +38,70 @@ const removeFriend = async (friendId) => {
   }
 };
 
+const cancelFriendRequest = async (friendId) => {
+  if (confirm('Are you sure you want to cancel this friend request?')) {
+    try {
+      await profileStore.cancelFriendRequest(friendId);
+      await profileStore.getFriends();
+      toast.success('Friend request cancelled successfully', { 
+        position: toast.POSITION.TOP_CENTER, 
+        autoClose: 1000, 
+        pauseOnHover: true, 
+        theme: 'dark' 
+      });
+    } catch (error) {
+      toast.error('Failed to cancel friend request', { 
+        position: toast.POSITION.TOP_CENTER, 
+        autoClose: 1000, 
+        pauseOnHover: true, 
+        theme: 'dark' 
+      });
+    }
+  }
+};
+
+const acceptFriendRequest = async (friendId) => {
+  try {
+    await profileStore.acceptFriendRequest(friendId);
+    await profileStore.getFriends();
+    toast.success('Friend request accepted successfully', { 
+      position: toast.POSITION.TOP_CENTER, 
+      autoClose: 1000, 
+      pauseOnHover: true, 
+      theme: 'dark' 
+    });
+  } catch (error) {
+    toast.error('Failed to accept friend request', { 
+      position: toast.POSITION.TOP_CENTER, 
+      autoClose: 1000, 
+      pauseOnHover: true, 
+      theme: 'dark' 
+    });
+  }
+};
+
+const rejectFriendRequest = async (friendId) => {
+  if (confirm('Are you sure you want to reject this friend request?')) {
+    try {
+      await profileStore.rejectFriendRequest(friendId);
+      await profileStore.getFriends();
+      toast.success('Friend request rejected successfully', { 
+        position: toast.POSITION.TOP_CENTER, 
+        autoClose: 1000, 
+        pauseOnHover: true, 
+        theme: 'dark' 
+      });
+    } catch (error) {
+      toast.error('Failed to reject friend request', { 
+        position: toast.POSITION.TOP_CENTER, 
+        autoClose: 1000, 
+        pauseOnHover: true, 
+        theme: 'dark' 
+      });
+    }
+  }
+};
+
 onMounted(async () => {
   try {
     await profileStore.getFriends();
@@ -50,6 +115,7 @@ onMounted(async () => {
     <PreLoader msg="Profile" v-if="isLoading" key="preloader" />
   </transition>
   <div class="friends page-width">
+  <UserSearch/>
     <!-- Tab Navigation -->
     <div class="friends__tabs">
       <button
@@ -101,6 +167,9 @@ onMounted(async () => {
           </div>
           <div class="friends__item-text">{{ friend.username }}</div>
         </router-link>
+        <div class="friends__item-action">
+          <button @click="cancelFriendRequest(friend.id)">Cancel</button>
+        </div>
       </div>
       <p v-else class="friends__no-result">No pending requests</p>
     </div>
@@ -114,6 +183,10 @@ onMounted(async () => {
           </div>
           <div class="friends__item-text">{{ friend.username }}</div>
         </router-link>
+        <div class="friends__item-action">
+          <button @click="rejectFriendRequest(friend.id)">Reject</button>
+          <button @click="acceptFriendRequest(friend.id)">Accept</button>
+        </div>
       </div>
       <p v-else class="friends__no-result">No waiting requests</p>
     </div>

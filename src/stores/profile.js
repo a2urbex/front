@@ -33,6 +33,50 @@ export const useProfileStore = defineStore('profile', {
                 this.loading = false;
             }
         },
+        async addFriend(id) {
+            this.loading = true;
+            try {
+                await request('POST', `${import.meta.env.VITE_FRIENDS_ENDPOINT}/${id}`);
+            } catch (error) {
+                console.error('Failed to add friend:', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async cancelFriendRequest(id) {
+            this.loading = true;
+            try {
+                await request('PUT', `${import.meta.env.VITE_FRIENDS_ENDPOINT}/${id}/cancel`);
+            } catch (error) {
+                console.error('Failed to cancel friend request:', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async acceptFriendRequest(id) {
+            this.loading = true;
+            try {
+                await request('PUT', `${import.meta.env.VITE_FRIENDS_ENDPOINT}/${id}/accept`);
+            } catch (error) {
+                console.error('Failed to accept friend request:', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async rejectFriendRequest(id) {
+            this.loading = true;
+            try {
+                await request('PUT', `${import.meta.env.VITE_FRIENDS_ENDPOINT}/${id}/decline`);
+            } catch (error) {
+                console.error('Failed to reject friend request:', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
         async getProfile(id) {
             this.loading = true;
             try {

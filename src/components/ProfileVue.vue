@@ -4,12 +4,82 @@ import { useProfileStore } from '@/stores/profile';
 import { useRoute } from 'vue-router';
 import PreLoader from '../components/PreLoader.vue';
 import { toast } from 'vue3-toastify';
+import { useAuthStore } from '@/stores/auth';
 
 const profileStore = useProfileStore();
 const user = computed(() => profileStore.viewProfile);
 const route = useRoute();
 const isLoading = computed(() => profileStore.loading);
 const id = route.params.id;
+const authStore = useAuthStore();
+
+const isSelf = computed(() => {
+  return authStore.userProfile?.id === id;
+});
+
+const friendshipState = computed(() => {
+  if (isSelf.value) return 'self';
+  
+  const friends = profileStore.friendsList.friends || [];
+  const pending = profileStore.friendsList.pending || [];
+  const waiting = profileStore.friendsList.waiting || [];
+
+  if (friends.some(friend => friend.id === id)) return 'friends';
+  if (pending.some(friend => friend.id === id)) return 'pending';
+  if (waiting.some(friend => friend.id === id)) return 'waiting';
+  return 'none';
+});
+
+const handleAction = async (action) => {
+  try {
+    switch (friendshipState.value) {
+      case 'none':
+        await profileStore.addFriend(id);
+        toast.success('Friend request sent!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+        break;
+      case 'pending':
+        await profileStore.cancelFriendRequest(id);
+        toast.success('Friend request cancelled!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+        break;
+      case 'waiting':
+        if (action === 'accept') {
+          await profileStore.acceptFriendRequest(id);
+          toast.success('Friend request accepted!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+        } else if (action === 'decline') {
+          await profileStore.rejectFriendRequest(id);
+          toast.success('Friend request declined!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+        }
+        break;
+      case 'friends':
+        await profileStore.removeFriend(id);
+        toast.success('Friend removed!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+        break;
+    }
+    await profileStore.getFriends();
+  } catch (error) {
+    toast.error('Action failed', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+  }
+};
+
+const buttonText = computed(() => {
+  switch (friendshipState.value) {
+    case 'self': return 'Edit Profile';
+    case 'friends': return 'Remove Friend';
+    case 'pending': return 'Cancel Request';
+    case 'waiting': return 'Respond to Request';
+    default: return 'Add Friend';
+  }
+});
+
+const buttonIcon = computed(() => {
+  switch (friendshipState.value) {
+    case 'self': return ['fas', 'user-edit'];
+    case 'friends': return ['fas', 'user-minus'];
+    case 'pending': return ['fas', 'times'];
+    case 'waiting': return ['fas', 'user-clock'];
+    default: return ['fas', 'user-plus'];
+  }
+});
 
 const getImageUrl = (location) => {
   return location && location.includes('http')
@@ -19,7 +89,10 @@ const getImageUrl = (location) => {
 
 onMounted(async () => {
   try {
-    await profileStore.getProfile(id);
+    await Promise.all([
+      profileStore.getProfile(id),
+      profileStore.getFriends()
+    ]);
   } catch (error) {
   }
 });
@@ -52,9 +125,30 @@ const copyLink = () => {
         <div class="profile__stats">
           <p><span>{{ user.urbexCount }}</span> Location(s)</p>
           <p><span>{{ user.friendCount }}</span> Friend(s)</p>
-
         </div>
         <p class="profile__about">{{ user.about }}</p>
+      </div>
+      <div class="profile__actions">
+        <template v-if="!isSelf">
+          <template v-if="friendshipState === 'waiting'">
+            <button class="profile__actions-button profile__actions-button--accept" @click="handleAction('accept')">
+              <font-awesome-icon :icon="['fas', 'check']" />
+              Accept
+            </button>
+            <button class="profile__actions-button profile__actions-button--decline" @click="handleAction('decline')">
+              <font-awesome-icon :icon="['fas', 'times']" />
+              Decline
+            </button>
+          </template>
+          <button v-else class="profile__actions-button" @click="handleAction()">
+            <font-awesome-icon :icon="buttonIcon" />
+            {{ buttonText }}
+          </button>
+        </template>
+        <button v-else class="profile__actions-button" @click="$router.push('/settings')">
+          <font-awesome-icon :icon="buttonIcon" />
+          {{ buttonText }}
+        </button>
       </div>
     </div>
     <div class="profile__social">

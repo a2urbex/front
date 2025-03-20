@@ -44,6 +44,24 @@
         }
     }
 
+    &__actions{
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+        gap: .5rem;
+        &-button{
+            border:none;
+            background: $background;
+            color: $contrast;
+            padding: .5rem 1rem;
+            border-radius: .4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+        }
+    }
     &__stats {
         display: flex;
         flex-direction: row;

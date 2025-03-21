@@ -6,8 +6,7 @@ export default {
         return {
             email: '',
             password: '',
-            firstname: '',
-            lastname: ''
+            username: ''
         };
     },
     methods: {
@@ -30,14 +29,9 @@ export default {
             <h2>Sign up</h2>
             <form @submit.prevent="handleSubmit">
                 <div class="form-group">
-                    <input class="form-input" placeholder=" " type="firstname" id="firstname" v-model="firstname"
+                    <input class="form-input" placeholder=" " type="username" id="username" v-model="username"
                         required />
-                    <label class="form-label" for="firstname">First Name:</label>
-                </div>
-                <div class="form-group">
-                    <input class="form-input" placeholder=" " type="lastname" id="lastname" v-model="lastname"
-                        required />
-                    <label class="form-label" for="lastname">Last Name:</label>
+                    <label class="form-label" for="username">Username:</label>
                 </div>
                 <div class="form-group">
                     <input class="form-input" autocomplete="username" placeholder=" " type="email" id="email" v-model="email" required />

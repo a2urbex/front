@@ -13,7 +13,7 @@ export default {
         async handleSubmit() {
             const authStore = useAuthStore();            
             try {
-                await authStore.register(this.email, this.password, this.firstname, this.lastname);
+                await authStore.register(this.email, this.password, this.username);
                 setTimeout(() => { this.$router.push('/locations'); }, 1500);
             } catch (error) {
                 console.error('Login failed:', error);

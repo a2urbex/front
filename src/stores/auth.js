@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
-        async register(email, password, firstname, lastname) {
+        async register(email, password, username) {
             try {
                 const data = await request('POST', `${import.meta.env.VITE_REGISTER_ENDPOINT}`, { email, password, firstname, lastname });
                 this.token = data.token;

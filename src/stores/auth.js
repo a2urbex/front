@@ -23,7 +23,7 @@ export const useAuthStore = defineStore('auth', {
 
         async register(email, password, username) {
             try {
-                const data = await request('POST', `${import.meta.env.VITE_REGISTER_ENDPOINT}`, { email, password, firstname, lastname });
+                const data = await request('POST', `${import.meta.env.VITE_REGISTER_ENDPOINT}`, { email, password, username });
                 this.token = data.token;
                 localStorage.setItem('authToken', data.token);
                 toast.success('Registration successful!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });

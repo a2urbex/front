@@ -21,8 +21,29 @@ export const useUsersStore = defineStore('Users', {
                 this.loading = false;
             }
         },
-        async updateRole(id, role) {
-           // TODO
+        async updateRoles(id, rolesData) {
+            this.loading = true;
+            try {
+                await request('PUT', `${import.meta.env.VITE_USERS_ENDPOINT}/${id}/roles`, rolesData);
+                this.getAll();
+            } catch (error) {
+                console.error('Failed to update roles :', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async deleteUser(id) {
+            this.loading = true;
+            try {
+                await request('DELETE', `${import.meta.env.VITE_USERS_ENDPOINT}/${id}`);
+                this.getAll();
+            } catch (error) {
+                console.error('Failed to delete user :', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
         }
     }
 });

@@ -101,9 +101,9 @@ const isLocationsRoute = computed(() => {
           <router-link class="header-mobile__user-entry" to="/friends" @click="toggleOpen">
             <font-awesome-icon :icon="['fa', 'users']" /> Friends
           </router-link>
-          <a v-if="userProfile.isAdmin" class="header-mobile__user-entry header-mobile__admin" href="https://a2urbex.eu/admin" @click="toggleOpen">
-            <font-awesome-icon :icon="['fas', 'gavel']" />Admin
-          </a>
+          <router-link v-if="userProfile.isAdmin"  class="header-mobile__user-entry" to="/admin" @click="toggleOpen">
+            <font-awesome-icon :icon="['fa', 'gear']" />Admin
+          </router-link>
           <router-link class="header-mobile__user-entry" to="/app-settings" @click="toggleOpen">
             <font-awesome-icon v-if="status === 'up-to-date'" :icon="['fa', 'wrench']" />
             <font-awesome-icon v-if="status === 'outdated'" :icon="['fa', 'triangle-exclamation']" />App Settings

@@ -26,6 +26,9 @@ import HomeView from '@/views/Home.vue'
 // APP SETTINGS
 import AppSettingsView from '@/views/AppSettings.vue'
 
+// ADMIN
+import AdminView from '@/views/Admin.vue'
+
 
 export default createRouter({
   history: createWebHistory(),
@@ -67,6 +70,10 @@ export default createRouter({
     {
       path: '/app-settings',
       component: AppSettingsView
+    },
+    {
+      path: '/admin',
+      component: AdminView
     },
     {
       path: '/',

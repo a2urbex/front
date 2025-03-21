@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useVersionStore } from '@/stores/version';
 import { useRouter } from 'vue-router';
 import { useFilterUIStore } from '@/stores/filterUI';
+import Title from '@/components/Title.vue';
 
 const versionStore = useVersionStore();
 const authStore = useAuthStore();
@@ -67,10 +68,7 @@ const isLocationsRoute = computed(() => {
     <router-link class="header-mobile__home" to="/locations">
       <font-awesome-icon :icon="['fa', 'house']" />
     </router-link>
-    <button v-if="isLocationsRoute" @click="filterUIStore.setShowContent(!filterUIStore.showContent)" class="header-mobile__search filter__wrapper-close">
-      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-    </button>
-    <router-link v-else class="header-mobile__favorites" to="/friends"  @click="isOpen = false">
+    <router-link class="header-mobile__favorites" to="/friends"  @click="isOpen = false">
       <font-awesome-icon :icon="['fa', 'users']" />
     </router-link>
     <p class="header-mobile__add" @click="() => { handleAddLocation(); isOpen = false }">
@@ -85,7 +83,7 @@ const isLocationsRoute = computed(() => {
   </div>
 
   <div :class="{ 'header-mobile__user-info': true, 'open': isOpen }">
-      <h2 @click="toggleOpen">Menu</h2>
+      <Title @click="toggleOpen" title="Menu" :hasPageWidth="false" />
       <div class="header-mobile__user-info-wrapper">
         <router-link class="header-mobile__profile" :to="'/profile/'+ userProfile.id" @click="() => { filterUIStore.setShowContent(false); toggleOpen() }">
           <img v-if="isLoggedIn" :src="profileImageUrl" class="header-mobile__user-image" /> <span>{{ userProfile.username }}</span>

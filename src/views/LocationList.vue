@@ -8,6 +8,7 @@ import Filters from '@/components/Filters.vue';
 import PreLoader from '../components/PreLoader.vue';
 import MapHeader from '@/components/MapHeader.vue';
 
+
 const locationStore = useLocationStore();
 const mapStore = useMapStore();
 
@@ -93,9 +94,8 @@ onMounted(() => {
 </script>
 
 <template>
-    <MapHeader />
-
     <Filters />
+    <MapHeader />
     
     <transition name="fade" mode="out-in">
         <PreLoader msg="Locations" v-if="isLoading && locationsList.length === 0" key="preloader" /> 

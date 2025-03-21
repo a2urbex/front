@@ -1,9 +1,10 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
-
+import Title from '@/components/Title.vue';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useMapStore } from '@/stores/map';
+
 
 import LocationCard from '@/components/LocationCard.vue';
 import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
@@ -33,15 +34,13 @@ const listName = computed(() => favoritesStore.locationsListItems.name || 'No Li
 </script>
 
 <template>
+    <Title :title="listName" :backgroundTransparent="false" />
     <MapHeader />
 
     <transition name="fade" mode="out-in">
         <PreLoader msg="List" v-if="isLoading" key="preloader" /> 
     </transition>
 
-    <div class="locations-header page-width">
-        <h1>{{ listName }}</h1> 
-    </div>
     <div class="locations-container favorites-containers page-width">
         <LocationCard 
             v-for="location in locationsListItems" 

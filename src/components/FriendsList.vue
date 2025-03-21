@@ -4,6 +4,7 @@ import { useProfileStore } from '@/stores/profile';
 import PreLoader from '../components/PreLoader.vue';
 import UserSearch from '../components/UserSearch.vue';
 import { toast } from 'vue3-toastify';
+import Title from '@/components/Title.vue';
 
 const profileStore = useProfileStore();
 const friendsList = computed(() => profileStore.friendsList);
@@ -111,6 +112,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <Title title="Friends" />
   <transition name="fade" mode="out-in">
     <PreLoader msg="Profile" v-if="isLoading" key="preloader" />
   </transition>

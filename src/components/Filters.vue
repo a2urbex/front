@@ -73,19 +73,23 @@ function clearFilters() {
 </script>
 
 <template>
-  <div class="filter__container" v-if="filters && Object.keys(filters).length > 0">
+  <div class="filter__container" :class="{ active: filterUIStore.showContent }">
     <div class="filter__wrapper" :class="{ active: filterUIStore.showContent }">
       <div class="filter__search">
-        <div class="filter__icon d-none" @click="filterUIStore.setShowContent(true)">
+        <div class="filter__icon">
           <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
         </div>
-        <input type="text" placeholder="Search locations..." @click="filterUIStore.setShowContent(true)" v-model="query" @input="applyFilters" />
-        <button class="filter__search-close d-none" @click="filterUIStore.setShowContent(false)">
-            Close
+        <input type="text" 
+          placeholder="Search locations..." 
+          @focus="filterUIStore.setShowContent(true)" 
+          v-model="query" 
+          @input="applyFilters" />
+        <button class="filter__search-close" v-if="filterUIStore.showContent" @click="filterUIStore.setShowContent(false)" style="animation: fadeIn 0.1s ease-in">
+          Close
         </button>
       </div>
 
-      <div class="filter__filters">
+      <div class="filter__filters" v-show="filterUIStore.showContent">
         <div v-for="(filterItems, filterKey) in filteredFilters" :key="filterKey" class="filter-section">
           <input class="filter__item" type="radio" name="identifier"
             :id="filterKey.charAt(0).toUpperCase() + filterKey.slice(1)">
@@ -108,21 +112,18 @@ function clearFilters() {
             </div>
           </label>
         </div>
-      </div>
-      <div class="filter__results d-none" v-if="locationStore.totalLocations !== null">
+        <div class="filter__results d-none" v-if="locationStore.totalLocations !== null">
         {{ locationStore.totalLocations }} location{{ locationStore.totalLocations !== 1 ? 's' : '' }} found
       </div>
-      <div class="filter__icon m-none">
-        <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-      </div>
-
       <button @click="clearFilters" class="filter__clear">
           Clear
         </button>
+      </div>
+    
+      <div class="filter__icon m-none">
+        <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+      </div>
     </div>
-  </div>
-  <div v-else>
-    <p>Loading filters...</p>
   </div>
 </template>
 

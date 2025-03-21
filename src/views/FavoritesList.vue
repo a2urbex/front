@@ -3,6 +3,7 @@ import { onMounted, onBeforeUnmount, ref, computed } from 'vue';
 import FavoritesEditor from '@/components/FavoritesEditor.vue';
 import { useFavoritesStore } from '@/stores/favorites';
 import PreLoader from '../components/PreLoader.vue';
+import Title from '@/components/Title.vue';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -55,12 +56,12 @@ onMounted(async () => {
 </script>
 
 <template>
+    <Title title="Favorites" />
     <transition name="fade" mode="out-in">
         <PreLoader msg="Favorites" v-if="isLoading" key="preloader" /> 
     </transition>
     
     <div class="favorites__container">
-        <h2>Favorites</h2>
         <div class="favorites page-width">
             <div class="favorites__entry" 
                 v-for="(favorite) in locationsList" 

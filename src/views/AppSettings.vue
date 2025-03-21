@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useVersionStore } from '@/stores/version';
-
+import Title from '@/components/Title.vue';
 const versionStore = useVersionStore();
 
 const emit = defineEmits(['toggle-add-location']);
@@ -30,6 +30,7 @@ const clearCache = async () => {
 
 </script>
 <template>
+  <Title title="App Settings" />
     <div class="app-settings">
         <img src="/logox192.png" class="app-settings__logo" alt="a2urbex logo" />
         <p class="app-settings__title">a2urbex @2025</p>

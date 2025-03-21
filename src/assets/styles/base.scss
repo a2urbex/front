@@ -42,7 +42,7 @@ body {
 
   @media (max-width : $md){
     height: 100vh;
-    overflow-y: auto;
+    overflow: hidden;
   }
 }
 

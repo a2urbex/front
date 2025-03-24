@@ -89,7 +89,7 @@ const isLocationsRoute = computed(() => {
           <img v-if="isLoggedIn" :src="profileImageUrl" class="header-mobile__user-image" /> <span>{{ userProfile.username }}</span>
         </router-link>
         <div class="header-mobile__user-entries">
-          <router-link class="header-mobile__user-entry header-mobile__settings" to="/profile" @click="toggleOpen">
+          <router-link class="header-mobile__user-entry header-mobile__settings" to="/edit-profile" @click="toggleOpen">
             <font-awesome-icon :icon="['fa', 'gear']" />Account settings
           </router-link>
           <router-link class="header-mobile__user-entry" to="/Locations" @click="toggleOpen">

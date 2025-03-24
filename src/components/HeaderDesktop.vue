@@ -76,7 +76,7 @@ const clearCache = async () => {
           <router-link :to="'/profile/'+ userProfile.id" class="header-desktop__user-entry header-desktop__profile" @click="toggleOpen">
             <font-awesome-icon :icon="['fa', 'user']" />My profile <span>@{{ userProfile.username }}</span>
           </router-link>
-          <router-link class="header-desktop__user-entry header-desktop__settings" to="/profile" @click="toggleOpen">
+          <router-link class="header-desktop__user-entry header-desktop__settings" to="/edit-profile" @click="toggleOpen">
             <font-awesome-icon :icon="['fa', 'gear']" />Account settings
           </router-link>
           <p class="header-desktop__user-entry header-desktop__settings" @click="handleAddLocation">

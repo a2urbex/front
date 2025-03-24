@@ -7,6 +7,9 @@ import ResetPassword from '@/components/ResetForm.vue'
 import NewPassword from '@/components/NewPassword.vue'
 import Auth from '@/views/Auth.vue'
 
+// EDIT PROFILE
+import EditProfile from '@/views/EditProfile.vue'
+
 // FAVORITES
 import FavoritesListView from '@/views/FavoritesList.vue'
 import FavoritesDetailView from '@/views/FavoritesListLocations.vue'
@@ -74,6 +77,10 @@ export default createRouter({
     {
       path: '/admin',
       component: AdminView
+    },
+    {
+      path: '/edit-profile',
+      component: EditProfile
     },
     {
       path: '/',

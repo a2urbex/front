@@ -145,7 +145,7 @@ const copyLink = () => {
             {{ buttonText }}
           </button>
         </template>
-        <button v-else class="profile__actions-button" @click="$router.push('/settings')">
+        <button v-else class="profile__actions-button" @click="$router.push('/edit-profile')">
           <font-awesome-icon :icon="buttonIcon" />
           {{ buttonText }}
         </button>

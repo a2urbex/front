@@ -9,6 +9,7 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 
 import { 
+    faAt,
     faEarthEurope, 
     faAngleLeft, 
     faFontAwesome, 
@@ -46,11 +47,14 @@ import {
     faUtensils,
     faJetFighterUp,
     faMapPin,
-    faTriangleExclamation
-    
+    faTriangleExclamation,
+    faGlobe,
+    faPencil,
+    faPenToSquare
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
+    faAt,
     faEarthEurope, 
     faWaze, 
     faAngleLeft, 
@@ -92,7 +96,10 @@ library.add(
     faMapPin,
     faGavel,
     faWrench,
-    faTriangleExclamation
+    faTriangleExclamation,
+    faGlobe,
+    faPencil,
+    faPenToSquare
 );
 
 export default FontAwesomeIcon;

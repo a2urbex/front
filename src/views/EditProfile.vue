@@ -127,8 +127,11 @@ const handleSubmit = async () => {
 
             <div class="form-group privacy-setting">
                 <label class="checkbox-label">
-                    <input type="checkbox" v-model="formData.isPrivate">
-                    Private Profile
+                    <span>Private Profile</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" v-model="formData.isPrivate" :checked="formData.isPrivate">
+                        <span class="slider"></span>
+                    </div>
                 </label>
             </div>
 

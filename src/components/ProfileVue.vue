@@ -157,7 +157,7 @@ const copyLink = () => {
       <a v-if="user.tiktok" :href="'http://tiktok.com/@' + user.tiktok" target="_blank"><font-awesome-icon :icon="['fab', 'tiktok']" /></a>
     </div>  
   </div>
-  <div class="profile__locations">
+  <div v-if="!user.isPrivate || isSelf" class="profile__locations">
     <div v-for="(location, index) in user.images" :key="index" class="profile__locations-item">
         <img v-if="location"  :src="getImageUrl(location)" :alt="'location-profile-' + user.username">
     </div>

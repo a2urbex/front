@@ -32,6 +32,8 @@ import AppSettingsView from '@/views/AppSettings.vue'
 // ADMIN
 import AdminView from '@/views/Admin.vue'
 
+// THREE.JS
+import ThreeScene from '@/components/ThreeScene.vue'
 
 export default createRouter({
   history: createWebHistory(),
@@ -39,6 +41,10 @@ export default createRouter({
     {
       path: '/',
       component: HomeView
+    },
+    {
+      path: '/three',
+      component: ThreeScene
     },
     {
       path: '/location/add',

@@ -1,9 +1,9 @@
 <template>
   <div class="home">
     <div>
-      <a href="https://a2urbex.eu" target="_blank">
+      <!-- <a href="https://a2urbex.eu" target="_blank">
         <img src="/logox192.png" class="logo" alt="a2urbex logo" />
-      </a>
+      </a> -->
     </div>
     <h1>a2urbex - Your exploration co-pilot</h1>
     <p>Check out our repository on <a href="hhttps://github.com/a2urbex" target="_blank">Github</a></p>

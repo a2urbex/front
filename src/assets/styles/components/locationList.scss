@@ -1,12 +1,12 @@
-@import '@/assets/styles/base.scss';
+@use '@/assets/styles/base.scss' as base;
 
 .locations{
     &-header {
-        @media (max-width: $md) {
+        @media (max-width: base.$md) {
             margin-top: 4rem;
             &>h1{
                 text-align: center;
-                font-size: $font-size-small;
+                font-size: base.$font-size-small;
                 margin: 0;
             }
         }
@@ -23,7 +23,7 @@
         padding-bottom: 1rem;
         margin-bottom: 6rem;
         
-        @media (max-width: $md) {
+        @media (max-width: base.$md) {
             width: 100%;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             grid-auto-rows: 150px;
@@ -41,7 +41,7 @@
                 transform: scale(.8);
             }
     
-            @media (max-width: $md) {
+            @media (max-width: base.$md) {
                 margin-bottom: 5rem;
             }
     
@@ -52,17 +52,17 @@
     
                 .active {
                     transform: scale(1.2);
-                    background-color: $blue;
-                    color: $contrast;
-                    font-weight: $font-weight-bold;
+                    background-color: base.$blue;
+                    color: base.$contrast;
+                    font-weight: base.$font-weight-bold;
                 }
     
                 button {
                     transition: all .5s;
                     cursor: pointer;
-                    background-color: $contrast-1;
+                    background-color: base.$contrast-1;
                     border: none;
-                    color: $contrast-5;
+                    color: base.$contrast-5;
                     padding: 0.3rem .5rem;
                     border-radius: 4px;
                     box-shadow: #00000057 0px 0px 6px 3px;

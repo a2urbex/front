@@ -1,13 +1,17 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { toast } from 'vue3-toastify';
+import { useAuthStore } from '@/stores/auth';
 import FavoritesModal from './FavoriteModal.vue';
-
+import LocationEdit from './LocationEdit.vue';
 const props = defineProps({
     location: Object
 });
 
 const imageError = ref(false);
+const authStore = useAuthStore();
+const isAdmin = computed(() => authStore.userProfile?.isAdmin || false);
+const userId = computed(() => authStore.userProfile?.id || null);
 
 // COPY LINK
 const copyLink = (id) => {
@@ -53,8 +57,12 @@ const wazeUrl = computed(() => {
                         >
                     </template>
                     <p v-else class="image-error">😭 Image not available</p>
-                    <div class="location-card-display__bottom">
-                        <FavoritesModal :fids="location.fids" :id="location.id" />
+                    <div class="location-card-display__bottom page-width">
+                        <div class="location-card-display__bottom-actions">
+                            <FavoritesModal :fids="location.fids" :id="location.id" />
+                            <LocationEdit v-if="isAdmin || location.userId === userId" :location="location" @close="$emit('close')" />
+                        </div>
+
                         <h2>{{ location.name }}</h2>
                         <p class="location-card-display__category">
                             <font-awesome-icon :icon="['fas', 'font-awesome']" />{{ location.categoryName ? location.categoryName : 'Unknown' }}

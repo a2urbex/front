@@ -2,6 +2,14 @@
 
 .home {
     text-align: center;
+    background-image: url('/bg.png');
+    background-size: cover;
+    background-position: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
     .logo {
         height: 6em;
@@ -11,6 +19,11 @@
 
     .logo:hover {
         filter: drop-shadow(0 0 2em $blue);
+    }
+
+    h1{
+        margin: 0;
+        filter: drop-shadow(0 0 2em rgba(10, 134, 10, 1));
     }
 
     &-description {

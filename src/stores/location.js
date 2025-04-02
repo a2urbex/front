@@ -119,6 +119,26 @@ export const useLocationStore = defineStore('location', {
                 console.error('Error adding location:', error);
                 throw error;
             }
+        },
+
+        async updateLocation(id, formData) {
+            try {
+                await request('PUT', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/${id}`, formData);
+                toast.success('Updated successfully!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+                this.fetchLocations(1);
+            } catch (error) {
+                console.error('Error updating location:', error);
+            }
+        },
+
+        async deleteLocation(id) {
+            try {
+                await request('DELETE', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/${id}`);
+                toast.success('Deleted successfully!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+                this.fetchLocations(1);
+            } catch (error) {
+                console.error('Error deleting location:', error);
+            }
         }
     }
 });

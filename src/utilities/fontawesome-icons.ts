@@ -9,6 +9,7 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 
 import { 
+    faEllipsisVertical,
     faAt,
     faEarthEurope, 
     faAngleLeft, 
@@ -55,6 +56,7 @@ import {
 
 library.add(
     faAt,
+    faEllipsisVertical,
     faEarthEurope, 
     faWaze, 
     faAngleLeft, 

@@ -9,6 +9,21 @@
     padding: 2rem 0rem;
     border-top-left-radius: .5rem;
     border-top-right-radius: .5rem;
+
+    &::before {
+        content: '';
+        position: fixed;
+        top: -100vh;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        backdrop-filter: blur(1px);
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease-in-out;
+        z-index: -1;
+    }
     
     @media (min-width: $md){
         width: 30rem;
@@ -51,6 +66,10 @@
             position: relative;
             width: 100%;
             justify-content: center;
+        }
+
+        select{
+            color: $contrast;
         }
     
         &-checkbox {
@@ -100,6 +119,7 @@
             max-height: 200px;
             margin-top: 10px;
             display: block;
+            padding: 0 1rem;
         }
 
         button{

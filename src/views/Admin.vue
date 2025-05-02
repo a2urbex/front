@@ -47,6 +47,7 @@ onMounted(async () => {
    <Title title="Admin" />
 
    <div class="admin-page page-width">
+    <a class="admin-page__legacy" href="https://gestion.a2urbex.eu" target="_blank">Access legacy admin</a>
     <h3>User editor</h3>
     
     <div v-if="usersStore.loading" class="loading">

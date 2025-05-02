@@ -3,8 +3,10 @@ import HeaderComponent from '@/components/Header.vue';
 import MapComponent from '@/components/Map.vue';
 import AddLocationComponent from '@/components/LocationAdd.vue';
 import { ref } from 'vue';
+import { useVersionStore } from '@/stores/version';
 
 const showAddLocation = ref(false);
+const versionStore = useVersionStore();
 
 const toggleAddLocation = () => {
   showAddLocation.value = !showAddLocation.value;
@@ -23,4 +25,9 @@ const toggleAddLocation = () => {
 
   <!-- Content -->
   <router-view />
+
+  <div class="version-info m-none">
+    <span>You are using version: {{ versionStore.code_version }}. </span>
+    <span> <b>This version is not yet fully supported on desktop devices</b></span>
+  </div>
 </template>

@@ -56,10 +56,10 @@ const handleImageChange = (event, type) => {
     const reader = new FileReader();
     reader.onload = (e) => {
         if (type === 'profile') {
-            formData.value.image = e.target.result;
+            formData.value.image = file;
             imagePreview.value = e.target.result;
         } else {
-            formData.value.banner = e.target.result;
+            formData.value.banner = file;
             bannerPreview.value = e.target.result;
         }
     };

@@ -119,10 +119,6 @@ function clearFilters() {
           Clear
         </button>
       </div>
-    
-      <div class="filter__icon m-none">
-        <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-      </div>
     </div>
   </div>
 </template>

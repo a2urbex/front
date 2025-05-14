@@ -10,6 +10,7 @@ const authStore = useAuthStore();
 const filters = ref({});
 const selectedFilters = ref({});
 const query = ref('');
+const isCleared = ref(false);
 
 const isAdmin = computed(() => authStore.userProfile?.isAdmin || false);
 
@@ -26,13 +27,26 @@ const filteredFilters = computed(() => {
 onMounted(async () => {
   try {
     filters.value = await locationStore.getFilters();
-    await locationStore.fetchLocations(1, {});
+    // Initialize selectedFilters with default checked values
+    Object.entries(filters.value).forEach(([filterKey, filterItems]) => {
+      Object.entries(filterItems).forEach(([value, label]) => {
+        if (label.toLowerCase() === 'france') {
+          if (!selectedFilters.value[filterKey]) {
+            selectedFilters.value[filterKey] = [];
+          }
+          selectedFilters.value[filterKey].push(value);
+        }
+      });
+    });
+    // Apply filters will call fetchLocations with the correct filters
+    applyFilters();
   } catch (error) {
     console.error('Error fetching filters:', error);
   }
 });
 
 function handleFilterChange(event, filterKey) {
+  isCleared.value = false;
   const value = event.target.value;
   const isChecked = event.target.checked;
 
@@ -67,6 +81,7 @@ function applyFilters() {
 function clearFilters() {
   selectedFilters.value = {};
   query.value = '';
+  isCleared.value = true;
   applyFilters();
   filterUIStore.setShowContent(false);
 }
@@ -105,7 +120,8 @@ function clearFilters() {
               <div class="filter__item-input-container">
                 <div class="filter__item-input" v-for="(label, value) in filterItems" :key="value">
                   <input type="checkbox" :id="`${filterKey}-${value}`" :value="value"
-                    @change="(event) => handleFilterChange(event, filterKey)" />
+                    @change="(event) => handleFilterChange(event, filterKey)"
+                    :checked="!isCleared && label.toLowerCase() === 'france'" />
                   <label :for="`${filterKey}-${value}`">{{ label }}</label>
                 </div>
               </div>

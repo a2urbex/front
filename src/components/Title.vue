@@ -13,12 +13,16 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-defineProps({
+const props = defineProps({
     title: {
         type: String,
         required: false
     },
     hasPageWidth: {
+        type: Boolean,
+        default: true
+    },
+    goHistory: {
         type: Boolean,
         default: true
     }
@@ -29,7 +33,9 @@ const showBackButton = computed(() => {
 });
 
 const goBack = () => {
-    router.back();
+    if (props.goHistory) {
+        router.back();
+    }
 };
 </script>
 
@@ -39,7 +45,7 @@ const goBack = () => {
         align-items: center;
         background-color: #161616;
         position: relative;
-        z-index: 5;
+        z-index: 8;
     }
 
     .back-button {

@@ -60,7 +60,7 @@ const wazeUrl = computed(() => {
                     <div class="location-card-display__bottom page-width">
                         <div class="location-card-display__bottom-actions">
                             <FavoritesModal :fids="location.fids" :id="location.id" />
-                            <LocationEdit v-if="isAdmin || location.userId === userId" :location="location" @close="$emit('close')" />
+                            <LocationEdit v-if="userId && (isAdmin || location.userId === userId)" :location="location" @close="$emit('close')" />
                         </div>
 
                         <h2>{{ location.name }}</h2>

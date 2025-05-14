@@ -83,7 +83,7 @@ const isLocationsRoute = computed(() => {
   </div>
 
   <div :class="{ 'header-mobile__user-info': true, 'open': isOpen }">
-      <Title @click="toggleOpen" title="Menu" :hasPageWidth="false" />
+      <Title @click="toggleOpen" title="Menu" :hasPageWidth="false" :goHistory="false" />
       <div class="header-mobile__user-info-wrapper">
         <router-link class="header-mobile__profile" :to="'/profile/'+ userProfile.id" @click="() => { filterUIStore.setShowContent(false); toggleOpen() }">
           <img v-if="isLoggedIn" :src="profileImageUrl" class="header-mobile__user-image" /> <span>{{ userProfile.username }}</span>

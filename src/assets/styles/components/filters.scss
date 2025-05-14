@@ -38,7 +38,7 @@
         &.active{
             @media (max-width: $md) {
                 position: absolute;
-                z-index: 6;
+                z-index: 9;
             }
         }
     }

@@ -11,6 +11,7 @@ const route = useRoute()
 const mapStore = useMapStore();
 const authStore = useAuthStore();
 const isAdmin = computed(() => authStore.userProfile?.isAdmin || false);
+const isAuthenticated = computed(() => !authStore.userProfile);
 
 const apiKey = import.meta.env.VITE_MAPS_KEY;
 const center = { lat: 46.71109, lng: 1.7191036 };
@@ -39,7 +40,7 @@ const displayOverlay = (item) => {
 
 <template>
   <transition name="map" mode="out-in">
-      <div id="map" v-if="mapStore.open">
+      <div :class="['map-container', { 'full-height': !isAuthenticated }]" id="map" v-if="mapStore.open">
         <GoogleMap :api-key="apiKey" style="width: 100%; height: 100%" :center="center" :zoom="zoom">
           <Marker 
             v-for="item in mapStore.locations"

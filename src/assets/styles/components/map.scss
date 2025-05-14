@@ -9,10 +9,21 @@
   background-color: black;
   z-index: 8;
 
+  &.full-height {
+    height: 100%;
+    top: 0;
+  }
+
   @media (min-width: $md) {
     height: calc(100% - 4rem);
     top: auto;
     bottom: 0;
+
+    &.full-height {
+      height: 100%;
+      bottom: auto;
+      top: 0;
+    }
   }
 
   .map-enter-active,

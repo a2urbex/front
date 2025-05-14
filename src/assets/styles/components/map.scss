@@ -3,18 +3,40 @@
 #map {
   position: fixed;
   width: 100%;
-  height: calc(100% - 87px);
+  height: calc(100% - 210px);
   top: 7rem;
   left: 0;
   background-color: black;
-  z-index: 5;
+  z-index: 8;
+
+  @media (min-width: $md) {
+    height: calc(100% - 4rem);
+    top: auto;
+    bottom: 0;
+  }
+
+  .map-enter-active,
+  .map-leave-active {
+    transition: all 0.2s ease-out;
+  }
+
+  .map-enter-from,
+  .map-leave-to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
 
   .map-overlay {
     position: absolute;
-    bottom: 1rem;
+    bottom: .7rem;
     width: 100%;
     display: flex;
     justify-content: center;
+    transform-origin: bottom;
+
+    @media (min-width: $md) {
+      bottom: 2rem;
+    }
 
     &-inner {
       position: relative;
@@ -120,6 +142,21 @@
          background-color: rgba(52,168,81,.188); 
          color: #34a851;
         }
+      }
+    }
+    .favorite-modal{
+      position: inherit;
+      width: 40px;
+      height: 40px;
+      border: 5px;
+      font-size: 22px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #ffffff1f;
+      &__trigger{
+        position: inherit;
       }
     }
   }

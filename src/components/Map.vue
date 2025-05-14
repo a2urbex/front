@@ -1,12 +1,16 @@
 <script setup>
-import { toRaw, watch, ref } from 'vue';
+import { toRaw, watch, ref, computed } from 'vue';
 import { GoogleMap, Marker } from 'vue3-google-map';
 import { useRoute } from 'vue-router';
-
+import FavoritesModal from './FavoriteModal.vue';
+import LocationEdit from './LocationEdit.vue';
+import { useAuthStore } from '@/stores/auth';
 import { useMapStore } from '@/stores/map';
 
 const route = useRoute()
 const mapStore = useMapStore();
+const authStore = useAuthStore();
+const isAdmin = computed(() => authStore.userProfile?.isAdmin || false);
 
 const apiKey = import.meta.env.VITE_MAPS_KEY;
 const center = { lat: 46.71109, lng: 1.7191036 };
@@ -86,6 +90,8 @@ const displayOverlay = (item) => {
                   <a class="pin-maps" target="_blank" :href="`https://www.google.com/maps?t=k&q=${itemSelected?.lat},${itemSelected?.lon}`">
                     <font-awesome-icon :icon="['fas', 'earth-europe']" />
                   </a>
+                  <FavoritesModal :fids="itemSelected?.fids" :id="itemSelected?.id" />
+                  <!-- <LocationEdit v-if="isAdmin || itemSelected?.userId === userId" :location="itemSelected" @close="$emit('close')" /> -->
                 </div>
               </div>
             </div>

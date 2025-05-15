@@ -12,10 +12,28 @@ export const useAuthStore = defineStore('auth', {
         async login(email, password, keepMeLoggedIn) {
             try {
                 const data = await request('POST', `${import.meta.env.VITE_LOGIN_ENDPOINT}`, { email, password, keepMeLoggedIn });
-                this.token = data.token;
-                localStorage.setItem('authToken', data.token);
-                toast.success('Login successful!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
-                await this.fetchUserProfile();
+                
+                if (data.old) {
+                    console.log('old');
+                    toast.warning('Welcome to the brand-new a2urbex. You must reset your password to access the platform.', { 
+                        position: toast.POSITION.TOP_CENTER, 
+                        autoClose: 5000, 
+                        pauseOnHover: true, 
+                        theme: 'dark' 
+                    });
+                    setTimeout(() => {
+                        router.push('/forgot-password');
+                    }, 3000);
+                    return;
+                }else{
+                    this.token = data.token;
+                    localStorage.setItem('authToken', data.token);
+                    toast.success('Login successful!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
+                    await this.fetchUserProfile();
+                    setTimeout(() => {
+                        router.push('/locations');
+                    }, 1500);
+                }
             } catch (error) {
                 throw error;
             }

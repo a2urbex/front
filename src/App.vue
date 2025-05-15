@@ -11,6 +11,7 @@ const versionStore = useVersionStore();
 const toggleAddLocation = () => {
   showAddLocation.value = !showAddLocation.value;
 };
+
 </script>
 
 <template>

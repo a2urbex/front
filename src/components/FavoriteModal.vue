@@ -30,15 +30,12 @@ const isCreatingList = ref(false);
 const newListName = ref('');
 const inputRef = ref(null);
 
-watch(isActive, async (newValue) => {
-  if (newValue) {
+const toggleActive = async () => {
+  isActive.value = !isActive.value;
+  if (isActive.value) {
     await favoritesStore.getSummary();
     await locationStore.getLocation(props.id);
   }
-});
-
-const toggleActive = () => {
-  isActive.value = !isActive.value;
 };
 
 const isItemInFids = (itemId) => fidsRef.value.includes(itemId);
@@ -76,12 +73,6 @@ const submitNewList = async () => {
 const handleInputBlur = () => {
   submitNewList();
 };
-
-onMounted(async () => {
-  if (isLoggedIn.value) {
-    await favoritesStore.getSummary();
-  }
-});
 </script>
 
 <template>

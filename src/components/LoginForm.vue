@@ -14,9 +14,6 @@ export default {
             const authStore = useAuthStore();            
             try {
                 await authStore.login(this.email, this.password, this.keepMeLoggedIn);
-                setTimeout(() => { 
-                    this.$router.push('/locations');
-                }, 1500);
             } catch (error) {
                 console.error('Login failed:', error);
             }

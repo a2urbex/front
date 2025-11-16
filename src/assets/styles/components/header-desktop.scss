@@ -1,32 +1,230 @@
 @import '@/assets/styles/base.scss';
 
 .header-desktop {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    justify-content: space-between;
     position: fixed;
-    z-index: 6;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    padding-top: 1.2rem;
-    padding-bottom: 1.2rem;
-    background-color: $background;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 260px;
+    padding: 1.5rem 1.25rem;
+    background: linear-gradient(180deg, $background 0%, $dark-background 80%);
+    border-right: 1px solid $contrast-1;
+    box-shadow: $dark-background 0 0 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    z-index: 8;
 
-    &__left {
-        display: flex;
-        align-items: center;
+    &__logo {
+        font-size: 1.1rem;
+        font-weight: $font-weight-bold;
+        letter-spacing: 0.08em;
     }
 
-    &__right {
+    &__logo-link {
+        color: $contrast;
+    }
+
+    &__content {
+        margin-top: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+    }
+
+    &__section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+
+        &--primary {
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid $contrast-1;
+        }
+
+        &--filters {
+            padding: 0.6rem 0.5rem 0.5rem 0.5rem;
+            border-radius: 0.75rem;
+            background-color: rgba($contrast-0, 0.9);
+            border: 1px solid $contrast-1;
+        }
+
+        &--map {
+            gap: 0.6rem;
+        }
+
+        &--secondary {
+            padding-top: 0.5rem;
+            border-top: 1px solid $contrast-1;
+        }
+
+        &--user {
+            margin-top: auto;
+            padding-top: 0.75rem;
+            border-top: 1px solid $contrast-1;
+            gap: 0.6rem;
+        }
+    }
+
+    &__nav-link {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: 0.6rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.6rem;
+        color: $contrast-4;
+        font-size: $font-size-xsmall;
+        font-weight: $font-weight-medium;
 
         svg {
-            color: $contrast-4;
+            min-width: 1rem;
         }
+
+        &:hover {
+            background-color: $contrast-0;
+            color: $contrast;
+        }
+    }
+
+    &__filters-trigger {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 999px;
+        border: 1px solid $contrast-2;
+        background-color: $contrast-0;
+        color: $contrast-4;
+        font-size: $font-size-xsmall;
+        font-weight: $font-weight-medium;
+        cursor: pointer;
+
+        &:hover {
+            border-color: $contrast-3;
+            color: $contrast;
+        }
+    }
+
+    &__section-label {
+        margin: 0;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: $contrast-3;
+    }
+
+    &__map-toggle {
+        display: flex;
+        gap: 0.35rem;
+        background-color: $contrast-1;
+        padding: 0.2rem;
+        border-radius: 999px;
+    }
+
+    &__map-btn {
+        flex: 1;
+        border: none;
+        border-radius: 999px;
+        background-color: transparent;
+        color: $contrast-4;
+        font-size: $font-size-xsmall;
+        padding: 0.25rem 0.7rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &.active {
+            background-color: $blue;
+            color: $contrast;
+        }
+    }
+
+    &__profile {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.6rem;
+        background-color: $contrast-0;
+        color: $contrast;
+        cursor: pointer;
+    }
+
+    &__profile-avatar {
+        width: 2.1rem;
+        height: 2.1rem;
+        border-radius: 50%;
+        object-fit: cover;
+        background-image: url('/default-user.png');
+        background-size: cover;
+        background-position: center;
+    }
+
+    &__profile-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+    }
+
+    &__profile-name {
+        font-size: $font-size-small;
+        font-weight: $font-weight-medium;
+    }
+
+    &__profile-handle {
+        font-size: 0.75rem;
+        color: $contrast-3;
+    }
+
+    &__profile-toggle {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $contrast-3;
+
+        .fa-angle-down {
+            transition: transform 0.15s ease;
+        }
+
+        .fa-angle-down.open {
+            transform: rotate(180deg);
+        }
+    }
+
+    &__user-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-top: 0.4rem;
+    }
+
+    &__add,
+    &__logout {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.75rem;
+        border-radius: 0.6rem;
+        border: none;
+        cursor: pointer;
+        font-size: $font-size-xsmall;
+        font-weight: $font-weight-medium;
+    }
+
+    &__add {
+        background-color: $contrast-0;
+        color: $contrast;
+    }
+
+    &__logout {
+        background-color: rgba(194, 51, 51, 0.15);
+        color: #c23333;
     }
 
     &__connect {
@@ -34,9 +232,11 @@
         color: $contrast;
         font-size: $font-size-xsmall;
         font-weight: $font-weight-bold;
-        width: fit-content;
-        border-radius: 1rem;
-        padding: 0.3rem 0.5rem;
+        width: 100%;
+        border-radius: 999px;
+        padding: 0.4rem 0.8rem;
+        text-align: center;
+        display: inline-block;
 
         &:hover {
             background-color: $darker-blue;
@@ -44,81 +244,37 @@
     }
 
     &__home {
-        color: $contrast;
+        color: $contrast-4;
         font-size: $font-size-xsmall;
-        font-weight: $font-weight-bold;
+        margin-bottom: 0.5rem;
     }
 
-    &__user {
-        &-image {
-            width: 2.2rem;
-            height: 2.2rem;
-            border-radius: 50%;
-            cursor: pointer;
-            background-image: url('/default-user.png');
-            background-size: cover;
-            background-position: center;
-        }
-
-        &-entry {
-            width: 100%;
-            padding: 0.5rem 1rem;
-            border-radius: .2rem;
-            font-weight: $font-weight-medium;
-            color: $contrast-3;
-            margin: 0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: .5rem;
-
-            &:hover {
-                background-color: $contrast-1;
-                color: $contrast;
-            }
-
-            svg {
-                margin-right: .5rem;
-            }
-
-            span {
-                font-weight: 100;
-                color: $contrast-2;
-                font-weight: $font-weight-normal;
-            }
-        }
-
-        &-separator {
-            width: 100%;
-            height: 1px;
-            background-color: $contrast-1;
-        }
-
-        &-info {
-            position: absolute;
-            opacity: 0;
-            visibility: hidden;
-            right: 2rem;
-            top: 4.4rem;
-            min-width: 18rem;
-            transition: all .2s;
-            border-radius: .4rem;
-            padding: 0 0.4rem;
-            background-color: $background;
-            box-shadow: $dark-background 1px 7px 14px;
-
-            &-wrapper {
-                display: flex;
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 0.2rem;
-            }
-
-            &.open {
-                visibility: visible;
-                opacity: 1;
-                padding: 0.4rem;
-            }
-        }
+    &__content--guest {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
     }
-} 
+
+    // Highlight active link inside sidebar
+    .router-link-active.header-desktop__nav-link {
+        background-color: $contrast-0;
+        color: $contrast;
+    }
+
+    .fa-heart {
+        color: #7507f1;
+    }
+
+    .fa-gear {
+        color: #e09999;
+    }
+
+    .fa-users {
+        color: #0099ff;
+    }
+
+    .fa-map-pin {
+        color: #eeee52;
+    }
+}

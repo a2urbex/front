@@ -94,7 +94,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <Filters />
+    <Filters class="d-none" />
     <MapHeader />
     
     <transition name="fade" mode="out-in">

@@ -46,6 +46,12 @@ body {
   }
 }
 
+@media (min-width: $md) {
+  #app {
+    padding-left: 260px;
+  }
+}
+
 a {
   color : $blue;
   text-decoration: none;
@@ -87,9 +93,10 @@ a {
 .version-info{
   position: fixed;
   bottom: 1rem;
-  left: 50%;
+  left: calc(50% + 130px);
   transform: translateX(-50%);
   font-size: 12px;
+  white-space: nowrap;
   color: white;
   z-index: 1000;
   padding: .5rem 1rem;

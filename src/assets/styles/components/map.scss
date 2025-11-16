@@ -16,7 +16,10 @@
 
   @media (min-width: $md) {
     height: calc(100% - 4rem);
+    width: calc(100% - 260px);
     top: auto;
+    right: 0;
+    left: auto;
     bottom: 0;
 
     &.full-height {

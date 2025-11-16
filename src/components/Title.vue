@@ -1,5 +1,5 @@
 <template>
-    <div class="title-container" :class="{ 'page-width': hasPageWidth }">
+    <div class="title-container">
         <button v-if="showBackButton" class="back-button" @click="goBack">
             <font-awesome-icon :icon="['fas', 'angle-left']" />
         </button>
@@ -43,31 +43,44 @@ const goBack = () => {
     .title-container {
         display: flex;
         align-items: center;
-        background-color: #161616;
+        gap: 0.75rem;
         position: relative;
         z-index: 8;
+        padding: 0.5rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     }
 
     .back-button {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 18px;
-        padding: 0.5rem 1rem 0.5rem 0;
+        background: #1b1b1b;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #ffffff;
+        font-size: 16px;
+        padding: 0;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 999px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: opacity 0.2s;
+        transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+        margin-right: 0.25rem;
+    }
+
+    .back-button:hover {
+        background-color: #222222;
+        border-color: rgba(255, 255, 255, 0.16);
+        opacity: 0.95;
     }
 
     h2 {
-        font-size: 24px;
+        font-size: 1.2rem;
         font-weight: 600;
         text-align: left;
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-        margin: 0 0 -.1rem 0;
+        padding: 0;
+        margin: 0;
         flex: 1;
+        line-height: 1.2;
+        letter-spacing: 0.01em;
     }
 </style>

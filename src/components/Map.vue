@@ -36,6 +36,37 @@ const displayOverlay = (item) => {
   console.log(toRaw(item))
 }
 
+const getMarkerOptions = (item) => {
+  const isSelected = itemSelected.value && itemSelected.value.id === item.id
+
+  const baseSize = { height: 27, width: 20 }
+  const selectedSize = { height: 36, width: 26 }
+  const size = isSelected ? selectedSize : baseSize
+
+	  // Use Google Maps native animation when available
+	  const gm = typeof window !== 'undefined' ? window.google : null
+	  const animation = isSelected && gm && gm.maps && gm.maps.Animation
+	    ? gm.maps.Animation.BOUNCE
+	    : null
+
+  return {
+    position: { lat: item.lat, lng: item.lon },
+    title: item.name,
+    zIndex: isSelected ? 10 : 2,
+    animation,
+    icon: {
+      url: `/pins/pin-${item.categoryIcon || 'default'}.png`,
+      scaledSize: size,
+      origin: { x: 0, y: 0 },
+      anchor: { x: size.width / 2, y: size.height },
+    },
+    shape: {
+      type: 'poly',
+      coords: [10, 0, 17, 3, 20, 9, 10, 27, 0, 9, 3, 3],
+    },
+  }
+}
+
 </script>
 
 <template>
@@ -44,23 +75,9 @@ const displayOverlay = (item) => {
         <GoogleMap :api-key="apiKey" style="width: 100%; height: 100%" :center="center" :zoom="zoom">
           <Marker 
             v-for="item in mapStore.locations"
+            :key="item.id"
             @click="displayOverlay(item)"
-            :options="{
-              position: { lat: item.lat, lng: item.lon },
-              title: item.name,
-              zIndex: 2,
-              icon: {
-                url: `/pins/pin-${item.categoryIcon || 'default'}.png`,
-                scaledSize: { height: 27, width: 20 },
-                origin: { x: 0, y: 0 },
-                anchor: { x: 10, y: 27 },
-                zIndex: 2,
-              },
-              shape: {
-                type: 'poly',
-                coords: [10, 0, 17, 3, 20, 9, 10, 27, 0, 9, 3, 3],
-              },
-            }"
+            :options="getMarkerOptions(item)"
           />
         </GoogleMap>
 

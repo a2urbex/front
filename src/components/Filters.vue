@@ -91,7 +91,7 @@ function clearFilters() {
   <div class="filter__container" :class="{ active: filterUIStore.showContent }">
     <div class="filter__wrapper" :class="{ active: filterUIStore.showContent }">
       <div class="filter__search">
-        <div class="filter__icon">
+        <div class="filter__icon d-none">
           <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
         </div>
         <input type="text" 
@@ -99,7 +99,7 @@ function clearFilters() {
           @focus="filterUIStore.setShowContent(true)" 
           v-model="query" 
           @input="applyFilters" />
-        <button class="filter__search-close" v-if="filterUIStore.showContent" @click="filterUIStore.setShowContent(false)" style="animation: fadeIn 0.1s ease-in">
+        <button class="filter__search-close d-none" v-if="filterUIStore.showContent" @click="filterUIStore.setShowContent(false)" style="animation: fadeIn 0.1s ease-in">
           Close
         </button>
       </div>
@@ -114,7 +114,7 @@ function clearFilters() {
             </label></p>
             <div class="filter__item-content">
               <input class="filter__item" type="radio" name="identifier" id="close">
-              <label for="close" class="filter__item-close">
+              <label for="close" class="filter__item-close d-none">
                 <font-awesome-icon :icon="['fas', 'xmark']" />
               </label>
               <div class="filter__item-input-container">

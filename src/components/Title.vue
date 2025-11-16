@@ -47,6 +47,7 @@ const goBack = () => {
         position: relative;
         z-index: 8;
         padding: 0.5rem 1.5rem;
+        background-color: #161616   ;
         border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     }
 

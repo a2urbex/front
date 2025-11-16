@@ -162,9 +162,9 @@
             align-items: flex-start;
             z-index: 9;
 
-            .title-container{
-                background-color: transparent;
-            }
+            // .title-container{
+            //     background-color: transparent;
+            // }
 
             &-close {
                 position: absolute;
@@ -178,7 +178,7 @@
             }
 
             &.open {
-                padding: 0rem 1.5rem 2rem 1.5rem;
+                padding: 0;
                 top: 0%;
             }
         }

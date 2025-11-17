@@ -39,6 +39,8 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: $contrast-1 transparent;
 
   @media (max-width : $md){
     height: 100dvh;

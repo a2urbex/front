@@ -1,17 +1,24 @@
 <script setup>
 import { toRaw, watch, ref, computed } from 'vue';
 import { GoogleMap, Marker } from 'vue3-google-map';
+import { useLocationStore } from '@/stores/location';
 import { useRoute } from 'vue-router';
 import FavoritesModal from './FavoriteModal.vue';
-import LocationEdit from './LocationEdit.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useMapStore } from '@/stores/map';
+
+const locationStore = useLocationStore();
+
+const props = defineProps({
+    location: Object
+});
 
 const route = useRoute()
 const mapStore = useMapStore();
 const authStore = useAuthStore();
 const isAdmin = computed(() => authStore.userProfile?.isAdmin || false);
 const isAuthenticated = computed(() => !authStore.userProfile);
+const userId = computed(() => authStore.userProfile?.id);
 
 const apiKey = import.meta.env.VITE_MAPS_KEY;
 const center = { lat: 46.71109, lng: 1.7191036 };
@@ -35,6 +42,27 @@ const displayOverlay = (item) => {
   itemSelected.value = toRaw(item)
   console.log(toRaw(item))
 }
+
+const emit = defineEmits(['close']);
+const showDeleteConfirm = ref(false);
+
+const handleDelete = async () => {
+    showDeleteConfirm.value = true;
+};
+
+const confirmDelete = async () => {
+    if (itemSelected.value && itemSelected.value.id) {
+        await locationStore.deleteLocation(itemSelected.value.id);
+        mapStore.locations = mapStore.locations.filter(loc => loc.id !== itemSelected.value.id);
+        showDeleteConfirm.value = false;
+        overlayOpen.value = false;
+        itemSelected.value = null;
+    }
+};
+
+const cancelDelete = () => {
+    showDeleteConfirm.value = false;
+};
 
 const getMarkerOptions = (item) => {
   const isSelected = itemSelected.value && itemSelected.value.id === item.id
@@ -109,7 +137,21 @@ const getMarkerOptions = (item) => {
                     <font-awesome-icon :icon="['fas', 'earth-europe']" />
                   </a>
                   <FavoritesModal :fids="itemSelected?.fids" :id="itemSelected?.id" />
-                  <!-- <LocationEdit v-if="isAdmin || itemSelected?.userId === userId" :location="itemSelected" @close="$emit('close')" /> -->
+
+                  <button v-if="isAdmin || itemSelected?.userId === userId" class="location-edit-button icon-delete" @click="handleDelete">
+                      <font-awesome-icon :icon="['fas', 'trash']" />
+                  </button>
+                  
+                  <div v-if="showDeleteConfirm" class="delete-confirm-overlay map-overlay">
+                      <div class="delete-confirm-dialog">
+                          <h3>Confirm Delete</h3>
+                          <p>Are you sure you want to delete this location?</p>
+                          <div class="delete-confirm-actions">
+                              <button class="btn-cancel" @click="cancelDelete">Cancel</button>
+                              <button class="btn-delete" @click="confirmDelete">Delete</button>
+                          </div>
+                      </div>
+                  </div>
                 </div>
               </div>
             </div>

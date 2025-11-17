@@ -6,19 +6,18 @@
     bottom: 0;
     left: 0;
     width: 260px;
-    padding: 1.5rem 1.25rem;
     background: linear-gradient(180deg, $background 0%, $dark-background 80%);
     border-right: 1px solid $contrast-1;
     box-shadow: $dark-background 0 0 30px;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
     z-index: 8;
 
     &__logo {
         font-size: 1.1rem;
         font-weight: $font-weight-bold;
         letter-spacing: 0.08em;
+        padding: 1rem 1.25rem;
     }
 
     &__logo-link {
@@ -27,12 +26,12 @@
 
     &__content {
         margin-top: 0.5rem;
+        padding: 1.5rem 1.25rem;
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
         flex: 1;
         overflow-y: auto;
-        padding-right: 0.25rem;
     }
 
     &__section {
@@ -45,20 +44,10 @@
             border-bottom: 1px solid $contrast-1;
         }
 
-        &--filters {
-            padding: 0.6rem 0.5rem 0.5rem 0.5rem;
-            border-radius: 0.75rem;
-            background-color: rgba($contrast-0, 0.9);
-            border: 1px solid $contrast-1;
-        }
-
         &--map {
             gap: 0.6rem;
-        }
-
-        &--secondary {
-            padding-top: 0.5rem;
-            border-top: 1px solid $contrast-1;
+            border-bottom: 1px solid $contrast-1;
+            padding-bottom: 1.5rem;
         }
 
         &--user {
@@ -207,7 +196,6 @@
         width: 100%;
         display: flex;
         align-items: center;
-        justify-content: center;
         gap: 0.5rem;
         padding: 0.45rem 0.75rem;
         border-radius: 0.6rem;
@@ -218,13 +206,20 @@
     }
 
     &__add {
-        background-color: $contrast-0;
+        background: transparent;
         color: $contrast;
+        justify-content: flex-start;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: $blue;
+        }
     }
 
     &__logout {
         background-color: rgba(194, 51, 51, 0.15);
         color: #c23333;
+        justify-content: center;
     }
 
     &__connect {

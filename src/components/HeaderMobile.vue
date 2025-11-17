@@ -5,6 +5,7 @@ import { useVersionStore } from '@/stores/version';
 import { useRouter } from 'vue-router';
 import { useFilterUIStore } from '@/stores/filterUI';
 import Title from '@/components/Title.vue';
+import Filters from '@/components/Filters.vue';
 
 const versionStore = useVersionStore();
 const authStore = useAuthStore();
@@ -88,6 +89,9 @@ const isLocationsRoute = computed(() => {
         <router-link class="header-mobile__profile" :to="'/profile/'+ userProfile.id" @click="() => { filterUIStore.setShowContent(false); toggleOpen() }">
           <img v-if="isLoggedIn" :src="profileImageUrl" class="header-mobile__user-image" /> <span>{{ userProfile.username }}</span>
         </router-link>
+        <div v-if="isLocationsRoute" class="header-mobile__filters-wrapper d-none">
+          <Filters idPrefix="mobile-" :hideSearch="true" />
+        </div>
         <div class="header-mobile__user-entries">
           <router-link class="header-mobile__user-entry header-mobile__settings" to="/edit-profile" @click="toggleOpen">
             <font-awesome-icon :icon="['fa', 'gear']" />Account settings

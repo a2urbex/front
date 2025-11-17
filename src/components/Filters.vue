@@ -4,6 +4,17 @@ import { useLocationStore } from '@/stores/location';
 import { useFilterUIStore } from '@/stores/filterUI';
 import { useAuthStore } from '@/stores/auth';
 
+const props = defineProps({
+  idPrefix: {
+    type: String,
+    default: ''
+  },
+  hideSearch: {
+    type: Boolean,
+    default: false
+  }
+});
+
 const locationStore = useLocationStore();
 const filterUIStore = useFilterUIStore();
 const authStore = useAuthStore();
@@ -44,6 +55,11 @@ onMounted(async () => {
     console.error('Error fetching filters:', error);
   }
 });
+
+function selectedCount(filterKey) {
+  return selectedFilters.value[filterKey]?.length || 0;
+}
+
 
 function handleFilterChange(event, filterKey) {
   isCleared.value = false;
@@ -88,9 +104,9 @@ function clearFilters() {
 </script>
 
 <template>
-  <div class="filter__container" :class="{ active: filterUIStore.showContent }">
-    <div class="filter__wrapper" :class="{ active: filterUIStore.showContent }">
-      <div class="filter__search">
+  <div class="filter__container" :class="{ active: filterUIStore.showContent && !hideSearch }">
+    <div class="filter__wrapper" :class="{ active: filterUIStore.showContent && !hideSearch }">
+      <div class="filter__search" v-if="!hideSearch">
         <div class="filter__icon d-none">
           <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
         </div>
@@ -104,25 +120,26 @@ function clearFilters() {
         </button>
       </div>
 
-      <div class="filter__filters" v-show="filterUIStore.showContent">
+      <div class="filter__filters" v-show="filterUIStore.showContent || hideSearch">
         <div v-for="(filterItems, filterKey) in filteredFilters" :key="filterKey" class="filter-section">
-          <input class="filter__item" type="radio" name="identifier"
-            :id="filterKey.charAt(0).toUpperCase() + filterKey.slice(1)">
-          <label :for="filterKey.charAt(0).toUpperCase() + filterKey.slice(1)">
-            <p class="filter__item-content-title">{{ filterKey.charAt(0).toUpperCase() + filterKey.slice(1) }} <label for="close" class="close-item d-none">
-              <font-awesome-icon :icon="['fas', 'angle-left']" />
-            </label></p>
+          <input class="filter__item" type="checkbox"
+            :id="`${idPrefix}${filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}`">
+          <label :for="`${idPrefix}${filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}`">
+            <p class="filter__item-content-title">
+              {{ filterKey.charAt(0).toUpperCase() + filterKey.slice(1) }}
+              ({{ selectedCount(filterKey) }})
+              <span class="close-item">
+                <font-awesome-icon :icon="['fas', 'angle-left']" />
+              </span>
+            </p>
+
             <div class="filter__item-content">
-              <input class="filter__item" type="radio" name="identifier" id="close">
-              <label for="close" class="filter__item-close d-none">
-                <font-awesome-icon :icon="['fas', 'xmark']" />
-              </label>
               <div class="filter__item-input-container">
                 <div class="filter__item-input" v-for="(label, value) in filterItems" :key="value">
-                  <input type="checkbox" :id="`${filterKey}-${value}`" :value="value"
+                  <input type="checkbox" :id="`${idPrefix}${filterKey}-${value}`" :value="value"
                     @change="(event) => handleFilterChange(event, filterKey)"
                     :checked="!isCleared && label.toLowerCase() === 'france'" />
-                  <label :for="`${filterKey}-${value}`">{{ label }}</label>
+                  <label :for="`${idPrefix}${filterKey}-${value}`">{{ label }}</label>
                 </div>
               </div>
             </div>

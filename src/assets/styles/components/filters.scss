@@ -162,19 +162,7 @@
 
         @media (max-width: $md) {
             width: 100%;
-            justify-content: flex-start;
             background-color: $contrast-1;
-            border-radius: 4px;
-        }
-
-        ;
-
-        &:not(:last-child) {
-            border-right: 1px solid $contrast-2;
-
-            @media (max-width: $md) {
-                border: none;
-            }
         }
     }
 
@@ -195,6 +183,7 @@
                 cursor: pointer;
                 padding: 4px 13px;
                 font-size: $font-size-xsmall;
+                border-right: 2px solid $blue;
 
                 &>.close-item{
                     transition: all .2s;
@@ -217,7 +206,6 @@
             color: $contrast-5;
             font-weight: $font-weight-bold;
             // border-radius: 4rem;
-            margin: 0 .5rem;
             &>.close-item{
                 transform: rotate(90deg);
             }
@@ -236,13 +224,12 @@
             top: 3rem;
             width: 100%;
             gap: 1rem;
-            background-color: $contrast-3;
+            background-color: $background;
             height: fit-content;
             display: flex;
             flex-direction: column;
             max-height: 400px;
             overflow-x: auto;
-            align-items: flex-end;
 
             @media (max-width: $md) {
                 position: inherit;
@@ -270,7 +257,7 @@
 
             .filter__item-input-container {
                 display: flex;
-                flex-wrap: wrap;
+                flex-direction: column;
                 gap: .5rem;
             }
 
@@ -313,22 +300,21 @@
     }
 }
 
-// Inline variant when filters are rendered inside the desktop sidebar
-@media (min-width: $md) {
-  .header-desktop__filters-inline {
+// Mobile variant when filters are rendered inside the mobile header menu
+@media (max-width: $md) {
+  .header-mobile__filters-wrapper {
     .filter__container {
       position: static;
       width: 100%;
       transform: none;
       left: auto;
       top: auto;
-      border-radius: 0.75rem;
       background-color: transparent;
     }
 
     .filter__wrapper {
       background-color: transparent;
-      border-radius: 0.75rem;
+      border-radius:0rem;
       box-shadow: none;
     }
 
@@ -371,12 +357,13 @@
 
     .filter__item-content-title {
       padding: 0.4rem 0.8rem;
-      background-color: $contrast-1;
+      background-color: $background;
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: $font-size-xsmall;
-      color: $contrast-4;
+      color: $contrast;
+      border-right: 2px solid $blue;
     }
 
     .filter__item:checked+label > .filter__item-content-title {
@@ -388,11 +375,12 @@
       top: 0;
       left: 0;
       background-color: $contrast-0;
-      border-radius: 0.5rem;
+      border-radius: 0;
       max-height: 220px;
       overflow-y: auto;
       align-items: flex-start;
       margin-top: 0.4rem;
+      padding: 0;
     }
 
     .filter__item-input-container {
@@ -411,16 +399,129 @@
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      border-radius: 0.4rem;
+      border-radius: 0rem;
       padding: 0.35rem 0.6rem;
       border-color: $contrast-1;
-      background-color: $contrast-1;
+      background-color: transparent;
       font-size: 0.8rem;
       color: $contrast-5;
 
       &:hover {
-        background-color: $contrast-2;
-        border-color: $contrast-2;
+        background-color: $blue;
+        color: $contrast;
+      }
+    }
+  }
+}
+
+// Inline variant when filters are rendered inside the desktop sidebar
+@media (min-width: $md) {
+  .header-desktop__filters-inline {
+    .filter__container {
+      position: static;
+      width: 100%;
+      transform: none;
+      left: auto;
+      top: auto;
+      background-color: transparent;
+    }
+
+    .filter__wrapper {
+      background-color: transparent;
+      border-radius:0rem;
+      box-shadow: none;
+    }
+
+    .filter__search {
+      padding: 0.25rem 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+
+      .filter__icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 999px;
+        background-color: $contrast-0;
+        color: $contrast-4;
+      }
+
+      input {
+        flex: 1;
+        background-color: $contrast-0;
+        border-radius: 999px;
+        border: 1px solid $contrast-2;
+        padding: 0.45rem 0.9rem;
+        font-size: $font-size-xsmall;
+        color: $contrast-4;
+
+        &:focus {
+          outline: none;
+          border-color: $contrast-3;
+          color: $contrast;
+        }
+      }
+    }
+
+    .filter__filters {
+      background-color: transparent;
+      padding-top: 0.25rem;
+      gap: 0.6rem;
+    }
+
+    .filter__item-content-title {
+      padding: 0.4rem 0.8rem;
+      background-color: $background;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: $font-size-xsmall;
+      color: $contrast;
+      border-right: 2px solid $blue;
+    }
+
+    .filter__item:checked+label > .filter__item-content-title {
+      color: $contrast;
+    }
+
+    .filter__item:checked+label > .filter__item-content {
+      position: relative;
+      top: 0;
+      left: 0;
+      background-color: $contrast-0;
+      border-radius: 0;
+      max-height: 220px;
+      overflow-y: auto;
+      align-items: flex-start;
+      margin-top: 0.4rem;
+      padding: 0;
+    }
+
+    .filter__item-input-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .filter__item-input {
+      width: 100%;
+    }
+
+    .filter__item-input label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      border-radius: 0rem;
+      padding: 0.35rem 0.6rem;
+      border-color: $contrast-1;
+      background-color: transparent;
+      font-size: 0.8rem;
+      color: $contrast-5;
+
+      &:hover {
+        background-color: $blue;
         color: $contrast;
       }
     }

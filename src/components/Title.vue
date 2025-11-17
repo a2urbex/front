@@ -44,6 +44,7 @@ const goBack = () => {
         display: flex;
         align-items: center;
         gap: 0.75rem;
+        width: 100%;
         position: relative;
         z-index: 8;
         padding: 0.5rem 1.5rem;

@@ -21,6 +21,7 @@ const status = computed(() => versionStore.status);
 const isLoggedIn = computed(() => authStore.token !== null);
 const userProfile = computed(() => authStore.userProfile);
 const isLocationsRoute = computed(() => router.currentRoute.value.path === '/locations');
+const isFavoritesRoute = computed(() => router.currentRoute.value.path.includes('/favorites/'));
 
 const profileImageUrl = computed(() => {
   return userProfile.value.image
@@ -62,7 +63,7 @@ const clearCache = async () => {
 </script>
 
 <template>
-  <div class="header-desktop m-none">
+  <div v-if="isLoggedIn" class="header-desktop m-none">
     <div class="header-desktop__logo">
       <router-link v-if="isLoggedIn" class="header-desktop__logo-link" to="/locations">
         A2Urbex
@@ -86,15 +87,19 @@ const clearCache = async () => {
           <font-awesome-icon :icon="['fa', 'users']" />
           <span>Friends</span>
         </router-link>
+        <button class="header-desktop__add" @click="handleAddLocation">
+            <font-awesome-icon :icon="['fa', 'plus']" />
+            <span>Add Location</span>
+        </button>
       </nav>
 
       <div v-if="isLocationsRoute" class="header-desktop__section header-desktop__section--filters">
         <div class="header-desktop__filters-inline">
-          <Filters />
+          <Filters idPrefix="desktop-" />
         </div>
       </div>
 
-      <div class="header-desktop__section header-desktop__section--map">
+      <div v-if="isLocationsRoute || isFavoritesRoute" class="header-desktop__section header-desktop__section--map">
         <p class="header-desktop__section-label">View</p>
         <div class="header-desktop__map-toggle">
           <button
@@ -138,29 +143,22 @@ const clearCache = async () => {
           </span>
         </div>
 
-        <transition name="fade">
-          <div v-if="isUserSectionOpen" class="header-desktop__user-menu">
-            <router-link class="header-desktop__nav-link" :to="'/profile/' + userProfile.id">
-              <font-awesome-icon :icon="['fa', 'user']" />
-              <span>My profile</span>
-            </router-link>
+        <div v-if="isUserSectionOpen" class="header-desktop__user-menu">
+          <router-link class="header-desktop__nav-link" :to="'/profile/' + userProfile.id">
+            <font-awesome-icon :icon="['fa', 'user']" />
+            <span>My profile</span>
+          </router-link>
 
-            <router-link class="header-desktop__nav-link" to="/edit-profile">
-              <font-awesome-icon :icon="['fa', 'gear']" />
-              <span>Account settings</span>
-            </router-link>
+          <router-link class="header-desktop__nav-link" to="/edit-profile">
+            <font-awesome-icon :icon="['fa', 'gear']" />
+            <span>Account settings</span>
+          </router-link>
 
-            <button class="header-desktop__add" @click="handleAddLocation">
-              <font-awesome-icon :icon="['fa', 'plus']" />
-              <span>Add Location</span>
-            </button>
-
-            <button class="header-desktop__logout" @click="logout">
-              <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
-              <span>Sign out</span>
-            </button>
-          </div>
-        </transition>
+          <button class="header-desktop__logout" @click="logout">
+            <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
+            <span>Sign out</span>
+          </button>
+        </div>
       </div>
     </div>
 

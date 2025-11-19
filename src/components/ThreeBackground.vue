@@ -40,7 +40,7 @@ const CONFIG = {
   LAMP_MIN_DISTANCE: 15,          // Distance minimale entre deux lampadaires
   
   // Voitures abandonnées
-  CAR_COUNT: 3,                   // Nombre de carcasses de voitures
+  CAR_COUNT: 5,                   // Nombre de carcasses de voitures
   
   // Végétation
   VEGETATION_DENSITY: {
@@ -54,7 +54,7 @@ const CONFIG = {
   
   // Grande roue de Pripyat
   FERRIS_WHEEL: {
-    X: 0,                       // Position X (-20 = gauche, 20 = droite)
+    X: -20,                       // Position X (-20 = gauche, 20 = droite)
     Y: 14,                        // Hauteur
     Z: 8,                        // Distance par rapport à la caméra au départ (10 = très proche/visible au début, -150 = loin)
     ROTATION_Y: 0.5,              // Rotation sur l'axe Y
@@ -69,9 +69,9 @@ const CONFIG = {
     LAMP_FLICKER_PERCENT: 50,     // 40% de lampadaires qui clignotent
     
     // Luminosité globale de la scène
-    AMBIENT_INTENSITY: 0.5,       // Luminosité ambiante (0.0 = noir total, 1.0 = très lumineux)
+    AMBIENT_INTENSITY: 1,       // Luminosité ambiante (0.0 = noir total, 1.0 = très lumineux)
     MOON_INTENSITY: 1,          // Intensité de la lumière lunaire (0.0 = pas de lune, 1.0 = pleine lune)
-    LAMP_INTENSITY: 20            // Intensité des lampadaires individuels
+    LAMP_INTENSITY: 30            // Intensité des lampadaires individuels
   },
   
   // Monde infini (Système de recyclage des objets)

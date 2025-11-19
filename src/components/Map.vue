@@ -6,6 +6,7 @@ import { useRoute } from 'vue-router';
 import FavoritesModal from './FavoriteModal.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useMapStore } from '@/stores/map';
+import ImageSlider from './ImageSlider.vue';
 
 const locationStore = useLocationStore();
 
@@ -126,7 +127,10 @@ const getMarkerOptions = (item) => {
                   </div>
                 </div>
 
-                <div class="map-overlay-image" :style="{ 'background-image': `url(${itemSelected?.image || itemSelected?.image_maps})` }"></div>
+                
+                <div class="map-overlay-image">
+                  <ImageSlider :images="[itemSelected?.image, itemSelected?.image_maps]" />
+                </div>
                 <p class="map-overlay-title">{{ itemSelected?.name }}</p>
 
                 <div class="map-overlay-action">

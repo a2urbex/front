@@ -77,7 +77,7 @@ export const useAuthStore = defineStore('auth', {
             localStorage.removeItem('authToken');
 
             setTimeout(() => {
-                router.push('/login');
+                router.push('/');
               }, 1500);
         },
 

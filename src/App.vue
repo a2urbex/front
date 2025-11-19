@@ -27,8 +27,8 @@ const toggleAddLocation = () => {
   <!-- Content -->
   <router-view />
 
-  <div class="version-info m-none">
+  <!-- <div class="version-info m-none">
     <span>You are using version: {{ versionStore.code_version }}. </span>
     <span> <b>This version is still in development</b></span>
-  </div>
+  </div> -->
 </template>

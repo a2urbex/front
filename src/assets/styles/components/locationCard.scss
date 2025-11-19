@@ -1,21 +1,55 @@
 @import '@/assets/styles/base.scss';
 
 .location-card {
-    border-radius: 0.75rem;
+    border-radius: 1rem;
     display: block;
-    // padding-bottom: 1rem;
-    // border-bottom: 2px solid $contrast-2;
     width: 100%;
     height: 100%;
     overflow: hidden;
     position: relative;
-    background-color: $contrast-0;
-    box-shadow: rgba(0, 0, 0, 0.45) 0 12px 24px -12px;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 1rem;
+        padding: 1px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.02));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+    }
 
     &:hover {
-        transform: translateY(-4px);
-        box-shadow: rgba(0, 0, 0, 0.65) 0 18px 35px -16px;
+        transform: translateY(-8px) scale(1.02);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 
+            0 16px 48px rgba(0, 0, 0, 0.6),
+            0 0 20px rgba(255, 255, 255, 0.05),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+        &::before {
+            opacity: 1;
+        }
+
+        .location-card__top-overlay {
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0.95) 100%);
+        }
+
+        img {
+            transform: scale(1.05);
+        }
     }
 
     @media screen and (max-width: 768px) {
@@ -30,19 +64,17 @@
         height: 100%;
         position: relative;
         cursor: pointer;
-        background-color: $contrast-1;
+        overflow: hidden;
 
         img {
-            border-radius: 0.75rem;
             height: 100%;
             width: 100%;
             object-fit: cover;
-            margin-bottom: 0;
             display: block;
             background-color: $contrast-1;
-            // background-image: url('/default.png');
             background-size: cover;
             background-position: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         &-overlay {
@@ -51,7 +83,9 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, rgba($background, 0) 0%, rgba($background, 15%) 40%, rgba($dark-background, 90%) 100%);
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.2) 40%, rgba(0, 0, 0, 0.92) 100%);
+            transition: background 0.4s ease;
+            z-index: 1;
         }
 
         h2 {
@@ -59,27 +93,32 @@
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 0.75rem 0.9rem;
+            padding: 1rem 1.25rem;
             margin: 0;
-            font-size: $font-size-xsmall;
-            font-weight: $font-weight-medium;
-            color: $contrast;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            z-index: 2;
+            letter-spacing: -0.01em;
 
             @media (max-width: $md) {
-                padding: .5rem .6rem;
-                font-size: .8rem;
+                padding: 0.75rem 1rem;
+                font-size: 0.85rem;
             }
         }
     }
 
-    // &__bottom{
-    //     display: flex;
-    //     align-items: center;
-    //     justify-content: center;
-    //     gap: 0.5rem;
-    // }
+    .image-error {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(30, 30, 30, 0.8) 0%, rgba(20, 20, 20, 0.9) 100%);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+    }
 }

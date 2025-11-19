@@ -86,8 +86,14 @@ export default createRouter({
       path: '/',
       component: Auth,
       children: [
-        { path: 'login', component: LoginForm },
-        { path: 'register', component: RegisterForm },
+        { 
+          path: 'login', 
+          redirect: { path: '/', query: { auth: 'login' } }
+        },
+        { 
+          path: 'register', 
+          redirect: { path: '/', query: { auth: 'register' } }
+        },
         { path: 'forgot-password', component: ResetPassword },
         { path: 'reset-password/:id', 
           component: NewPassword,

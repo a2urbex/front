@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <ThreeBackground />
     <div>
       <!-- <a href="https://a2urbex.eu" target="_blank">
         <img src="/logox192.png" class="logo" alt="a2urbex logo" />
@@ -17,6 +18,7 @@
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import ThreeBackground from '@/components/ThreeBackground.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();

@@ -34,10 +34,10 @@ const openLocationCardDisplay = () => {
 <template>
     <div class="location-card">
         <div class="location-card__top" @click="openLocationCardDisplay">
-            <template v-if="!imageError && location.image">
+            <template v-if="!imageError && location.image || location.image_maps">
                 <div v-if="imageLoading" class="skeleton" style="width: 100%; height: 100%;"></div>
                 <img 
-                    :src="location.image" 
+                    :src="location.image || location.image_maps" 
                     alt="Location image"
                     @error="handleImageError"
                     @load="handleImageLoad"

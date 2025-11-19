@@ -126,7 +126,7 @@ const getMarkerOptions = (item) => {
                   </div>
                 </div>
 
-                <div class="map-overlay-image" :style="{ 'background-image': `url(${itemSelected?.image})` }"></div>
+                <div class="map-overlay-image" :style="{ 'background-image': `url(${itemSelected?.image || itemSelected?.image_maps})` }"></div>
                 <p class="map-overlay-title">{{ itemSelected?.name }}</p>
 
                 <div class="map-overlay-action">

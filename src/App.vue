@@ -29,6 +29,6 @@ const toggleAddLocation = () => {
 
   <div class="version-info m-none">
     <span>You are using version: {{ versionStore.code_version }}. </span>
-    <span> <b>This version is not yet fully supported on desktop devices</b></span>
+    <span> <b>This version is still in development</b></span>
   </div>
 </template>

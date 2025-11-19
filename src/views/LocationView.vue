@@ -51,9 +51,9 @@ const copyLink = (id) => {
                 <button class="share-button" @click="copyLink(location.id)">
                     <font-awesome-icon :icon="['fa', 'share']" />
                 </button>
-                <template v-if="!imageError && location.image">
+                <template v-if="!imageError && location.image || location.image_maps">
                     <img 
-                        :src="location.image" 
+                        :src="location.image || location.image_maps" 
                         alt="Location image"
                         @error="handleImageError"
                     >

@@ -35,7 +35,7 @@ const listName = computed(() => favoritesStore.locationsListItems.name || 'No Li
 
 <template>
     <Title :title="listName" :backgroundTransparent="false" />
-    <MapHeader />
+    <MapHeader class="small-header" />
 
     <transition name="fade" mode="out-in">
         <PreLoader msg="List" v-if="isLoading" key="preloader" /> 

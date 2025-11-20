@@ -2,7 +2,7 @@
   <div class="home">
     <ThreeBackground ref="threeBackground" />
     
-    <div class="home-content">
+    <div class="home-content" :class="{ 'fade-out-content': isTransitioning }">
       
       <div :class="['hero-wrapper', { 'is-auth-active': showAuth }]">
         <div class="hero-section">
@@ -160,12 +160,14 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { useUIStore } from '@/stores/ui';
 import ThreeBackground from '@/components/ThreeBackground.vue';
 const threeBackground = ref(null);
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const uiStore = useUIStore();
 const activeTab = ref('login');
 const showAuth = ref(false);
 
@@ -195,6 +197,29 @@ const registerData = ref({
   password: ''
 });
 
+const isTransitioning = ref(!!authStore.token);
+
+const performTransition = async () => {
+  isTransitioning.value = true;
+  uiStore.setTransitioning(true); // Hide header and remove margin
+  showAuth.value = false; // Hide auth modal if open
+  
+  if (threeBackground.value) {
+    // 1. Warp speed effect
+    const warpPromise = threeBackground.value.warp();
+    // 2. Wait a bit for the warp to be visible
+    await new Promise(resolve => setTimeout(resolve, 800));
+    // 3. Fade out the scene
+    await threeBackground.value.fadeOut();
+    // 4. Wait for warp to finish (total 1.5s)
+    await warpPromise;
+  }
+  
+  await router.push('/locations');
+  // Reset UI state after navigation is complete
+  uiStore.setTransitioning(false);
+};
+
 const handleLogin = async () => {
   try {
     await authStore.login(
@@ -202,6 +227,7 @@ const handleLogin = async () => {
       loginData.value.password, 
       loginData.value.keepMeLoggedIn
     );
+    await performTransition();
   } catch (error) {
     console.error('Login failed:', error);
   }
@@ -214,9 +240,7 @@ const handleRegister = async () => {
       registerData.value.password,
       registerData.value.username
     );
-    setTimeout(() => {
-      router.push('/locations');
-    }, 1500);
+    await performTransition();
   } catch (error) {
     console.error('Registration failed:', error);
   }
@@ -227,9 +251,25 @@ onMounted(async () => {
   if (authStore.token) {
     const isValid = await authStore.validateToken();
     if (isValid) {
-      router.push('/locations');
+      // If already logged in, do the transition immediately but faster
+      if (threeBackground.value) {
+         uiStore.setTransitioning(true);
+         // Wait for mount
+         await new Promise(resolve => setTimeout(resolve, 100));
+         await performTransition();
+      } else {
+         router.push('/locations');
+      }
       return;
+    } else {
+      // Token invalid, show UI
+      isTransitioning.value = false;
+      uiStore.setTransitioning(false);
     }
+  } else {
+    // No token, ensure UI is visible
+    isTransitioning.value = false;
+    uiStore.setTransitioning(false);
   }
   
   // Check if we should auto-open auth form from query params
@@ -245,4 +285,11 @@ onMounted(async () => {
 <style lang="scss" scoped>
 @import '@/assets/styles/base.scss';
 @import '@/assets/styles/components/home.scss';
+
+.fade-out-content {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+
 </style>

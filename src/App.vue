@@ -2,21 +2,35 @@
 import HeaderComponent from '@/components/Header.vue';
 import MapComponent from '@/components/Map.vue';
 import AddLocationComponent from '@/components/LocationAdd.vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useVersionStore } from '@/stores/version';
+import { useUIStore } from '@/stores/ui';
 
 const showAddLocation = ref(false);
 const versionStore = useVersionStore();
+const uiStore = useUIStore();
 
 const toggleAddLocation = () => {
   showAddLocation.value = !showAddLocation.value;
 };
 
+watch(() => uiStore.isTransitioning, (newValue) => {
+  const appElement = document.getElementById('app');
+  if (appElement) {
+    if (newValue) {
+      appElement.classList.add('is-transitioning');
+    } else {
+      appElement.classList.remove('is-transitioning');
+    }
+  }
+});
+
+
 </script>
 
 <template>
   <!-- Header -->
-  <HeaderComponent @toggle-add-location="toggleAddLocation" />
+  <HeaderComponent v-if="!uiStore.isTransitioning" @toggle-add-location="toggleAddLocation" />
 
   <!-- Map -->
   <MapComponent />

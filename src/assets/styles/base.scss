@@ -53,6 +53,11 @@ body {
 @media (min-width: $md) {
   #app {
     padding-left: 260px;
+    transition: padding-left 0.3s ease;
+
+    &.is-transitioning {
+      padding-left: 0 !important;
+    }
   }
 }
 

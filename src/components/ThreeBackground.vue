@@ -113,14 +113,27 @@ const laneZTrackers = {
 
 // --- GESTION DU BOOST CAMÉRA (Top Level) ---
 let isBoosting = false;
+let isWarping = false;
 let currentSpeed = CONFIG.INFINITE_WORLD.CAMERA_SPEED;
 
 const setBoost = (active) => {
   isBoosting = active;
 };
 
+const warp = () => {
+  isWarping = true;
+  return new Promise(resolve => setTimeout(resolve, 1500));
+};
+
+const fadeOut = () => {
+  if (container.value) {
+    container.value.classList.add('fade-out');
+  }
+  return new Promise(resolve => setTimeout(resolve, 800));
+};
+
 // Exposer la fonction pour le composant parent
-defineExpose({ setBoost });
+defineExpose({ setBoost, warp, fadeOut });
 
 const clearZoneAroundWheel = () => {
     if (!wheelGroup) return;
@@ -773,7 +786,9 @@ const init = () => {
     animationId = requestAnimationFrame(animate);
 
     // 1. Camera Mouvement
-    const targetSpeed = isBoosting ? CONFIG.INFINITE_WORLD.CAMERA_BOOST_SPEED : CONFIG.INFINITE_WORLD.CAMERA_SPEED;
+    let targetSpeed = isBoosting ? CONFIG.INFINITE_WORLD.CAMERA_BOOST_SPEED : CONFIG.INFINITE_WORLD.CAMERA_SPEED;
+    if (isWarping) targetSpeed = 4.0; // Vitesse extrême pour le warp
+    
     currentSpeed += (targetSpeed - currentSpeed) * 0.05;
     camera.position.z -= currentSpeed;
 
@@ -967,5 +982,10 @@ onBeforeUnmount(() => {
   background: #0a0a0a;
   z-index: 0;
   overflow: hidden;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.fade-out {
+  opacity: 0;
 }
 </style>

@@ -22,4 +22,8 @@
             border-bottom: .15rem solid $primary;
         }
     }
+
+    &.small-header {
+        top: 3rem;
+    }
 }

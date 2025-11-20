@@ -33,6 +33,16 @@
             text-transform: uppercase;
             letter-spacing: 0.1em;
             margin-bottom: 2rem;
+
+            @media (max-width: $md) {
+                font-size: 12px;
+            }
+        }
+    }
+
+    &-containers {
+        @media (max-width: $md) {
+            margin-top: 3rem !important;
         }
     }
 

@@ -40,7 +40,6 @@ onMounted(async () => {
                 placeholder="Search users..."
                 class="user-search__input"
                 @focus="isInputFocused = true"
-                @blur="isInputFocused = true"
             />
             <span v-if="isInputFocused" class="user-search__input-cancel" @click="searchQuery = ''; isInputFocused = false" style="animation: fadeIn 0.1s ease-in">Cancel</span>
             <font-awesome-icon :icon="['fa', 'magnifying-glass']" />

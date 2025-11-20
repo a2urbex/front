@@ -7,14 +7,14 @@
         transform: translateY(100%);
         right: 0;
         left: 0;
-        background-color: $dark-background;
+        background-color: rgb(5 5 5 / 34%);
         padding: 4rem 1.5rem 2rem 1.5rem;
         border-radius: 0.8rem 0.8rem 0 0;
         box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.1);
         z-index: 100;
         transition: transform 0.3s ease-in-out;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
         gap: 1rem;
 
@@ -47,12 +47,17 @@
                 font-weight: 700;
                 text-align: center;
                 border-radius: 4rem;
-                padding: 1rem;
+                padding: .5rem;
                 margin: auto;
                 width: 100%;
-                border: none;
-                font-size: $font-size-small;
-                svg{
+                border: 1px solid;
+                font-size: .8rem;
+
+                &:hover {
+                    cursor: pointer;
+                }
+
+                svg {
                     margin-right: 0.5rem;
                 }
             }
@@ -79,8 +84,10 @@
             }
 
             &-add {
-                bottom: 0;
-                left: 0;
+                left: 50%;
+                bottom: 0%;
+                right: 50%;
+                transform: translate(-50%, -10%);
             }
         }
 
@@ -97,7 +104,7 @@
                 align-items: center;
                 z-index: 1000;
             }
-            
+
             &-dialog {
                 background: $background;
                 padding: 2rem;
@@ -107,24 +114,24 @@
                 max-width: 40rem;
                 width: 90%;
                 text-align: center;
-            
+
                 h3 {
                     margin-top: 0;
                     color: $contrast;
                 }
-            
+
                 p {
                     margin: 1rem 0;
                     color: $contrast-4;
                 }
             }
-            
+
             &-actions {
                 display: flex;
                 justify-content: center;
                 gap: 1rem;
                 margin-top: 1.5rem;
-            
+
                 button {
                     padding: 0.5rem 1.5rem;
                     border-radius: 0.4rem;
@@ -132,20 +139,20 @@
                     cursor: pointer;
                     font-weight: $font-weight-bold;
                     transition: all 0.2s;
-            
+
                     &.btn-cancel {
                         background-color: $contrast;
                         color: $background;
-            
+
                         &:hover {
                             background-color: $contrast-4;
                         }
                     }
-            
+
                     &.btn-delete {
                         background-color: #dc3545;
                         color: $contrast;
-            
+
                         &:hover {
                             background-color: #c82333;
                         }
@@ -164,4 +171,3 @@
         font-size: $font-size-large;
     }
 }
-

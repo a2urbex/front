@@ -4,6 +4,7 @@
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
+    position: relative;
 
     &__input-wrapper {
         margin-bottom: 1.5rem;
@@ -12,7 +13,7 @@
         align-items: center;
         gap: .8rem;
 
-        .fa-magnifying-glass{
+        .fa-magnifying-glass {
             position: absolute;
             left: .8rem;
             top: 50%;
@@ -36,7 +37,7 @@
             border-color: $contrast;
         }
 
-        &-cancel{
+        &-cancel {
             font-size: $font-size-xsmall;
             color: $contrast;
             cursor: pointer;
@@ -46,12 +47,52 @@
     &__list {
         position: absolute;
         background: $background;
-        padding: 0 1.5rem;
-        overflow: auto;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        overflow-y: auto;
+        max-height: 400px;
         width: 100%;
-        left: 0px;
-        bottom: 6rem;
-        top: 7rem;
+        max-width: 600px;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 100%;
+        margin-top: 0.5rem;
+        z-index: 1000;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+
+        @media (max-width: $md) {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 6rem;
+            top: 7rem;
+            max-width: 100%;
+            transform: none;
+            margin-top: 0;
+            border-radius: 0;
+            border: none;
+            padding: 0 1.5rem;
+        }
+
+        // Scrollbar styling
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: rgba($primary, 0.3);
+            border-radius: 3px;
+
+            &:hover {
+                background: rgba($primary, 0.5);
+            }
+        }
     }
 
     &__items {

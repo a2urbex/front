@@ -1,14 +1,22 @@
 @import '@/assets/styles/base.scss';
+@import '@/assets/styles/components/forms.scss';
 
-.location-add{
+.location-add {
     position: fixed;
     bottom: 80px;
     z-index: 4;
-    background: linear-gradient(180deg, $background 0%,  $dark-background 90%);
     width: 100%;
-    padding: 2rem 0rem;
-    border-top-left-radius: .5rem;
-    border-top-right-radius: .5rem;
+    padding: 0;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+
+    // Glass effect - consistent with st-glass-panel but with specific positioning
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba($primary, 0.2);
+    box-shadow:
+        0 -4px 20px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba($primary, 0.1);
 
     &::before {
         content: '';
@@ -17,164 +25,139 @@
         left: 0;
         right: 0;
         bottom: 0;
-        backdrop-filter: blur(1px);
-        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+        background-color: rgba(0, 0, 0, 0.6);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s ease-in-out;
         z-index: -1;
     }
-    
-    @media (min-width: $md){
-        width: 30rem;
-        bottom: 0;
-        right: 0;
+
+    @media (min-width: $md) {
+        width: 26rem;
+        bottom: 20px;
+        right: 20px;
+        border-radius: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow:
+            0 20px 50px rgba(0, 0, 0, 0.6),
+            0 0 0 1px rgba(255, 255, 255, 0.05);
+        background: rgba(18, 18, 18, 0.95); // Darker, less transparent for better readability
     }
 
-    &__close{
-        color: $contrast;
+    &__close {
         position: absolute;
+        top: 1.2rem;
+        right: 1.2rem;
+        background: transparent;
         border: none;
-        background-color: transparent;
-        top: 1rem;
-        right: 1rem;
+        color: rgba(255, 255, 255, 0.4);
+        cursor: pointer;
+        padding: 0.4rem;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+
+        &:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+        }
     }
+
+    &__title {
+        padding: 2rem 2rem 0.5rem;
+        text-align: center;
+
+        h2 {
+            margin: 0;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+    }
+
+    .location-add__content {
+        padding: 1rem 2rem 2rem;
+    }
+
     .form {
         display: flex;
         flex-direction: column;
-        gap: 2rem;
-        padding: 1rem 0rem;
+        gap: 1.2rem;
 
-        &-navigation{
+        .form-navigation {
             display: flex;
-            width: 80%;
-            margin: auto;
             gap: 1rem;
+            margin-top: 1.5rem;
 
-            button{
-                background-color: $background;
-                color: $contrast-5;
-                font-weight: $font-weight-bold;
-                border: none;
-                border-radius: .2rem;            
+            button {
+                flex: 1;
+                border-radius: 2rem; // Pill buttons
             }
-        }
-
-        &-group {
-            display: flex;
-            align-items: center;
-            position: relative;
-            width: 100%;
-            justify-content: center;
-        }
-
-        select{
-            color: $contrast;
-        }
-    
-        &-checkbox {
-            accent-color: $contrast-2;
-            filter: invert(1);
-            opacity: .8;
-            height: 1rem;
-            width: 1rem;
-            cursor: pointer;
-    
-            &-label {
-                font-weight: $font-weight-medium;
-                color: $contrast-3;
-                margin-left: 0.6rem;
-                cursor: pointer;
-            }
-        }
-    
-        &-input {
-            width: calc(100% - 2rem);
-            padding: 0.8rem 1rem;
-            background-color: $contrast-1;
-            border: none;
-            border-radius: 5px;
-            font-size: $font-size-small;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-    
-        &-label {
-            position: absolute;
-            top: 50%;
-            left: 2rem;
-            transform: translateY(-50%);
-            color: $contrast-4;
-            font-size: $font-size-small;
-            pointer-events: none;
-            transition: all 0.3s ease;
-        }
-    
-        &-input:focus {
-            background-color: $contrast-2;
         }
 
         .image-preview {
             max-width: 100%;
-            max-height: 200px;
-            margin-top: 10px;
+            max-height: 180px;
+            margin-top: 1rem;
             display: block;
-            padding: 0 1rem;
+            border-radius: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
-
-        button{
-            width: 80%;
-            margin: auto;
-            padding: .5rem;
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-        }
-
-    }
-    
-    .form-input:focus+.form-label,
-    .form-input:not(:placeholder-shown)+.form-label {
-        transform: translateY(-3.5em);
-        font-size: $font-size-xsmall;
-        color: $contrast-4;
     }
 }
 
 // Map transition animations
 .map-enter-active,
 .map-leave-active {
-  transition: transform 0.3s ease-out;
+    transition: transform 0.3s ease-out;
 }
 
 .map-enter-from,
 .map-leave-to {
-  transform: translateY(100%);
+    transform: translateY(100%);
 }
 
 .map-enter-to,
 .map-leave-from {
-  transform: translateY(0);
+    transform: translateY(0);
 }
 
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
 }
 
 .slide-up-enter-from {
-  transform: translateY(100%);
-  opacity: 0;
+    transform: translateY(100%);
+    opacity: 0;
 }
 
 .slide-up-leave-to {
-  transform: translateY(100%);
-  opacity: 0;
+    transform: translateY(100%);
+    opacity: 0;
 }
 
 .slide-up-enter-to,
 .slide-up-leave-from {
-  transform: translateY(0);
-  opacity: 1;
+    transform: translateY(0);
+    opacity: 1;
 }

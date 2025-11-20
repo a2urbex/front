@@ -110,6 +110,12 @@ const prevStep = () => {
 };
 
 const submitForm = async () => {
+  // If not on the last step, treat Enter as "Next"
+  if (currentStep.value < totalSteps) {
+    nextStep();
+    return;
+  }
+
   const formData = new FormData();
   formData.append('name', name.value);
   formData.append('categoryId', categoryId.value);
@@ -145,7 +151,12 @@ const handleClose = () => {
 <template>
     <transition name="slide-up" mode="out-in" appear>
     <div class="location-add">
-      <button type="button" class="location-add__close" @click="handleClose">Cancel</button>
+      <button type="button" class="location-add__close" @click="handleClose">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
 
         <div class="location-add__title center">
         <h2>{{ isEdit ? 'Edit' : 'Add' }} location</h2>
@@ -154,26 +165,29 @@ const handleClose = () => {
         <div class="location-add__content">
         <form @submit.prevent="submitForm" class="form">
             <!-- Step 1: Name -->
-            <div v-if="currentStep === 1" class="form-group">
-            <input class="form-input" placeholder=" " type="text" id="name" v-model="name" required />
-            <label class="form-label" for="name">Name:</label>
+            <div v-if="currentStep === 1" class="st-form-group">
+            <input placeholder=" " type="text" id="name" v-model="name" required />
+            <label for="name">Name:</label>
+            <div class="input-line"></div>
             </div>
 
             <!-- Step 2: Category -->
-            <div v-if="currentStep === 2" class="form-group">
-            <select class="form-input" id="categoryId" v-model="categoryId" required>
+            <div v-if="currentStep === 2" class="st-form-group">
+            <select id="categoryId" v-model="categoryId" required>
                 <option value="" disabled>Select a category</option>
                 <option v-for="type in locationTypes" :key="type.id" :value="type.id">
                     {{ type.name.charAt(0).toUpperCase() + type.name.slice(1) }}
                 </option>
             </select>
-            <label class="form-label" for="categoryId">Category:</label>
+            <label for="categoryId">Category:</label>
+            <div class="input-line"></div>
             </div>
 
             <!-- Step 3: Image -->
-            <div v-if="currentStep === 3" class="form-group">
-            <input class="form-input" placeholder=" " type="file" id="image" @change="handleFileChange" accept="image/*" />
-            <label class="form-label" for="image">Image:</label>
+            <div v-if="currentStep === 3" class="st-form-group">
+            <input placeholder=" " type="file" id="image" @change="handleFileChange" accept="image/*" />
+            <label for="image">Image:</label>
+            <div class="input-line"></div>
             </div>
             <!-- Image preview section -->
             <div v-if="imagePreview && currentStep === 3" class="form-group">
@@ -181,22 +195,30 @@ const handleClose = () => {
             </div>
 
             <!-- Step 4: Latitude -->
-            <div v-if="currentStep === 4" class="form-group">
-            <input class="form-input" placeholder=" " type="text" id="lat" v-model="lat" required />
-            <label class="form-label" for="lat">Latitude:</label>
+            <div v-if="currentStep === 4" class="st-form-group">
+            <input placeholder=" " type="text" id="lat" v-model="lat" required />
+            <label for="lat">Latitude:</label>
+            <div class="input-line"></div>
             </div>
 
             <!-- Step 5: Longitude -->
-            <div v-if="currentStep === 5" class="form-group">
-            <input class="form-input" placeholder=" " type="text" id="lon" v-model="lon" required />
-            <label class="form-label" for="lon">Longitude:</label>
+            <div v-if="currentStep === 5" class="st-form-group">
+            <input placeholder=" " type="text" id="lon" v-model="lon" required />
+            <label for="lon">Longitude:</label>
+            <div class="input-line"></div>
             </div>
 
             <!-- Navigation buttons -->
             <div class="form-navigation">
-            <button type="button" @click="prevStep" v-if="currentStep > 1">Previous</button>
-            <button type="button" @click="nextStep" v-if="currentStep < totalSteps">Next</button>
-            <button type="submit" v-if="currentStep === totalSteps">Submit</button>
+            <button type="button" class="st-btn st-btn-outline" @click="prevStep" v-if="currentStep > 1">Previous</button>
+            <button type="button" class="st-btn" @click="nextStep" v-if="currentStep < totalSteps">
+                <span>Next</span>
+                <div class="btn-glow"></div>
+            </button>
+            <button type="submit" class="st-btn" v-if="currentStep === totalSteps">
+                <span>Submit</span>
+                <div class="btn-glow"></div>
+            </button>
             </div>
         </form>
         </div>

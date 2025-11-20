@@ -9,8 +9,11 @@
     bottom: 0;
     left: 0px;
     right: 0px;
-    padding:1.2rem 1.5rem 2rem 1.5rem;
-    background-color: $dark-background;
+    padding: 1.2rem 1.5rem 2rem 1.5rem;
+    background: rgba(5, 5, 5, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 170, 85, 0.15);
     z-index: 8;
 
     &>* {
@@ -22,20 +25,29 @@
     }
 
     svg {
-        color: $contrast-5;
+        color: $contrast-4;
+        transition: color 0.3s ease;
     }
 
     &__add {
-        background-color: $background;
-        width: 3rem;
-        height: 3rem;
+        background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+        width: 3.5rem;
+        height: 3.5rem;
         border-radius: 50%;
         font-size: 1.4rem;
         margin: 0;
+        color: black;
+        box-shadow: 0 0 20px rgba(255, 170, 85, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transform: translateY(-10px);
+
+        svg {
+            color: black !important;
+        }
     }
 
     &__search {
-        background-color: $dark-background;
+        background-color: transparent;
         border: none;
     }
 
@@ -43,7 +55,7 @@
         font-size: 1.1rem;
     }
 
-    &__profile{
+    &__profile {
         padding: 1rem 1rem;
         border-radius: .4rem;
         background-color: $background;
@@ -54,14 +66,15 @@
         font-size: $font-size-medium;
         font-weight: $font-weight-medium;
         gap: 1rem;
-        & img{
+
+        & img {
             width: 2rem;
             height: 2rem;
             border-radius: 50%;
         }
     }
 
-    &__logout{
+    &__logout {
         padding: 1rem 1rem;
         border-radius: .4rem;
         background-color: $background;
@@ -85,13 +98,14 @@
             background-position: center;
         }
 
-        &-entries{
+        &-entries {
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
             padding: 1rem 0;
             justify-content: space-between;
         }
+
         &-entry {
             width: calc(50% - 0.5rem);
             padding: 0.7rem 1rem;
@@ -111,31 +125,39 @@
                 color: $contrast-5;
             }
 
-            .fa-heart{
+            .fa-heart {
                 color: #7507f1;
             }
 
-            .fa-gear{
+            .fa-gear {
                 color: #e09999;
             }
 
-            .fa-users{
+            .fa-users {
                 color: #0099ff;
             }
 
-            .fa-map-pin{
+            .fa-map-pin {
                 color: #eeee52;
             }
 
-            .fa-triangle-exclamation{
+            .fa-triangle-exclamation {
                 color: #ff9f00;
                 animation: breathing 2s ease-in-out infinite;
             }
 
             @keyframes breathing {
-                0% { opacity: 0.4; }
-                50% { opacity: 1; }
-                100% { opacity: 0.4; }
+                0% {
+                    opacity: 0.4;
+                }
+
+                50% {
+                    opacity: 1;
+                }
+
+                100% {
+                    opacity: 0.4;
+                }
             }
 
         }
@@ -147,8 +169,11 @@
         }
 
         &-info {
-            background: $dark-background;
-            transition: all .3s;
+            background: rgba(5, 5, 5, 0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 170, 85, 0.15);
+            transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
             position: fixed;
             left: 0px;
             right: 0px;
@@ -204,4 +229,4 @@
             bottom: -20px;
         }
     }
-} 
+}

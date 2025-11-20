@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <ThreeBackground />
+    <ThreeBackground ref="threeBackground" />
     
     <div class="home-content">
       
@@ -11,12 +11,12 @@
               <transition name="fade" mode="out-in">A2URBEX</transition></h1>
           </div>
           <p class="tagline">Your exploration co-pilot</p>
-          <p class="subtitle">Explore forgotten places, discover hidden stories</p>
+          <p class="subtitle">We do not provide locations. We provide the tools to start your adventure.</p>
           
           <button 
             v-if="!showAuth && !authStore.token" 
             class="connect-btn" 
-            @click="showAuth = true"
+            @click="handleConnectClick"
           >
             <span class="connect-icon">⚡</span>
             <span>Connect</span>
@@ -27,7 +27,7 @@
 
       <transition name="slideUp">
         <div class="auth-container" v-if="showAuth && !authStore.token">
-          <button class="close-btn" @click="showAuth = false" title="Close">
+          <button class="close-btn" @click="closeAuth" title="Close">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -52,7 +52,7 @@
           <transition name="fade" mode="out-in">
             <div v-if="activeTab === 'login'" key="login" class="auth-form">
               <form @submit.prevent="handleLogin">
-                <div class="form-group">
+                <div class="st-form-group">
                   <input 
                     autocomplete="username"
                     type="email" 
@@ -65,7 +65,7 @@
                   <div class="input-line"></div>
                 </div>
 
-                <div class="form-group">
+                <div class="st-form-group">
                   <input 
                     autocomplete="current-password"
                     type="password"
@@ -78,12 +78,12 @@
                   <div class="input-line"></div>
                 </div>
 
-                <div class="form-checkbox-group">
+                <div class="st-checkbox-group">
                   <input type="checkbox" id="keep" v-model="loginData.keepMeLoggedIn" />
                   <label for="keep">Keep me logged in</label>
                 </div>
 
-                <button type="submit" class="submit-btn">
+                <button type="submit" class="st-btn">
                   <span>Enter</span>
                   <div class="btn-glow"></div>
                 </button>
@@ -96,7 +96,7 @@
 
             <div v-else key="register" class="auth-form">
               <form @submit.prevent="handleRegister">
-                <div class="form-group">
+                <div class="st-form-group">
                   <input 
                     type="text"
                     id="register-username" 
@@ -108,7 +108,7 @@
                   <div class="input-line"></div>
                 </div>
 
-                <div class="form-group">
+                <div class="st-form-group">
                   <input 
                     autocomplete="username"
                     type="email"
@@ -121,7 +121,7 @@
                   <div class="input-line"></div>
                 </div>
 
-                <div class="form-group">
+                <div class="st-form-group">
                   <input 
                     autocomplete="current-password"
                     type="password"
@@ -134,7 +134,7 @@
                   <div class="input-line"></div>
                 </div>
 
-                <button type="submit" class="submit-btn">
+                <button type="submit" class="st-btn">
                   <span>Join the Zone</span>
                   <div class="btn-glow"></div>
                 </button>
@@ -161,12 +161,27 @@ import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import ThreeBackground from '@/components/ThreeBackground.vue';
+const threeBackground = ref(null);
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const activeTab = ref('login');
 const showAuth = ref(false);
+
+const handleConnectClick = () => {
+  showAuth.value = true;
+  if (threeBackground.value) {
+    threeBackground.value.setBoost(true);
+  }
+};
+
+const closeAuth = () => {
+  showAuth.value = false;
+  if (threeBackground.value) {
+    threeBackground.value.setBoost(false);
+  }
+};
 
 const loginData = ref({
   email: '',

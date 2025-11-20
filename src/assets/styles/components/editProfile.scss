@@ -1,11 +1,19 @@
 @import '@/assets/styles/base.scss';
+@import '@/assets/styles/components/forms.scss';
 
 .edit-profile-form {
     max-height: 80vh;
-    background: var(--background-alt);
-    border-radius: 8px;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
     overflow-y: scroll;
     overflow-x: hidden;
+    padding: 2rem;
+    border: 1px solid rgba($primary, 0.2);
+    box-shadow:
+        0 0 20px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba($primary, 0.1),
+        inset 0 0 60px rgba(0, 0, 0, 0.3);
 }
 
 .image-uploads {
@@ -19,13 +27,18 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    svg{
+
+    svg {
         position: absolute;
         left: 50%;
         top: 50%;
         z-index: 1;
         transform: translate(-50%, -50%);
+        color: white;
+        pointer-events: none;
+        filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
     }
+
     label {
         display: none;
     }
@@ -33,11 +46,15 @@
 
 .profile-image {
     margin: -3rem auto 0 auto;
+    z-index: 2;
 
     .preview {
-        width: 5rem;
-        height: 5rem;
+        width: 8rem;
+        height: 8rem;
         border-radius: 50%;
+        border: 2px solid $primary;
+        box-shadow: 0 0 20px rgba($primary, 0.4);
+        background-color: #000;
     }
 }
 
@@ -47,13 +64,21 @@
     height: 200px;
     background-size: cover;
     background-position: center;
-    background-color: var(--background);
-    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid rgba($primary, 0.2);
+
+    &:hover {
+        opacity: 0.9;
+        border-color: $primary;
+        box-shadow: 0 0 15px rgba($primary, 0.2);
+    }
 
     &.banner {
         height: 150px;
@@ -65,38 +90,23 @@
         height: 100%;
         opacity: 0;
         cursor: pointer;
+        z-index: 2;
     }
 
     span {
-        color: var(--text-muted);
-    }
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-
-    label {
-        width: 40%;
-        display: block;
-        color: var(--text);
-    }
-
-    input[type="text"],
-    textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border:none;
-        border-radius: 4px;
-
-        background:transparent;
-    }
-    textarea {
-        background: $background;
+        color: rgba(255, 255, 255, 0.8);
+        z-index: 1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        font-weight: 500;
     }
 }
 
 .privacy-setting {
     margin: 2rem 0;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 
     label {
         width: 100%;
@@ -113,11 +123,12 @@
             width: 0;
             height: 0;
 
-            &:checked + .slider {
-                background-color: $blue;
+            &:checked+.slider {
+                background-color: $primary;
+                box-shadow: 0 0 15px rgba($primary, 0.4);
             }
 
-            &:checked + .slider:before {
+            &:checked+.slider:before {
                 transform: translateX(24px);
             }
         }
@@ -130,7 +141,7 @@
             right: 0;
             bottom: 0;
             width: 100%;
-            background-color: $background;
+            background-color: rgba(255, 255, 255, 0.1);
             transition: .4s;
             border-radius: 34px;
 
@@ -153,44 +164,25 @@
         cursor: pointer;
         user-select: none;
         flex-direction: row;
-        span{
-            width: 40%;
+        align-items: center;
+        justify-content: space-between;
+
+        span {
+            color: #ccc;
+            font-size: 1rem;
         }
     }
 }
 
 .social-links {
-    .form-group {
-        display: flex;
-        position: relative;
-        align-items: center;
-        input{
-            width: 60%;
-            padding-left: .5rem;
+    .st-form-group {
+        .input-icon {
+            position: absolute;
+            right: 0;
+            top: 0.5rem;
+            color: $primary;
+            opacity: 0.7;
+            filter: drop-shadow(0 0 5px rgba($primary, 0.5));
         }
-
-        svg {
-            padding: .75rem 0rem;
-        }
-    }
-}
-
-.submit-button {
-    width: 100%;
-    padding: 1rem;
-    background: $background;
-    color: $contrast;
-    border: none;
-    border-radius: .4rem;
-    cursor: pointer;
-    transition: opacity 0.2s;
-
-    &:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-    }
-
-    &:hover:not(:disabled) {
-        opacity: 0.9;
     }
 }

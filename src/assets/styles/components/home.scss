@@ -60,7 +60,7 @@
     justify-content: flex-start;
     align-items: center;
     padding: 2rem;
-    padding-top: 20dvh;
+    padding-top: 15dvh;
     pointer-events: none;
 
     &>* {
@@ -227,6 +227,7 @@
     border: 1px solid rgba(255, 170, 85, 0.2);
     border-radius: 1rem;
     padding: 2rem;
+    margin-top: -100px;
     width: 100%;
     max-width: 400px;
     box-shadow:
@@ -309,133 +310,7 @@
     animation: fadeIn 0.3s ease-out;
 }
 
-.form-group {
-    position: relative;
-    margin-bottom: 1.5rem;
 
-    input {
-        width: 100%;
-        padding: 0.75rem 0;
-        background: transparent;
-        border: none;
-        border-bottom: 2px solid rgba(255, 170, 85, 0.3);
-        color: #fff;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-
-        &:focus {
-            outline: none;
-            border-bottom-color: #ffaa55;
-
-            ~label {
-                top: -1.2rem;
-                font-size: 0.75rem;
-                color: #ffaa55;
-            }
-
-            ~.input-line {
-                transform: scaleX(1);
-            }
-        }
-
-        &:not(:placeholder-shown)~label,
-        &:-webkit-autofill~label {
-            top: -1.2rem;
-            font-size: 0.75rem;
-            color: #ffaa55;
-        }
-    }
-
-    label {
-        position: absolute;
-        top: 0.75rem;
-        left: 0;
-        color: #888;
-        font-size: 1rem;
-        pointer-events: none;
-        transition: all 0.3s ease;
-    }
-
-    .input-line {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 2px;
-        width: 100%;
-        background: linear-gradient(90deg, #ffaa55, #ff5555);
-        transform: scaleX(0);
-        transition: transform 0.3s ease;
-    }
-}
-
-.form-checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-
-    input[type='checkbox'] {
-        width: 1.2rem;
-        height: 1.2rem;
-        cursor: pointer;
-        accent-color: #ffaa55;
-    }
-
-    label {
-        color: #aaa;
-        font-size: 0.9rem;
-        cursor: pointer;
-    }
-}
-
-.submit-btn {
-    position: relative;
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(135deg, #ffaa55, #ff7733);
-    border: none;
-    border-radius: 0.5rem;
-    color: #000;
-    font-size: 1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 170, 85, 0.3);
-
-    span {
-        position: relative;
-        z-index: 2;
-    }
-
-    .btn-glow {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.3);
-        transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
-    }
-
-    &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 170, 85, 0.5);
-
-        .btn-glow {
-            width: 300px;
-            height: 300px;
-        }
-    }
-
-    &:active {
-        transform: translateY(0);
-    }
-}
 
 .forgot-link {
     display: block;

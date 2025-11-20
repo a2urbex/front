@@ -2,36 +2,38 @@
 
 .favorites-list-editor {
     transition: all .2s;
-    top:0;
+    top: 0;
     left: 0;
     opacity: 0;
     z-index: 2;
     position: absolute;
     visibility: hidden;
     background-color: $background;
-    border-radius: .4rem;
+    border-radius: 20px;
     width: 100%;
     min-height: 100%;
-    padding: 1rem;
+    padding: .8rem 1.5rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    h2{
+    justify-content: center;
+
+    h2 {
         margin: 0;
+        font-size: .8rem;
+
         @media (max-width: $md) {
             font-size: $font-size-small;
         }
     }
 
-    &__link{
+    &__link {
         color: $contrast;
         position: absolute;
         top: .8rem;
         right: 1.2rem;
     }
 
-    &__actions{
-        margin-top: 1rem;
+    &__actions {
         display: flex;
         gap: 1rem;
         flex-direction: row;
@@ -39,14 +41,16 @@
         align-items: center;
 
         button {
-            border:none;
+            border: none;
         }
-        span{
+
+        span {
             width: 1px;
             height: 1.5rem;
             background-color: $contrast-2;
         }
-        .icon{
+
+        .icon {
             height: 2.2rem;
             width: 2.2rem;
         }

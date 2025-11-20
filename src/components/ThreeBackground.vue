@@ -20,6 +20,8 @@ import * as THREE from 'three';
 
 // Textures (Optionnel, le code gère le fallback couleur si les images manquent)
 import buildingTextureUrl from '@/assets/textures/building.png';
+import sovietBuilding1Url from '@/assets/textures/soviet_building_1.png';
+import sovietBuilding2Url from '@/assets/textures/soviet_building_2.png';
 import roadTextureUrl from '@/assets/textures/road.png';
 import metalTextureUrl from '@/assets/textures/metal.png';
 import rustedMetalTextureUrl from '@/assets/textures/rusted_metal.jpg';
@@ -50,13 +52,14 @@ const CONFIG = {
   },
   
   // Bâtiments
-  BUILDING_COUNT: 30,             // Nombre de bâtiments par côté (30 = 60 au total)
+  // On ne définit plus un nombre fixe total, mais une densité par "voie" (lane)
+  // Le système va générer suffisamment de bâtiments pour remplir les voies
   
   // Grande roue de Pripyat
   FERRIS_WHEEL: {
-    X: -20,                       // Position X (-20 = gauche, 20 = droite)
+    X: -25,                       // Position X (-20 = gauche, 20 = droite)
     Y: 14,                        // Hauteur
-    Z: 8,                        // Distance par rapport à la caméra au départ (10 = très proche/visible au début, -150 = loin)
+    Z: -50,                       // Distance par rapport à la caméra au départ (10 = très proche/visible au début, -150 = loin)
     ROTATION_Y: 0.5,              // Rotation sur l'axe Y
     ROTATION_Z: 0.1               // Inclinaison
   },
@@ -64,21 +67,22 @@ const CONFIG = {
   // Éclairage
   LIGHTING: {
     // Pourcentages des états des lampadaires (total doit faire ~100)
-    LAMP_OFF_PERCENT: 20,         // 50% de lampadaires éteints
-    LAMP_ON_PERCENT: 30,          // 10% de lampadaires allumés en permanence
-    LAMP_FLICKER_PERCENT: 50,     // 40% de lampadaires qui clignotent
+    LAMP_OFF_PERCENT: 20,         // 20% de lampadaires éteints
+    LAMP_ON_PERCENT: 30,          // 30% de lampadaires allumés en permanence
+    LAMP_FLICKER_PERCENT: 50,     // 50% de lampadaires qui clignotent
     
     // Luminosité globale de la scène
-    AMBIENT_INTENSITY: 1,       // Luminosité ambiante (0.0 = noir total, 1.0 = très lumineux)
-    MOON_INTENSITY: 1,          // Intensité de la lumière lunaire (0.0 = pas de lune, 1.0 = pleine lune)
-    LAMP_INTENSITY: 30            // Intensité des lampadaires individuels
+    AMBIENT_INTENSITY: 5,       // Luminosité ambiante augmentée
+    MOON_INTENSITY: 8.0,          // Intensité de la lumière lunaire augmentée
+    LAMP_INTENSITY: 50            // Intensité des lampadaires individuels augmentée
   },
   
   // Monde infini (Système de recyclage des objets)
   INFINITE_WORLD: {
     SPAWN_DISTANCE: 150,          // Distance devant la caméra pour générer/recycler les objets
-    DESPAWN_DISTANCE: -80,        // Distance derrière la caméra pour recycler les objets (négatif)
-    CAMERA_SPEED: 0.03            // Vitesse de déplacement de la caméra (plus = plus rapide)
+    DESPAWN_DISTANCE: 20,         // Distance DERRIÈRE la caméra pour recycler les objets (positif car Z > camera.Z)
+    CAMERA_SPEED: 0.05,           // Vitesse de déplacement de la caméra
+    CAMERA_BOOST_SPEED: 0.5       // Vitesse lors du boost
   }
 };
 
@@ -90,17 +94,67 @@ const lamps = []; // Référence aux lampadaires
 const deadTrees = []; // Référence aux arbres morts
 const roadWeeds = []; // Référence aux herbes sur la route
 const carcasseCars = []; // Référence aux carcasses de voitures
+let wheelGroup; // Référence à la grande roue
+
+// --- GESTION DES VOIES DE BÂTIMENTS (LANES) ---
+// Pour créer de la profondeur (1er plan, 2e plan, 3e plan)
+const NUM_LANES = 3; 
+const LANE_OFFSET_X = 30; // Espacement X entre les plans
+const BASE_X_LEFT = -25;
+const BASE_X_RIGHT = 25;
+
+// Suivi de la position Z pour chaque voie de chaque côté
+// Structure: { left: [z1, z2, z3], right: [z1, z2, z3] }
+const laneZTrackers = {
+    left: new Array(NUM_LANES).fill(0),
+    right: new Array(NUM_LANES).fill(0)
+};
+
+
+// --- GESTION DU BOOST CAMÉRA (Top Level) ---
+let isBoosting = false;
+let currentSpeed = CONFIG.INFINITE_WORLD.CAMERA_SPEED;
+
+const setBoost = (active) => {
+  isBoosting = active;
+};
+
+// Exposer la fonction pour le composant parent
+defineExpose({ setBoost });
+
+const clearZoneAroundWheel = () => {
+    if (!wheelGroup) return;
+    const clearRadius = 50; 
+    
+    const checkAndMove = (obj) => {
+        const dx = obj.position.x - wheelGroup.position.x;
+        const dz = obj.position.z - wheelGroup.position.z;
+        const dist = Math.sqrt(dx*dx + dz*dz);
+        
+        if(dist < clearRadius) {
+            obj.position.z -= 80; 
+        }
+    };
+
+    deadTrees.forEach(checkAndMove);
+    lamps.forEach(checkAndMove);
+};
 
 
 const init = () => {
   // --- 1. SCENE & ATMOSPHERE ---
   scene = new THREE.Scene();
-  const fogColor = 0x0a0a0a; // Presque noir, très dense
+  const fogColor = 0x1a1a1a; 
   scene.background = new THREE.Color(fogColor);
-  scene.fog = new THREE.FogExp2(fogColor, 0.045); // Brouillard encore plus dense
+  scene.fog = new THREE.FogExp2(fogColor, 0.02); 
 
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(0, 2, 5);
+
+  // Initialiser les positions de départ des bâtiments pour toutes les voies
+  const startZ = camera.position.z + 20;
+  laneZTrackers.left.fill(startZ);
+  laneZTrackers.right.fill(startZ);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -117,6 +171,10 @@ const init = () => {
   }, undefined, () => {});
   
   const buildingTex = loadTex(buildingTextureUrl);
+  const sovietBuilding1Tex = loadTex(sovietBuilding1Url);
+  const sovietBuilding2Tex = loadTex(sovietBuilding2Url);
+  const buildingTextures = [buildingTex, sovietBuilding1Tex, sovietBuilding2Tex];
+
   const roadTex = loadTex(roadTextureUrl);
   if(roadTex) roadTex.repeat.set(1, 40);
   const metalTex = loadTex(metalTextureUrl);
@@ -124,10 +182,10 @@ const init = () => {
 
 
   // Lumières
-  const ambientLight = new THREE.AmbientLight(0x111111, CONFIG.LIGHTING.AMBIENT_INTENSITY);
+  const ambientLight = new THREE.AmbientLight(0x222222, CONFIG.LIGHTING.AMBIENT_INTENSITY);
   scene.add(ambientLight);
 
-  const moonLight = new THREE.DirectionalLight(0x445566, CONFIG.LIGHTING.MOON_INTENSITY);
+  const moonLight = new THREE.DirectionalLight(0x667788, CONFIG.LIGHTING.MOON_INTENSITY);
   moonLight.position.set(-20, 50, -20);
   moonLight.castShadow = true;
   moonLight.shadow.mapSize.width = 2048;
@@ -144,7 +202,7 @@ const init = () => {
   const deadWoodMat = new THREE.MeshStandardMaterial({ color: 0x2b2118, roughness: 1 });
   const deadLeavesMat = new THREE.MeshStandardMaterial({ color: 0x2f3a25, roughness: 1, side: THREE.DoubleSide });
   const rustedMat = new THREE.MeshStandardMaterial({ map: rustedMetalTex, color: 0x663300, roughness: 0.9, metalness: 0.5 });
-
+  const concreteMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.9 }); 
 
   // --- 3. FONCTIONS UTILITAIRES POUR CREER DES OBJETS ---
 
@@ -165,14 +223,13 @@ const init = () => {
     }
     weedGroup.position.set(x, 0, z);
     scene.add(weedGroup);
-    return weedGroup; // Retourne le groupe pour le suivi
+    return weedGroup; 
   };
 
   // Arbre mort détaillé
   const createDeadTree = (x, z) => {
     const group = new THREE.Group();
     
-    // Tronc principal tordu
     const trunkH = 2 + Math.random() * 3;
     const trunkRadius = 0.1 + Math.random() * 0.1;
     const trunk = new THREE.Mesh(new THREE.CylinderGeometry(trunkRadius, trunkRadius * 1.5, trunkH, 5), deadWoodMat);
@@ -182,7 +239,6 @@ const init = () => {
     trunk.castShadow = true;
     group.add(trunk);
 
-    // Branches secondaires
     const numBranches = 4 + Math.floor(Math.random() * 4);
     for(let i=0; i<numBranches; i++) {
         const branchLen = 1 + Math.random() * 2;
@@ -194,7 +250,6 @@ const init = () => {
         group.add(branch);
     }
 
-    // Feuillage clairsemé et mort
     const numLeavesClusters = 2 + Math.floor(Math.random() * 3);
     for(let i=0; i<numLeavesClusters; i++) {
         const leafSize = 0.6 + Math.random() * 0.6;
@@ -209,18 +264,21 @@ const init = () => {
     const s = 0.8 + Math.random() * 0.5;
     group.scale.set(s, s, s);
     scene.add(group);
-    return group; // Retourne le groupe pour le suivi
+    return group; 
   };
 
   // Création d'un bâtiment
-  const createBuilding = (x, z) => {
-    const width = 6 + Math.random() * 5;
-    const height = 15 + Math.random() * 25;
-    const depth = 6 + Math.random() * 5;
+  const createBuilding = (x, z, side, laneIndex) => {
+    // Dimensions augmentées
+    const width = 15 + Math.random() * 10; 
+    const height = 30 + Math.random() * 30; 
+    const depth = 15 + Math.random() * 10; 
 
     const group = new THREE.Group();
     const geo = new THREE.BoxGeometry(width, height, depth);
-    const mat = new THREE.MeshStandardMaterial({ map: buildingTex, color: 0x444444, roughness: 0.8 });
+    
+    const tex = buildingTextures[Math.floor(Math.random() * buildingTextures.length)];
+    const mat = new THREE.MeshStandardMaterial({ map: tex, color: 0x666666, roughness: 0.8 });
     const mesh = new THREE.Mesh(geo, mat);
     
     mesh.position.y = height / 2; 
@@ -228,22 +286,26 @@ const init = () => {
     mesh.receiveShadow = true;
     group.add(mesh);
 
-    const numAddons = Math.floor(Math.random() * 4);
+    // Balcons et extensions - TAILLE RÉDUITE
+    const numAddons = Math.floor(Math.random() * 6) + 2;
     for(let i=0; i<numAddons; i++) {
-        const addonW = width * (0.3 + Math.random() * 0.5);
-        const addonH = height * 0.1 + Math.random() * 2;
-        const addonD = depth + 0.5 + Math.random() * 1; 
+        // Réduction significative des dimensions des balcons
+        const addonW = width * (0.05 + Math.random() * 0.15); // Était 0.1 + 0.3
+        const addonH = height * 0.02 + Math.random() * 0.5;   // Était 0.05 + 1
+        const addonD = depth + 0.2 + Math.random() * 0.5;     // Était depth + 0.5 + 1
+        
         const addonGeo = new THREE.BoxGeometry(addonW, addonH, addonD);
-        const addon = new THREE.Mesh(addonGeo, mat);
+        const addon = new THREE.Mesh(addonGeo, concreteMat);
         addon.position.y = Math.random() * (height - addonH) + addonH/2;
-        addon.position.x = (Math.random() > 0.5 ? 1 : -1) * (width/2 + addonW/2 - 0.5);
-        addon.position.z = (Math.random() - 0.5) * (depth - 1);
+        addon.position.x = (Math.random() > 0.5 ? 1 : -1) * (width/2 + addonW/2 - 0.05);
+        addon.position.z = (Math.random() - 0.5) * (depth - 2);
         addon.castShadow = true;
         group.add(addon);
     }
 
     group.position.set(x, 0, z);
-    group.userData = { width, height, depth, x, z }; // Stocke les dimensions pour le recyclage
+    // On stocke laneIndex pour savoir à quelle voie appartient ce bâtiment lors du recyclage
+    group.userData = { width, height, depth, x, z, side, laneIndex }; 
     scene.add(group);
     buildings.push(group);
 
@@ -263,80 +325,95 @@ const init = () => {
     return group;
   };
 
+  // Barrière de chantier / sécurité
+  const createBarrier = (x, z, rotationY = 0) => {
+      const group = new THREE.Group();
+      const barrierMat = new THREE.MeshStandardMaterial({ color: 0xcc3300, roughness: 0.7, metalness: 0.2 });
+      const barrierLegMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.9 });
+
+      const board = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.4, 0.1), barrierMat);
+      board.position.y = 0.8;
+      group.add(board);
+      
+      const board2 = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.4, 0.1), barrierMat);
+      board2.position.y = 0.4;
+      group.add(board2);
+
+      const leg1 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.2), barrierLegMat);
+      leg1.position.set(-1, 0.6, 0);
+      group.add(leg1);
+      
+      const leg2 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.2), barrierLegMat);
+      leg2.position.set(1, 0.6, 0);
+      group.add(leg2);
+
+      const base1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 0.6), barrierLegMat);
+      base1.position.set(-1, 0.05, 0);
+      group.add(base1);
+      
+      const base2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 0.6), barrierLegMat);
+      base2.position.set(1, 0.05, 0);
+      group.add(base2);
+
+      group.position.set(x, 0, z);
+      group.rotation.y = rotationY;
+      scene.add(group);
+      return group;
+  };
+
   // Création d'un lampadaire détaillé
-  const createLamp = (x, z) => {
+  const createLamp = (x, z, rotationY = 0) => {
     const group = new THREE.Group();
-    // Matériau plus brut, gris foncé/noir pour un look industriel
     const poleMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8, roughness: 0.5 });
     
-    // --- Poteau Principal (Massif et Épais) ---
-    // Un simple cylindre ou un prisme octogonal si vous voulez plus de détails
     const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 6), poleMat);
     pole.position.y = 3;
     pole.castShadow = true;
     group.add(pole);
 
-    // --- Bras Supérieur (Droit et Horizontal) ---
-    // Plus épais et moins raffiné que le modèle initial
     const armGeo = new THREE.BoxGeometry(1.8, 0.2, 0.2);
     const arm = new THREE.Mesh(armGeo, poleMat);
-    // Position : L'ajustement dépend du côté (x > 0) pour que le bras s'étende vers l'intérieur de la scène.
-    // Le bras commence à 0.9 (la moitié de sa longueur) par rapport au centre du poteau (à x=0).
     const armXOffset = x > 0 ? -0.9 : 0.9;
     arm.position.set(armXOffset, 5.9, 0);
-    // Le bras est déjà orienté correctement par défaut (le long de l'axe X), pas besoin de rotation.
     arm.castShadow = true;
     group.add(arm);
 
-    // --- Support de la Tête de Lampe (Simple) ---
-    // Un petit support vertical pour attacher la tête angulaire au bras
     const headSupportGeo = new THREE.BoxGeometry(0.2, 0.3, 0.2);
     const headSupport = new THREE.Mesh(headSupportGeo, poleMat);
-    const supportXOffset = x > 0 ? -1.7 : 1.7; // Légèrement au-delà de la fin du bras
+    const supportXOffset = x > 0 ? -1.7 : 1.7; 
     headSupport.position.set(supportXOffset, 5.75, 0);
     headSupport.castShadow = true;
     group.add(headSupport);
 
-    // --- Tête de la Lampe (Forme Simple, Bloc Carré ou Tronconique) ---
-    // Un bloc simple et fonctionnel, style projecteur
     const headGeo = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.5), poleMat);
     const headXOffset = x > 0 ? -1.7 : 1.7;
     headGeo.position.set(headXOffset, 5.6, 0);
-    headGeo.rotation.x = -Math.PI / 16; // Légèrement incliné vers le bas
+    headGeo.rotation.x = -Math.PI / 16; 
     headGeo.castShadow = true;
     group.add(headGeo);
 
-    // --- Ampoule/Source Lumineuse (Surface Émissive) ---
-    // Une simple face rectangulaire pour simuler l'ouverture du projecteur
     const bulbGeo = new THREE.PlaneGeometry(0.4, 0.4);
-    const bulbMat = new THREE.MeshBasicMaterial({ color: 0x222222, side: THREE.DoubleSide }); // Éteint par défaut
+    const bulbMat = new THREE.MeshBasicMaterial({ color: 0x222222, side: THREE.DoubleSide }); 
     const bulb = new THREE.Mesh(bulbGeo, bulbMat);
     const bulbXOffset = x > 0 ? -1.69 : 1.69;
     bulb.position.set(bulbXOffset, 5.6, 0);
-    // Rotation pour faire face au sol/devant
     bulb.rotation.y = x > 0 ? -Math.PI / 2 : Math.PI / 2;
     bulb.rotation.x = -Math.PI / 16;
     group.add(bulb);
     
-    // --- Logique d'Éclairage et de Clignotement ---
-    const rand = Math.random() * 100; // 0-100 pour les pourcentages
+    const rand = Math.random() * 100; 
     let light = null;
     let lightIntensity = CONFIG.LIGHTING.LAMP_INTENSITY;
 
-    // Calcul des seuils basés sur les pourcentages configurables
     const offThreshold = CONFIG.LIGHTING.LAMP_OFF_PERCENT;
     const onThreshold = offThreshold + CONFIG.LIGHTING.LAMP_ON_PERCENT;
-    // Le reste sera pour flicker
 
     if (rand < offThreshold) { 
-        // Lampadaire éteint
     } else if (rand < onThreshold) { 
-        // Lampadaire allumé en permanence
         bulbMat.color.setHex(0xffaa55);
         light = new THREE.SpotLight(0xffaa55, lightIntensity, 25, 0.7, 0.5, 1);
         light.position.set(bulbXOffset, 5.6, 0);
         
-        // Cible pointant vers le bas, légèrement en avant
         const targetX = x > 0 ? -1.7 : 1.7;
         light.target.position.set(targetX, 0, 0);
         
@@ -344,91 +421,79 @@ const init = () => {
         group.add(light.target);
         light.castShadow = true;
     } else { 
-        // Lampadaire qui clignote (défaillance)
         bulbMat.color.setHex(0x444000); 
-        light = new THREE.PointLight(0xffaa55, 0, 20); // Commence à 0
+        light = new THREE.PointLight(0xffaa55, 0, 20); 
         light.position.set(bulbXOffset, 5.6, 0);
         group.add(light);
         flickrLights.push({ light: light, material: bulbMat, baseInt: lightIntensity });
     }
 
-    // --- Positionnement Final et Métadonnées ---
     group.position.set(x, 0, z);
+    group.rotation.y = rotationY;
     group.userData = { x, z };
     scene.add(group);
     lamps.push(group);
     return group;
   };
 
-  // Création d'une carcasse de voiture détaillée
   const createAbandonedCar = (z) => {
     const carGroup = new THREE.Group();
     
-    // --- Matériaux Améliorés ---
-    // Simuler une couleur de base fanée, rouillée, ou très sale.
-    const rustColor = new THREE.Color(0x7c493c); // Couleur rouille ou kaki fané
-    const baseColor = Math.random() > 0.6 ? 0x2e3532 : 0x7c493c; // 40% rouille, 60% gris foncé/vert militaire
+    const rustColor = new THREE.Color(0x7c493c); 
+    const baseColor = Math.random() > 0.6 ? 0x2e3532 : 0x7c493c; 
     
     const carMat = new THREE.MeshStandardMaterial({ 
-        map: metalTex, // Garder votre texture métallique/saleté
+        map: metalTex, 
         color: baseColor, 
         roughness: 0.9, 
-        metalness: 0.1, // Faible métalness pour la rouille et la saleté
-        // flatShading: true // optionnel, pour un look plus polygonal et abîmé
+        metalness: 0.1, 
     });
 
-    // --- Géométrie du Châssis (Break/Berline) ---
-    // Corps principal (milieu)
     const bodyGeo = new THREE.BoxGeometry(1.7, 0.6, 2.5);
     const body = new THREE.Mesh(bodyGeo, carMat);
     body.position.y = 0.5;
-    // Déformation réaliste : enfoncé et tordu
     body.scale.set(1 + Math.random()*0.1, 1 - Math.random()*0.3, 1 - Math.random()*0.2); 
-    body.rotation.x = (Math.random() - 0.5) * 0.1; // Légère torsion
+    body.rotation.x = (Math.random() - 0.5) * 0.1; 
     body.castShadow = true;
     carGroup.add(body);
 
-    // Capot/Coffre (plus bas)
     const hoodGeo = new THREE.BoxGeometry(1.7, 0.3, 1.5);
     const hood = new THREE.Mesh(hoodGeo, carMat);
     hood.position.y = 0.25;
     hood.position.z = -2.0;
-    hood.scale.set(1, 1 - Math.random()*0.4, 1); // Capot écrasé
+    hood.scale.set(1, 1 - Math.random()*0.4, 1); 
     hood.castShadow = true;
     carGroup.add(hood);
 
-    // --- Habitacle Détruit ---
     const cabinGeo = new THREE.BoxGeometry(1.6, 0.7, 1.5);
     const cabin = new THREE.Mesh(cabinGeo, carMat);
     cabin.position.y = 1.0;
     cabin.position.z = -0.5;
-    cabin.scale.set(1, 1 - Math.random()*0.6, 1); // Habitacle très écrasé
+    cabin.scale.set(1, 1 - Math.random()*0.6, 1); 
     cabin.castShadow = true;
     carGroup.add(cabin);
     
-    // Pare-brise brisé (plan transparent ou sale)
     const glassMat = new THREE.MeshPhysicalMaterial({
         color: 0x555555, 
         transmission: 0.1, 
-        roughness: 0.8, // Très sale
+        roughness: 0.8, 
         metalness: 0.1,
         transparent: true
     });
     const windshieldGeo = new THREE.PlaneGeometry(1.5, 0.6);
     const windshield = new THREE.Mesh(windshieldGeo, glassMat);
     windshield.position.set(0, 1.1, -1.2);
-    windshield.rotation.x = -Math.PI / 6; // Angle réaliste
+    windshield.rotation.x = -Math.PI / 6; 
     windshield.castShadow = true;
     carGroup.add(windshield);
 
 
-    // --- Roues Manquantes et Déformées ---
-    const wheelGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.25); // Roues légèrement plus grandes
+    const wheelGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.25); 
     const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 1 });
     const wheelPositions = [
         {x: 0.9, z: 1.5, missing: false}, 
         {x: -0.9, z: 1.5, missing: false},
-        {x: 0.9, z: -1.8, missing: Math.random() > 0.7}, // 30% de chance qu'une roue manque
+        {x: 0.9, z: -1.8, missing: Math.random() > 0.7}, 
         {x: -0.9, z: -1.8, missing: false}
     ];
 
@@ -438,15 +503,13 @@ const init = () => {
             wheel.position.set(pos.x, 0.3, pos.z);
             wheel.rotation.x = Math.PI / 2;
             
-            // Roue dégonflée/déformée
             if (Math.random() > 0.5) {
-                wheel.scale.y = 1 + Math.random()*0.5; // Penchée
-                wheel.scale.z = 0.8; // Écrasée
+                wheel.scale.y = 1 + Math.random()*0.5; 
+                wheel.scale.z = 0.8; 
                 wheel.rotation.z = (Math.random() - 0.5) * 0.5;
             }
             carGroup.add(wheel);
         } else {
-            // Si la roue manque, ajouter un essieu cassé (petit cylindre)
             const axleGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.2);
             const axleMat = new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.8 });
             const axle = new THREE.Mesh(axleGeo, axleMat);
@@ -456,13 +519,11 @@ const init = () => {
         }
     });
 
-    // --- Positionnement Final (Plus chaotique) ---
     const side = Math.random() > 0.5 ? 1 : -1;
     carGroup.position.set(side * (roadWidth/2 + 1 + Math.random() * 2), 0, z);
     
-    // Plus de rotation/inclinaison pour simuler un positionnement chaotique
     carGroup.rotation.y = Math.random() * Math.PI * 0.5 + (side === 1 ? -0.4 : 0.4); 
-    carGroup.rotation.z = (Math.random() - 0.5) * 0.4; // Fortement inclinée (dans un fossé, sur un trottoir)
+    carGroup.rotation.z = (Math.random() - 0.5) * 0.4; 
 
     carGroup.userData = { side, z };
     scene.add(carGroup);
@@ -473,12 +534,11 @@ const init = () => {
 
   // --- 4. SOL & ENVIRONNEMENT ---
   const roadWidth = 10;
-  const roadSegmentLength = 100; // Longueur d'un segment de route pour la boucle
-  const numberOfRoadSegments = 4; // Nombre de segments pour couvrir la distance de vue
+  const roadSegmentLength = 100; 
+  const numberOfRoadSegments = 6; 
   const totalRoadLength = roadSegmentLength * numberOfRoadSegments;
 
 
-  // La route "virtuelle" se compose de plusieurs segments qui bouclent
   const roadGeo = new THREE.PlaneGeometry(roadWidth, roadSegmentLength);
   const roadMat = new THREE.MeshStandardMaterial({ map: roadTex, color: 0x222222, roughness: 0.9, metalness: 0.1 });
   const roadSegments = [];
@@ -491,7 +551,6 @@ const init = () => {
       roadSegments.push(road);
   }
 
-  // Trottoirs
   const sidewalkWidth = 4;
   const sidewalkHeight = 0.4;
   const sidewalkGeo = new THREE.BoxGeometry(sidewalkWidth, sidewalkHeight, roadSegmentLength);
@@ -513,39 +572,71 @@ const init = () => {
       rightWalkSegments.push(rightWalk);
   }
 
-  // Sol sous les batiments
-  const groundPlaneGeo = new THREE.BoxGeometry(40, 0.8, roadSegmentLength);
+  const groundPlaneGeo = new THREE.BoxGeometry(200, 0.8, roadSegmentLength); // Sol élargi pour couvrir les 3 plans
   const groundMat = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 1 });
   const groundPlaneLeftSegments = [];
   const groundPlaneRightSegments = [];
   for(let i=0; i<numberOfRoadSegments; i++) {
       const groundPlaneLeft = new THREE.Mesh(groundPlaneGeo, groundMat);
-      groundPlaneLeft.position.set(-30, -0.4, camera.position.z - roadSegmentLength * (numberOfRoadSegments/2) + i * roadSegmentLength);
+      groundPlaneLeft.position.set(-100, -0.4, camera.position.z - roadSegmentLength * (numberOfRoadSegments/2) + i * roadSegmentLength);
       groundPlaneLeft.receiveShadow = true;
       scene.add(groundPlaneLeft);
       groundPlaneLeftSegments.push(groundPlaneLeft);
 
       const groundPlaneRight = groundPlaneLeft.clone();
-      groundPlaneRight.position.x = 30;
+      groundPlaneRight.position.x = 100;
       scene.add(groundPlaneRight);
       groundPlaneRightSegments.push(groundPlaneRight);
   }
 
 
   // --- 5. PEUPLEMENT INITIAL DES OBJETS ---
-  // Utilise les paramètres de monde infini configurables
   const spawnDistance = CONFIG.INFINITE_WORLD.SPAWN_DISTANCE;
   const despawnDistance = CONFIG.INFINITE_WORLD.DESPAWN_DISTANCE;
+  const initialFillDistance = spawnDistance + 50;
+  
+  const isCollidingWithWheel = (z) => {
+      const wheelZ = CONFIG.FERRIS_WHEEL.Z;
+      const safetyMargin = 40; 
+      return (z < wheelZ + safetyMargin && z > wheelZ - safetyMargin);
+  };
 
-  // Bâtiments
-  for(let i=0; i<CONFIG.BUILDING_COUNT; i++) {
-      createBuilding(-15 - Math.random() * 15, -Math.random() * spawnDistance + camera.position.z);
-      createBuilding(15 + Math.random() * 15, -Math.random() * spawnDistance + camera.position.z);
+  // Remplissage des bâtiments pour chaque voie (lane)
+  for (let lane = 0; lane < NUM_LANES; lane++) {
+      // GAUCHE
+      while(laneZTrackers.left[lane] > camera.position.z - initialFillDistance) {
+          // Calcul de la position X de base pour cette voie
+          // Lane 0: -25, Lane 1: -55, Lane 2: -85
+          let baseX = BASE_X_LEFT - (lane * LANE_OFFSET_X);
+          let x = baseX - Math.random() * 10; // Variation légère
+
+          // Gestion collision roue UNIQUEMENT pour la voie 0 (la plus proche)
+          if (lane === 0 && isCollidingWithWheel(laneZTrackers.left[lane])) {
+              // On saute simplement la zone pour la voie 1
+              // Les voies 2 et 3 (arrière-plan) continueront d'afficher des bâtiments
+              laneZTrackers.left[lane] = CONFIG.FERRIS_WHEEL.Z - 40;
+              continue;
+          }
+
+          const b = createBuilding(x, laneZTrackers.left[lane], 'left', lane);
+          laneZTrackers.left[lane] -= (b.userData.depth + Math.random() * 5); 
+      }
+
+      // DROITE
+      while(laneZTrackers.right[lane] > camera.position.z - initialFillDistance) {
+          // Lane 0: 25, Lane 1: 55, Lane 2: 85
+          let baseX = BASE_X_RIGHT + (lane * LANE_OFFSET_X);
+          let x = baseX + Math.random() * 10;
+
+          const b = createBuilding(x, laneZTrackers.right[lane], 'right', lane);
+          laneZTrackers.right[lane] -= (b.userData.depth + Math.random() * 5);
+      }
   }
 
-  // Lampadaires avec distance minimale entre eux
+
+  // Lampadaires
   const minLampDistance = CONFIG.LAMP_MIN_DISTANCE;
-  const lampPositions = []; // Stocke les positions des lampadaires créés
+  const lampPositions = []; 
   
   const tryCreateLamp = (x, side) => {
     let attempts = 0;
@@ -554,7 +645,6 @@ const init = () => {
     while(attempts < maxAttempts) {
       const z = -Math.random() * spawnDistance + camera.position.z;
       
-      // Vérifie la distance avec tous les lampadaires existants
       let tooClose = false;
       for(let pos of lampPositions) {
         const distance = Math.abs(pos.z - z);
@@ -610,7 +700,7 @@ const init = () => {
       debris.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
       debris.castShadow = true;
       scene.add(debris);
-      roadWeeds.push(debris); // On les met aussi dans la liste des objets à recycler
+      roadWeeds.push(debris); 
   }
 
   // Carcasses de voitures
@@ -620,7 +710,7 @@ const init = () => {
 
 
   // --- 6. GRANDE ROUE (POSITIONNEMENT INITIAL) ---
-  const wheelGroup = new THREE.Group();
+  wheelGroup = new THREE.Group();
   wheelGroup.add(new THREE.Mesh(new THREE.TorusGeometry(12, 0.4, 8, 50), rustedMat));
   
   for(let i=0; i<12; i++) {
@@ -648,7 +738,6 @@ const init = () => {
   wheelGroup.rotation.z = CONFIG.FERRIS_WHEEL.ROTATION_Z; 
   scene.add(wheelGroup);
 
-
   // --- 7. PARTICULES ---
   const createParticleSystem = (numParticles, size, color, opacity, speed, spreadX, spreadY, spreadZ) => {
     const pGeo = new THREE.BufferGeometry();
@@ -673,80 +762,127 @@ const init = () => {
   createParticleSystem(8000, 0.08, 0xaaaaaa, 0.6, 0.02, 80, 40, 80);
   createParticleSystem(4000, 0.05, 0x888888, 0.4, 0.01, 100, 50, 100);
 
-  // --- 8. ANIMATION LOOP ---
+  createParticleSystem(8000, 0.08, 0xaaaaaa, 0.6, 0.02, 80, 40, 80);
+  createParticleSystem(4000, 0.05, 0x888888, 0.4, 0.01, 100, 50, 100);
+
+  // --- 8. GESTION DU BOOST CAMÉRA ---
+  // (Déplacé au niveau supérieur pour defineExpose)
+
+  // --- 9. ANIMATION LOOP ---
   const animate = () => {
     animationId = requestAnimationFrame(animate);
 
-    // 1. Camera Mouvement (avance automatiquement pour créer l'effet infini)
-    camera.position.z -= CONFIG.INFINITE_WORLD.CAMERA_SPEED;
+    // 1. Camera Mouvement
+    const targetSpeed = isBoosting ? CONFIG.INFINITE_WORLD.CAMERA_BOOST_SPEED : CONFIG.INFINITE_WORLD.CAMERA_SPEED;
+    currentSpeed += (targetSpeed - currentSpeed) * 0.05;
+    camera.position.z -= currentSpeed;
 
-    // Parallaxe souris
     camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
     camera.position.y += (2 + mouseY - camera.position.y) * 0.05;
+    camera.lookAt(camera.position.x * 0.5, camera.position.y, camera.position.z - 10);
 
     // 2. SYSTÈME DE MONDE INFINI - RECYCLAGE DES OBJETS
-    // Lorsqu'un objet passe derrière la caméra (despawnDistance), il est recyclé :
-    // - Il n'est PAS supprimé de la mémoire (pas de garbage collection)
-    // - Il est simplement repositionné devant la caméra (spawnDistance)
-    // - Cela crée l'illusion d'un monde infini sans consommer plus de mémoire
-    
-    // Recyclage des segments de route (boucle infinie)
+    const recycleThreshold = CONFIG.INFINITE_WORLD.DESPAWN_DISTANCE; 
+    const roadRecycleThreshold = roadSegmentLength / 2 + 20; 
+
     roadSegments.forEach(segment => {
-        if(segment.position.z - camera.position.z < despawnDistance) {
-            segment.position.z += numberOfRoadSegments * roadSegmentLength;
+        if(segment.position.z - camera.position.z > roadRecycleThreshold) {
+            segment.position.z -= numberOfRoadSegments * roadSegmentLength;
         }
     });
     leftWalkSegments.forEach(segment => {
-        if(segment.position.z - camera.position.z < despawnDistance) {
-            segment.position.z += numberOfRoadSegments * roadSegmentLength;
+        if(segment.position.z - camera.position.z > roadRecycleThreshold) {
+            segment.position.z -= numberOfRoadSegments * roadSegmentLength;
         }
     });
     rightWalkSegments.forEach(segment => {
-        if(segment.position.z - camera.position.z < despawnDistance) {
-            segment.position.z += numberOfRoadSegments * roadSegmentLength;
+        if(segment.position.z - camera.position.z > roadRecycleThreshold) {
+            segment.position.z -= numberOfRoadSegments * roadSegmentLength;
         }
     });
     groundPlaneLeftSegments.forEach(segment => {
-        if(segment.position.z - camera.position.z < despawnDistance) {
-            segment.position.z += numberOfRoadSegments * roadSegmentLength;
+        if(segment.position.z - camera.position.z > roadRecycleThreshold) {
+            segment.position.z -= numberOfRoadSegments * roadSegmentLength;
         }
     });
     groundPlaneRightSegments.forEach(segment => {
-        if(segment.position.z - camera.position.z < despawnDistance) {
-            segment.position.z += numberOfRoadSegments * roadSegmentLength;
+        if(segment.position.z - camera.position.z > roadRecycleThreshold) {
+            segment.position.z -= numberOfRoadSegments * roadSegmentLength;
         }
     });
 
-    // Recyclage des objets
+    // Recyclage des objets (Bâtiments, Arbres, etc.)
     buildings.forEach(building => {
-        if(building.position.z - camera.position.z < despawnDistance) {
-            // On déplace le bâtiment loin devant
-            building.position.z = camera.position.z + spawnDistance;
-            // On varie légèrement sa position X pour éviter la répétition visuelle
-            building.position.x = (building.userData.x > 0 ? 1 : -1) * (15 + Math.random() * 15);
+        if(building.position.z - camera.position.z > recycleThreshold) {
+            const side = building.userData.side;
+            const lane = building.userData.laneIndex; // Récupère la voie
+            
+            let newZ;
+            
+            if (side === 'left') {
+                newZ = laneZTrackers.left[lane] - (building.userData.depth + Math.random() * 5);
+                
+                // Gestion collision roue (Voie 0 seulement)
+                if (lane === 0 && isCollidingWithWheel(newZ)) {
+                    newZ = CONFIG.FERRIS_WHEEL.Z - 40;
+                }
+
+                laneZTrackers.left[lane] = newZ;
+                
+                // Position X basée sur la voie
+                let baseX = BASE_X_LEFT - (lane * LANE_OFFSET_X);
+                let newX = baseX - Math.random() * 10;
+                
+                building.position.z = newZ;
+                building.position.x = newX;
+
+            } else {
+                newZ = laneZTrackers.right[lane] - (building.userData.depth + Math.random() * 5);
+                laneZTrackers.right[lane] = newZ;
+                
+                let baseX = BASE_X_RIGHT + (lane * LANE_OFFSET_X);
+                let newX = baseX + Math.random() * 10;
+                
+                building.position.z = newZ;
+                building.position.x = newX;
+            }
         }
     });
 
     // Recyclage Lampadaires
     lamps.forEach(lamp => {
-        if(lamp.position.z - camera.position.z < despawnDistance) {
-             lamp.position.z = camera.position.z + spawnDistance;
+        if(lamp.position.z - camera.position.z > recycleThreshold) {
+             let newZ = camera.position.z - spawnDistance;
+             if (wheelGroup && Math.abs(newZ - wheelGroup.position.z) < 50 && Math.abs(lamp.position.x - wheelGroup.position.x) < 50) {
+                 newZ -= 80;
+             }
+             lamp.position.z = newZ;
         }
     });
 
     // Recyclage Arbres
     deadTrees.forEach(tree => {
-        if(tree.position.z - camera.position.z < despawnDistance) {
-             tree.position.z = camera.position.z + spawnDistance;
-             tree.position.x = (Math.random() > 0.5 ? 1 : -1) * (10 + Math.random() * 15);
+        if(tree.position.z - camera.position.z > recycleThreshold) {
+             let newZ = camera.position.z - spawnDistance;
+             let newX = (Math.random() > 0.5 ? 1 : -1) * (10 + Math.random() * 15);
+             
+             if (wheelGroup) {
+                const dx = newX - wheelGroup.position.x;
+                const dz = newZ - wheelGroup.position.z;
+                if (Math.sqrt(dx*dx + dz*dz) < 50) {
+                    newZ -= 80;
+                }
+            }
+             
+             tree.position.z = newZ;
+             tree.position.x = newX;
         }
     });
 
     // Recyclage Herbes et Débris sur la route
     roadWeeds.forEach(weed => {
-        if(weed.position.z - camera.position.z < despawnDistance) {
-             weed.position.z = camera.position.z + spawnDistance;
-             // On garde la logique de positionnement (sur route ou trottoir)
+        if(weed.position.z - camera.position.z > recycleThreshold) {
+             weed.position.z = camera.position.z - spawnDistance;
              const isRoad = Math.random() > 0.4;
              if(isRoad) {
                  weed.position.x = (Math.random() - 0.5) * roadWidth * 0.8;
@@ -758,26 +894,23 @@ const init = () => {
 
     // Recyclage Voitures
     carcasseCars.forEach(car => {
-        if(car.position.z - camera.position.z < despawnDistance) {
-             car.position.z = camera.position.z + spawnDistance + Math.random() * 50;
-             // Change de côté aléatoirement
+        if(car.position.z - camera.position.z > recycleThreshold) {
+             car.position.z = camera.position.z - spawnDistance - Math.random() * 50;
              const side = Math.random() > 0.5 ? 1 : -1;
              car.position.x = side * (roadWidth/2 + 1 + Math.random() * 2);
              car.rotation.y = Math.random() * Math.PI * 0.3 + (side === 1 ? -0.2 : 0.2);
         }
     });
 
-    // 3. Animation Particules (Suivent la caméra)
+    // 3. Animation Particules
     particleSystemRefs.forEach(({ system, pVel, numParticles, spreadX, spreadY, spreadZ }) => {
         const pos = system.geometry.attributes.position.array;
         for(let i=0; i<numParticles; i++) {
-            pos[i*3+1] -= pVel[i]; // Chute Y
-            
-            // Si touche le sol, repop en haut, autour de la caméra
+            pos[i*3+1] -= pVel[i]; 
             if(pos[i*3+1] < 0) {
                 pos[i*3+1] = spreadY; 
                 pos[i*3] = camera.position.x + (Math.random()-0.5)*spreadX; 
-                pos[i*3+2] = camera.position.z - (spreadZ/2) + (Math.random())*spreadZ; // Plus devant la caméra
+                pos[i*3+2] = camera.position.z - (spreadZ/2) + (Math.random())*spreadZ; 
             }
         }
         system.geometry.attributes.position.needsUpdate = true;
@@ -785,7 +918,7 @@ const init = () => {
 
     // 4. Clignotement Lampadaires
     flickrLights.forEach(item => {
-        if(Math.random() > 0.92) { // Fréquence du flicker
+        if(Math.random() > 0.92) { 
             item.light.intensity = Math.random() > 0.5 ? item.baseInt : 0;
             item.material.color.setHex(item.light.intensity > 0 ? 0xffaa00 : 0x222222);
         }
@@ -822,7 +955,6 @@ onBeforeUnmount(() => {
   cancelAnimationFrame(animationId);
   if(renderer) {
       renderer.dispose();
-      // Optionnel: Nettoyage plus profond des géométries si changement de page fréquent
   } 
 });
 </script>

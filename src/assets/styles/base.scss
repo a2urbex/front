@@ -1,4 +1,5 @@
 @import './variables.scss';
+@import './components/forms.scss';
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -8,7 +9,7 @@
   color-scheme: dark light;
   color: $contrast-5;
   background-color: $background;
-  background: linear-gradient(180deg, $background 0%,  $dark-background 90%);
+  background: linear-gradient(180deg, $background 0%, $dark-background 90%);
 
 
   font-synthesis: none;
@@ -27,6 +28,7 @@ body {
   place-items: center;
   min-height: 100dvh;
   overflow: hidden;
+
   @media (max-width : $md) {
     padding-bottom: 4rem;
   }
@@ -42,7 +44,7 @@ body {
   scrollbar-width: thin;
   scrollbar-color: $contrast-1 transparent;
 
-  @media (max-width : $md){
+  @media (max-width : $md) {
     height: 100dvh;
     overflow: hidden;
   }
@@ -55,7 +57,7 @@ body {
 }
 
 a {
-  color : $blue;
+  color: $blue;
   text-decoration: none;
   transition: all 0.2s;
 }
@@ -81,7 +83,7 @@ a {
   transform: translateY(-100%);
 }
 
-.image-error{
+.image-error {
   text-align: center;
   color: $contrast;
   margin: 0;
@@ -92,7 +94,7 @@ a {
   transform: translate(-50%, -50%);
 }
 
-.version-info{
+.version-info {
   position: fixed;
   bottom: 1rem;
   left: calc(50% + 130px);

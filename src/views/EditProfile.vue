@@ -100,28 +100,32 @@ const handleSubmit = async () => {
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>About</label>
-                <textarea v-model="formData.about" rows="4" placeholder="Tell us about yourself"></textarea>
+            <div class="st-form-group">
+                <textarea v-model="formData.about" rows="4" placeholder=" " id="about"></textarea>
+                <label for="about">About</label>
+                <div class="input-line"></div>
             </div>
 
             <div class="social-links">
-                <div class="form-group">
-                    <label>YouTube</label>
-                    <font-awesome-icon :icon="['fas', 'globe']" />
-                    <input type="text" v-model="formData.youtube" placeholder="YouTube channel URL">
+                <div class="st-form-group">
+                    <input type="text" v-model="formData.youtube" placeholder=" " id="youtube">
+                    <label for="youtube">YouTube</label>
+                    <div class="input-line"></div>
+                    <font-awesome-icon :icon="['fas', 'globe']" class="input-icon" />
                 </div>
 
-                <div class="form-group">
-                    <label>TikTok</label>
-                    <font-awesome-icon :icon="['fas', 'at']" />
-                    <input type="text" v-model="formData.tiktok" placeholder="example">
+                <div class="st-form-group">
+                    <input type="text" v-model="formData.tiktok" placeholder=" " id="tiktok">
+                    <label for="tiktok">TikTok</label>
+                    <div class="input-line"></div>
+                    <font-awesome-icon :icon="['fas', 'at']" class="input-icon" />
                 </div>
 
-                <div class="form-group">
-                    <label>Instagram</label>
-                    <font-awesome-icon :icon="['fas', 'at']" />
-                    <input type="text" v-model="formData.instagram" placeholder="example">
+                <div class="st-form-group">
+                    <input type="text" v-model="formData.instagram" placeholder=" " id="instagram">
+                    <label for="instagram">Instagram</label>
+                    <div class="input-line"></div>
+                    <font-awesome-icon :icon="['fas', 'at']" class="input-icon" />
                 </div>
             </div>
 
@@ -135,8 +139,9 @@ const handleSubmit = async () => {
                 </label>
             </div>
 
-            <button type="submit" class="submit-button" :disabled="editProfileStore.loading">
-                {{ editProfileStore.loading ? 'Saving...' : 'Save Changes' }}
+            <button type="submit" class="st-btn" :disabled="editProfileStore.loading">
+                <span>{{ editProfileStore.loading ? 'Saving...' : 'Save Changes' }}</span>
+                <div class="btn-glow"></div>
             </button>
         </form>
     </div>

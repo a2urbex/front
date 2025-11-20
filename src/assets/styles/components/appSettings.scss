@@ -1,59 +1,91 @@
 @import '@/assets/styles/base.scss';
+@import '@/assets/styles/components/forms.scss';
 
-.app-settings{
+.app-settings {
+    @extend .st-glass-panel;
     position: absolute;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    gap: 0rem;
-    left: calc(50% + 130px);
+    gap: 1rem;
+    left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    @media (max-width: $md){
-        left: 50%;
+    width: 90%;
+    max-width: 400px;
+    padding: 3rem 2rem;
+
+    @media (max-width: $md) {
+        width: 95%;
+        padding: 2rem 1rem;
     }
 
-    &__logo{
-        width: 4rem;
-        border-radius: .4rem;
-    }
-    &__title{
+    &__logo {
+        width: 5rem;
+        border-radius: 1rem;
+        box-shadow: 0 0 20px rgba($primary, 0.2);
         margin-bottom: 1rem;
-        font-weight: 500;
-        color: $contrast-2;
     }
 
-    &__version{
+    &__title {
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        color: #fff;
+        font-size: 1.2rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    &__version {
         margin: 0;
         font-weight: 500;
-        color: $contrast-2;
+        color: #aaa;
+        font-size: 0.9rem;
     }
 
-    &__button{
-        margin-top: 1rem; 
+    &__button {
+        margin-top: 1.5rem;
+        width: 100%;
     }
-    
-    .uptodate, .outaded  {
-        padding: .2rem 1rem;
-        line-height: 1.2rem;
-        border: none;
-        border-radius: 5rem;
-        color: $contrast;
-        font-weight: 500;
-        font-size: 1rem;
+
+    .uptodate,
+    .outaded {
+        // Keeping 'outaded' for compatibility with Vue file
+        @extend .st-btn;
+        width: 100%;
         margin: 0;
-        cursor: pointer;
-        display: flex;
-        gap: .5rem;
-        align-items: center;
+        justify-content: center;
+        text-decoration: none;
     }
 
-    .uptodate{
-        background-color: rgb(78, 182, 47);
+    .uptodate {
+        background: linear-gradient(135deg, #4eb62f, #3a8a23);
+        box-shadow: 0 4px 15px rgba(78, 182, 47, 0.3);
+        cursor: default;
+
+        &:hover {
+            transform: none;
+            box-shadow: 0 4px 15px rgba(78, 182, 47, 0.3);
+        }
     }
 
     .outaded {
-        background-color: rgb(199, 130, 28);
+        background: linear-gradient(135deg, $primary, $primary-dark);
+        animation: pulse 2s infinite;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba($primary, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba($primary, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba($primary, 0);
     }
 }

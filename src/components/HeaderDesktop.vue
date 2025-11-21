@@ -24,9 +24,7 @@ const isLocationsRoute = computed(() => router.currentRoute.value.path === '/loc
 const isFavoritesRoute = computed(() => router.currentRoute.value.path.includes('/favorites/'));
 
 const profileImageUrl = computed(() => {
-  return userProfile.value.image
-    ? `${import.meta.env.VITE_API_BASE_URL}${userProfile.value.image}`
-    : '';
+  return userProfile.value.image ? `${import.meta.env.VITE_API_BASE_URL}${userProfile.value.image}` : '';
 });
 
 const isUserSectionOpen = ref(false);
@@ -55,7 +53,7 @@ const clearCache = async () => {
     console.log('Caches cleared:' + cacheNames);
     for (let cacheName of cacheNames) {
       console.log('Caches cleared:' + cacheName);
-      caches.delete(cacheName); 
+      caches.delete(cacheName);
     }
   }
   window.location.reload();
@@ -65,12 +63,8 @@ const clearCache = async () => {
 <template>
   <div v-if="isLoggedIn" class="header-desktop m-none">
     <div class="header-desktop__logo">
-      <router-link v-if="isLoggedIn" class="header-desktop__logo-link" to="/locations">
-        A2Urbex
-      </router-link>
-      <router-link v-else class="header-desktop__logo-link" to="/">
-        A2Urbex
-      </router-link>
+      <router-link v-if="isLoggedIn" class="header-desktop__logo-link" to="/locations"> A2Urbex </router-link>
+      <router-link v-else class="header-desktop__logo-link" to="/"> A2Urbex </router-link>
     </div>
 
     <div v-if="isLoggedIn" class="header-desktop__content">
@@ -88,8 +82,8 @@ const clearCache = async () => {
           <span>Friends</span>
         </router-link>
         <button class="header-desktop__add" @click="handleAddLocation">
-            <font-awesome-icon :icon="['fa', 'plus']" />
-            <span>Add Location</span>
+          <font-awesome-icon :icon="['fa', 'plus']" />
+          <span>Add Location</span>
         </button>
       </nav>
 
@@ -99,23 +93,11 @@ const clearCache = async () => {
         </div>
       </div>
 
-      <div v-if="isLocationsRoute || isFavoritesRoute" class="header-desktop__section header-desktop__section--map">
+      <div v-if="isLocationsRoute || isFavoritesRoute" class="header-desktop__section header-desktop__section--map">
         <p class="header-desktop__section-label">View</p>
         <div class="header-desktop__map-toggle">
-          <button
-            class="header-desktop__map-btn"
-            :class="{ active: !mapStore.open }"
-            @click="mapStore.open = false"
-          >
-            List
-          </button>
-          <button
-            class="header-desktop__map-btn"
-            :class="{ active: mapStore.open }"
-            @click="mapStore.open = true"
-          >
-            Map
-          </button>
+          <button class="header-desktop__map-btn" :class="{ active: !mapStore.open }" @click="mapStore.open = false">List</button>
+          <button class="header-desktop__map-btn" :class="{ active: mapStore.open }" @click="mapStore.open = true">Map</button>
         </div>
       </div>
 
@@ -171,4 +153,4 @@ const clearCache = async () => {
 
 <style lang="scss" scoped>
 @import '@/assets/styles/components/header-desktop.scss';
-</style> 
+</style>

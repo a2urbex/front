@@ -52,16 +52,16 @@ const handleCreateList = async () => {
 
   await nextTick(() => {
     if (inputRef.value) {
-      inputRef.value.focus(); 
+      inputRef.value.focus();
     } else {
-      console.error("inputRef is null, cannot focus the input");
+      console.error('inputRef is null, cannot focus the input');
     }
   });
 };
 
 const submitNewList = async () => {
   if (newListName.value.trim()) {
-    await favoritesStore.createNewList(newListName.value, props.id);  
+    await favoritesStore.createNewList(newListName.value, props.id);
     newListName.value = '';
   }
   isCreatingList.value = false;
@@ -91,14 +91,9 @@ const handleInputBlur = () => {
       </div>
       <fieldset>
         <div v-for="item in favoriteList" :key="item.id">
-          <input 
-            type="radio" 
-            :id="`radio-${item.id}-${props.id}`" 
-            name="contactMethod" 
-            @click="addToSelectedList(item.id)"
-          />
+          <input type="radio" :id="`radio-${item.id}-${props.id}`" name="contactMethod" @click="addToSelectedList(item.id)" />
           <label :for="`radio-${item.id}-${props.id}`">
-            {{ item.name }} 
+            {{ item.name }}
             <span>
               <font-awesome-icon v-if="isItemInFids(item.id)" :icon="['fa', 'circle-check']" />
               <font-awesome-icon v-else :icon="['fa', 'plus']" />
@@ -108,22 +103,9 @@ const handleInputBlur = () => {
       </fieldset>
       <div class="favorite-modal__content-footer">
         <div v-if="isCreatingList">
-          <input 
-            type="text" 
-            v-model="newListName" 
-            placeholder="Enter list name" 
-            ref="inputRef"    
-            @blur="handleInputBlur"
-            @keyup.enter="submitNewList"
-          />
+          <input type="text" v-model="newListName" placeholder="Enter list name" ref="inputRef" @blur="handleInputBlur" @keyup.enter="submitNewList" />
         </div>
-        <button 
-          v-else 
-          class="favorite-modal__content-footer-button-create" 
-          @click="handleCreateList"
-        >
-          Create List
-        </button>
+        <button v-else class="favorite-modal__content-footer-button-create" @click="handleCreateList">Create List</button>
       </div>
     </div>
   </div>

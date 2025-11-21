@@ -1,4 +1,4 @@
-@import '@/assets/styles/base.scss';
+@import "@/assets/styles/base.scss";
 
 .header-mobile {
     display: flex;
@@ -14,9 +14,9 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-top: 1px solid rgba(255, 170, 85, 0.15);
-    z-index: 8;
+    z-index: 10;
 
-    &>* {
+    & > * {
         width: 2rem;
         display: flex;
         font-size: 1.1rem;
@@ -57,7 +57,7 @@
 
     &__profile {
         padding: 1rem 1rem;
-        border-radius: .4rem;
+        border-radius: 0.4rem;
         background-color: $background;
         color: $contrast;
         width: 100%;
@@ -76,7 +76,7 @@
 
     &__logout {
         padding: 1rem 1rem;
-        border-radius: .4rem;
+        border-radius: 0.4rem;
         background-color: $background;
         color: #c23333;
         width: 100%;
@@ -93,7 +93,7 @@
             height: 1.5rem;
             border-radius: 50%;
             cursor: pointer;
-            background-image: url('/default-user.png');
+            background-image: url("/default-user.png");
             background-size: cover;
             background-position: center;
         }
@@ -110,7 +110,7 @@
             width: calc(50% - 0.5rem);
             padding: 0.7rem 1rem;
             font-size: $font-size-small;
-            border-radius: .4rem;
+            border-radius: 0.4rem;
             background-color: $background;
             color: $contrast;
             margin: 0;
@@ -159,7 +159,6 @@
                     opacity: 0.4;
                 }
             }
-
         }
 
         &-separator {
@@ -173,7 +172,7 @@
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border-top: 1px solid rgba(255, 170, 85, 0.15);
-            transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: fixed;
             left: 0px;
             right: 0px;
@@ -214,11 +213,11 @@
         }
     }
 
-    >.router-link-active {
+    > .router-link-active {
         position: relative;
 
         &:after {
-            content: '';
+            content: "";
             background-color: #ffffff;
             width: 5px;
             height: 5px;

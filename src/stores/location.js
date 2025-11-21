@@ -20,9 +20,6 @@ export const useLocationStore = defineStore('location', {
         this.loading = true;
       }
       try {
-        console.log('fetch', page);
-        console.log(filters);
-
         this.selectedFilters = filters;
         const data = await request('POST', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/p/${page}`, filters);
         this.locationsList = data.list || [];

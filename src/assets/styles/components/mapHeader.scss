@@ -1,29 +1,29 @@
 @import '@/assets/styles/base.scss';
 
 .map-header {
-    box-shadow: #07070794 0px 6px 6px 3px;
-    background-color: rgba(10, 10, 10, 0.95);
-    backdrop-filter: blur(5px);
-    position: fixed;
-    top: 4rem;
-    z-index: 8;
+  box-shadow: #07070794 0px 6px 6px 3px;
+  background-color: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(5px);
+  position: fixed;
+  top: 4rem;
+  z-index: 8;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+
+  &-item {
+    padding: 0.5rem 1rem;
     width: 100%;
-    display: flex;
-    justify-content: space-around;
+    text-align: center;
+    transition: all 0.3s ease;
+    border-bottom: 0.15rem solid $background;
 
-    &-item {
-        padding: 0.5rem 1rem;
-        width: 100%;
-        text-align: center;
-        transition: all 0.3s ease;
-        border-bottom: .15rem solid $background;
-
-        &.active {
-            border-bottom: .15rem solid $primary;
-        }
+    &.active {
+      border-bottom: 0.15rem solid $primary;
     }
+  }
 
-    &.small-header {
-        top: 3rem;
-    }
+  &.small-header {
+    top: $titleHeight;
+  }
 }

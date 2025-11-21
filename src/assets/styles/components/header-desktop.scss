@@ -1,275 +1,275 @@
 @import '@/assets/styles/base.scss';
 
 .header-desktop {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 260px;
-    background: linear-gradient(180deg, $background 0%, $dark-background 80%);
-    border-right: 1px solid $contrast-1;
-    box-shadow: $dark-background 0 0 30px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: $sideHeaderWidth;
+  background: linear-gradient(180deg, $background 0%, $dark-background 80%);
+  border-right: 1px solid $contrast-1;
+  box-shadow: $dark-background 0 0 30px;
+  display: flex;
+  flex-direction: column;
+  z-index: 8;
+
+  &__logo {
+    font-size: 1.1rem;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.08em;
+    padding: 1rem 1.25rem;
+  }
+
+  &__logo-link {
+    color: $contrast;
+  }
+
+  &__content {
+    margin-top: 0.5rem;
+    padding: 1.5rem 1.25rem;
     display: flex;
     flex-direction: column;
-    z-index: 8;
+    gap: 1.5rem;
+    flex: 1;
+    overflow-y: auto;
+  }
 
-    &__logo {
-        font-size: 1.1rem;
-        font-weight: $font-weight-bold;
-        letter-spacing: 0.08em;
-        padding: 1rem 1.25rem;
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    &--primary {
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid $contrast-1;
     }
 
-    &__logo-link {
-        color: $contrast;
+    &--map {
+      gap: 0.6rem;
+      border-bottom: 1px solid $contrast-1;
+      padding-bottom: 1.5rem;
     }
 
-    &__content {
-        margin-top: 0.5rem;
-        padding: 1.5rem 1.25rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        flex: 1;
-        overflow-y: auto;
+    &--user {
+      margin-top: auto;
+      padding-top: 0.75rem;
+      border-top: 1px solid $contrast-1;
+      gap: 0.6rem;
+    }
+  }
+
+  &__nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.6rem;
+    color: $contrast-4;
+    font-size: $font-size-xsmall;
+    font-weight: $font-weight-medium;
+
+    svg {
+      min-width: 1rem;
     }
 
-    &__section {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
+    &:hover {
+      background-color: $contrast-0;
+      color: $contrast;
+    }
+  }
 
-        &--primary {
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid $contrast-1;
-        }
+  &__filters-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid $contrast-2;
+    background-color: $contrast-0;
+    color: $contrast-4;
+    font-size: $font-size-xsmall;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
 
-        &--map {
-            gap: 0.6rem;
-            border-bottom: 1px solid $contrast-1;
-            padding-bottom: 1.5rem;
-        }
+    &:hover {
+      border-color: $contrast-3;
+      color: $contrast;
+    }
+  }
 
-        &--user {
-            margin-top: auto;
-            padding-top: 0.75rem;
-            border-top: 1px solid $contrast-1;
-            gap: 0.6rem;
-        }
+  &__section-label {
+    margin: 0;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $contrast-3;
+  }
+
+  &__map-toggle {
+    display: flex;
+    gap: 0.35rem;
+    background-color: $contrast-1;
+    padding: 0.2rem;
+    border-radius: 999px;
+  }
+
+  &__map-btn {
+    flex: 1;
+    border: none;
+    border-radius: 999px;
+    background-color: transparent;
+    color: $contrast-4;
+    font-size: $font-size-xsmall;
+    padding: 0.25rem 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.active {
+      background-color: $blue;
+      color: $contrast;
+    }
+  }
+
+  &__profile {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.6rem;
+    background-color: $contrast-0;
+    color: $contrast;
+    cursor: pointer;
+  }
+
+  &__profile-avatar {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    object-fit: cover;
+    background-image: url('/default-user.png');
+    background-size: cover;
+    background-position: center;
+  }
+
+  &__profile-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  &__profile-name {
+    font-size: $font-size-small;
+    font-weight: $font-weight-medium;
+  }
+
+  &__profile-handle {
+    font-size: 0.75rem;
+    color: $contrast-3;
+  }
+
+  &__profile-toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $contrast-3;
+
+    .fa-angle-down {
+      transition: transform 0.15s ease;
     }
 
-    &__nav-link {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        padding: 0.5rem 0.75rem;
-        border-radius: 0.6rem;
-        color: $contrast-4;
-        font-size: $font-size-xsmall;
-        font-weight: $font-weight-medium;
-
-        svg {
-            min-width: 1rem;
-        }
-
-        &:hover {
-            background-color: $contrast-0;
-            color: $contrast;
-        }
+    .fa-angle-down.open {
+      transform: rotate(180deg);
     }
+  }
 
-    &__filters-trigger {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        padding: 0.5rem 0.75rem;
-        border-radius: 999px;
-        border: 1px solid $contrast-2;
-        background-color: $contrast-0;
-        color: $contrast-4;
-        font-size: $font-size-xsmall;
-        font-weight: $font-weight-medium;
-        cursor: pointer;
+  &__user-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+  }
 
-        &:hover {
-            border-color: $contrast-3;
-            color: $contrast;
-        }
+  &__add,
+  &__logout {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 0.6rem;
+    border: none;
+    cursor: pointer;
+    font-size: $font-size-xsmall;
+    font-weight: $font-weight-medium;
+  }
+
+  &__add {
+    background: transparent;
+    color: $contrast;
+    justify-content: flex-start;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $blue;
     }
+  }
 
-    &__section-label {
-        margin: 0;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: $contrast-3;
+  &__logout {
+    background-color: rgba(194, 51, 51, 0.15);
+    color: #c23333;
+    justify-content: center;
+  }
+
+  &__connect {
+    background-color: $blue;
+    color: $contrast;
+    font-size: $font-size-xsmall;
+    font-weight: $font-weight-bold;
+    width: 100%;
+    border-radius: 999px;
+    padding: 0.4rem 0.8rem;
+    text-align: center;
+    display: inline-block;
+
+    &:hover {
+      background-color: $darker-blue;
     }
+  }
 
-    &__map-toggle {
-        display: flex;
-        gap: 0.35rem;
-        background-color: $contrast-1;
-        padding: 0.2rem;
-        border-radius: 999px;
-    }
+  &__home {
+    color: $contrast-4;
+    font-size: $font-size-xsmall;
+    margin-bottom: 0.5rem;
+  }
 
-    &__map-btn {
-        flex: 1;
-        border: none;
-        border-radius: 999px;
-        background-color: transparent;
-        color: $contrast-4;
-        font-size: $font-size-xsmall;
-        padding: 0.25rem 0.7rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
+  &__content--guest {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 
-        &.active {
-            background-color: $blue;
-            color: $contrast;
-        }
-    }
+  // Highlight active link inside sidebar
+  .router-link-active.header-desktop__nav-link {
+    background-color: $contrast-0;
+    color: $contrast;
+  }
 
-    &__profile {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        padding: 0.5rem 0.75rem;
-        border-radius: 0.6rem;
-        background-color: $contrast-0;
-        color: $contrast;
-        cursor: pointer;
-    }
+  .fa-heart {
+    color: #7507f1;
+  }
 
-    &__profile-avatar {
-        width: 2.1rem;
-        height: 2.1rem;
-        border-radius: 50%;
-        object-fit: cover;
-        background-image: url('/default-user.png');
-        background-size: cover;
-        background-position: center;
-    }
+  .fa-gear {
+    color: #e09999;
+  }
 
-    &__profile-meta {
-        display: flex;
-        flex-direction: column;
-        gap: 0.1rem;
-    }
+  .fa-users {
+    color: #0099ff;
+  }
 
-    &__profile-name {
-        font-size: $font-size-small;
-        font-weight: $font-weight-medium;
-    }
-
-    &__profile-handle {
-        font-size: 0.75rem;
-        color: $contrast-3;
-    }
-
-    &__profile-toggle {
-        margin-left: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: $contrast-3;
-
-        .fa-angle-down {
-            transition: transform 0.15s ease;
-        }
-
-        .fa-angle-down.open {
-            transform: rotate(180deg);
-        }
-    }
-
-    &__user-menu {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        margin-top: 0.4rem;
-    }
-
-    &__add,
-    &__logout {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.45rem 0.75rem;
-        border-radius: 0.6rem;
-        border: none;
-        cursor: pointer;
-        font-size: $font-size-xsmall;
-        font-weight: $font-weight-medium;
-    }
-
-    &__add {
-        background: transparent;
-        color: $contrast;
-        justify-content: flex-start;
-        transition: all 0.2s ease;
-
-        &:hover {
-            background: $blue;
-        }
-    }
-
-    &__logout {
-        background-color: rgba(194, 51, 51, 0.15);
-        color: #c23333;
-        justify-content: center;
-    }
-
-    &__connect {
-        background-color: $blue;
-        color: $contrast;
-        font-size: $font-size-xsmall;
-        font-weight: $font-weight-bold;
-        width: 100%;
-        border-radius: 999px;
-        padding: 0.4rem 0.8rem;
-        text-align: center;
-        display: inline-block;
-
-        &:hover {
-            background-color: $darker-blue;
-        }
-    }
-
-    &__home {
-        color: $contrast-4;
-        font-size: $font-size-xsmall;
-        margin-bottom: 0.5rem;
-    }
-
-    &__content--guest {
-        margin-top: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    // Highlight active link inside sidebar
-    .router-link-active.header-desktop__nav-link {
-        background-color: $contrast-0;
-        color: $contrast;
-    }
-
-    .fa-heart {
-        color: #7507f1;
-    }
-
-    .fa-gear {
-        color: #e09999;
-    }
-
-    .fa-users {
-        color: #0099ff;
-    }
-
-    .fa-map-pin {
-        color: #eeee52;
-    }
+  .fa-map-pin {
+    color: #eeee52;
+  }
 }

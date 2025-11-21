@@ -10,6 +10,6 @@ export const useUIStore = defineStore('ui', () => {
 
   return {
     isTransitioning,
-    setTransitioning
+    setTransitioning,
   };
 });

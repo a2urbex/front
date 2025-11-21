@@ -11,7 +11,6 @@
   background-color: $background;
   background: linear-gradient(180deg, $background 0%, $dark-background 90%);
 
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -29,7 +28,7 @@ body {
   min-height: 100dvh;
   overflow: hidden;
 
-  @media (max-width : $md) {
+  @media (max-width: $md) {
     padding-bottom: 4rem;
   }
 }
@@ -44,15 +43,40 @@ body {
   scrollbar-width: thin;
   scrollbar-color: $contrast-1 transparent;
 
-  @media (max-width : $md) {
+  @media (max-width: $md) {
     height: 100dvh;
     overflow: hidden;
+  }
+
+  .content {
+    height: 100vh;
+    max-height: calc(100vh);
+    overflow-y: auto;
+    position: relative;
+    box-sizing: border-box;
+
+    &:has(.title-container) {
+      padding-top: $titleHeight;
+    }
+
+    @media (max-width: $md) {
+      padding-bottom: $bottomHeaderHeight;
+    }
+  }
+
+  .title-container {
+    height: $titleHeight;
+    width: calc(100% - $sideHeaderWidth);
+
+    @media (max-width: $md) {
+      width: 100%;
+    }
   }
 }
 
 @media (min-width: $md) {
   #app {
-    padding-left: 260px;
+    padding-left: $sideHeaderWidth;
     transition: padding-left 0.3s ease;
 
     &.is-transitioning {
@@ -108,8 +132,8 @@ a {
   white-space: nowrap;
   color: white;
   z-index: 1000;
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
   background-color: rgb(114 2 2 / 87%);
   border: 1px solid red;
-  border-radius: .2rem;
+  border-radius: 0.2rem;
 }

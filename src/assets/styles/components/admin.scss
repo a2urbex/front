@@ -2,109 +2,109 @@
 @import '@/assets/styles/components/forms.scss';
 
 .admin-page {
-    &__legacy {
-        @extend .st-btn;
-        width: fit-content;
-        padding: 0.5rem 1.5rem;
-        margin-top: 1rem;
-        margin-bottom: 2rem;
-        text-decoration: none;
-        display: inline-flex;
-        font-size: 0.9rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+
+  &__legacy {
+    @extend .st-btn;
+    width: fit-content;
+    padding: 0.5rem 1.5rem;
+    margin-bottom: 2rem;
+    text-decoration: none;
+    display: inline-flex;
+    font-size: 0.9rem;
+  }
+
+  h3 {
+    color: $primary;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__users {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding-right: 0.5rem;
+
+    // Scrollbar styling
+    &::-webkit-scrollbar {
+      width: 4px;
     }
 
-    h3 {
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba($primary, 0.3);
+      border-radius: 2px;
+    }
+  }
+
+  &__user {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0.8rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba($primary, 0.3);
+      transform: translateX(5px);
+    }
+
+    &-image,
+    &-image-placeholder {
+      min-width: 2.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba($primary, 0.2);
+      color: $primary;
+    }
+
+    &-info {
+      width: 100%;
+
+      &-email {
+        font-size: 0.85rem;
+        color: #888;
+      }
+
+      &-username {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #fff;
+        margin-bottom: 0.2rem;
+      }
+    }
+
+    &-actions-button {
+      background-color: transparent;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+
+      &:hover,
+      &.active {
         color: $primary;
-        margin-bottom: 1rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        background: rgba($primary, 0.1);
+        transform: rotate(90deg);
+      }
     }
-
-    &__users {
-        display: flex;
-        flex-direction: column;
-        gap: 0.8rem;
-        overflow-y: auto;
-        max-height: 75vh;
-        padding-right: 0.5rem;
-
-        // Scrollbar styling
-        &::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        &::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        &::-webkit-scrollbar-thumb {
-            background: rgba($primary, 0.3);
-            border-radius: 2px;
-        }
-    }
-
-    &__user {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-        padding: 1rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 0.8rem;
-        transition: all 0.3s ease;
-
-        &:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba($primary, 0.3);
-            transform: translateX(5px);
-        }
-
-        &-image,
-        &-image-placeholder {
-            min-width: 2.5rem;
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 50%;
-            object-fit: cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba($primary, 0.2);
-            color: $primary;
-        }
-
-        &-info {
-            width: 100%;
-
-            &-email {
-                font-size: 0.85rem;
-                color: #888;
-            }
-
-            &-username {
-                font-size: 1rem;
-                font-weight: 500;
-                color: #fff;
-                margin-bottom: 0.2rem;
-            }
-        }
-
-        &-actions-button {
-            background-color: transparent;
-            border: none;
-            color: #888;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-
-            &:hover,
-            &.active {
-                color: $primary;
-                background: rgba($primary, 0.1);
-                transform: rotate(90deg);
-            }
-        }
-    }
+  }
 }

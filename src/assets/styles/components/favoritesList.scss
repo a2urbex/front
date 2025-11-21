@@ -2,154 +2,144 @@
 @import '@/assets/styles/components/forms.scss';
 
 .favorites {
+  display: flex;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @media (max-width: $md) {
+    gap: 1rem;
+  }
+
+  &__container {
+    // overflow-y: scroll;
+    padding: 1rem;
+
+    h2 {
+      text-align: center;
+      color: #fff;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 2rem;
+
+      @media (max-width: $md) {
+        font-size: 12px;
+      }
+    }
+  }
+
+  &-containers {
+    @media (max-width: $md) {
+      margin-top: 3rem !important;
+    }
+  }
+
+  &__entry {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: rgba(20, 20, 20, 0.6); // Darker, more transparent
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    width: 45%;
+    max-width: 300px;
     display: flex;
-    gap: 1.5rem;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding-bottom: 2rem;
-    max-height: 100dvh;
-    overflow-y: auto;
+    flex-direction: column;
+    justify-content: space-between;
 
     @media (max-width: $md) {
-        gap: 1rem;
+      padding: 1rem;
+      min-width: 100%;
     }
 
-    &__container {
-        // overflow-y: scroll;
-        padding: 1rem;
-
-        @media (max-width: $md) {
-            padding-bottom: 4rem;
-            padding-top: 1rem;
-        }
-
-        h2 {
-            text-align: center;
-            color: #fff;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 2rem;
-
-            @media (max-width: $md) {
-                font-size: 12px;
-            }
-        }
+    &:hover {
+      transform: translateY(-4px);
+      background: rgba(30, 30, 30, 0.8);
+      border-color: rgba($primary, 0.4);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 15px rgba($primary, 0.1);
     }
 
-    &-containers {
-        @media (max-width: $md) {
-            margin-top: 3rem !important;
-        }
+    &.active {
+      z-index: 1;
+      border-color: $primary;
+      background: linear-gradient(145deg, rgba($primary, 0.1), rgba(20, 20, 20, 0.8));
+
+      .favorite-friend {
+        visibility: visible;
+        opacity: 1;
+        height: auto;
+      }
     }
 
-    &__entry {
+    &-selected {
+      border-color: $primary;
+      box-shadow: 0 0 20px rgba($primary, 0.2);
+
+      .favorites-list-editor {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; // Reduced from 0.8rem
+
+    h3 {
+      margin: 0;
+      font-size: 1rem; // Reduced from 1.2rem
+      color: #fff;
+      font-weight: 600;
+      transition: color 0.3s ease;
+
+      @media (max-width: $md) {
+        font-size: 0.95rem;
+      }
+    }
+
+    p {
+      margin: 0;
+      color: $primary;
+      font-size: 0.8rem; // Reduced from 0.9rem
+      font-weight: 500;
+    }
+
+    // Hover effect for parent entry affects children
+    .favorites__entry:hover & h3 {
+      color: $primary;
+    }
+
+    &-users {
+      display: flex;
+      flex-direction: row;
+      gap: -0.5rem;
+      margin-top: 0.3rem; // Reduced from 0.5rem
+
+      &-entry,
+      img {
+        width: 2rem; // Reduced from 2.5rem
+        height: 2rem; // Reduced from 2.5rem
+        object-fit: cover;
+        border-radius: 50%;
+        background-position: center;
+        background-image: url('/default-user.png');
+        border: 2px solid $dark-background;
+        transition: transform 0.3s ease, z-index 0s;
         position: relative;
-        cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-        background: rgba(20, 20, 20, 0.6); // Darker, more transparent
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 0.5rem 1rem;
-        border-radius: 1rem;
-        width: 45%;
-        max-width: 300px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
 
         @media (max-width: $md) {
-            padding: 1rem;
-            min-width: 100%;
+          height: 1.8rem;
+          width: 1.8rem;
         }
-
-        &:hover {
-            transform: translateY(-4px);
-            background: rgba(30, 30, 30, 0.8);
-            border-color: rgba($primary, 0.4);
-            box-shadow:
-                0 15px 35px rgba(0, 0, 0, 0.3),
-                0 0 15px rgba($primary, 0.1);
-        }
-
-        &.active {
-            z-index: 1;
-            border-color: $primary;
-            background: linear-gradient(145deg, rgba($primary, 0.1), rgba(20, 20, 20, 0.8));
-
-            .favorite-friend {
-                visibility: visible;
-                opacity: 1;
-                height: auto;
-            }
-        }
-
-        &-selected {
-            border-color: $primary;
-            box-shadow: 0 0 20px rgba($primary, 0.2);
-
-            .favorites-list-editor {
-                visibility: visible;
-                opacity: 1;
-            }
-        }
+      }
     }
-
-    &__content {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem; // Reduced from 0.8rem
-
-        h3 {
-            margin: 0;
-            font-size: 1rem; // Reduced from 1.2rem
-            color: #fff;
-            font-weight: 600;
-            transition: color 0.3s ease;
-
-            @media (max-width: $md) {
-                font-size: 0.95rem;
-            }
-        }
-
-        p {
-            margin: 0;
-            color: $primary;
-            font-size: 0.8rem; // Reduced from 0.9rem
-            font-weight: 500;
-        }
-
-        // Hover effect for parent entry affects children
-        .favorites__entry:hover & h3 {
-            color: $primary;
-        }
-
-        &-users {
-            display: flex;
-            flex-direction: row;
-            gap: -0.5rem;
-            margin-top: 0.3rem; // Reduced from 0.5rem
-
-            &-entry,
-            img {
-                width: 2rem; // Reduced from 2.5rem
-                height: 2rem; // Reduced from 2.5rem
-                object-fit: cover;
-                border-radius: 50%;
-                background-position: center;
-                background-image: url('/default-user.png');
-                border: 2px solid $dark-background;
-                transition: transform 0.3s ease, z-index 0s;
-                position: relative;
-
-                @media (max-width: $md) {
-                    height: 1.8rem;
-                    width: 1.8rem;
-                }
-            }
-        }
-    }
+  }
 }

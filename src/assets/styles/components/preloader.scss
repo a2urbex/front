@@ -1,40 +1,42 @@
 @import '@/assets/styles/base.scss';
 
 .preloader {
-    position: fixed;
-    top: 0;
-    left: 260px;
-    right: 0;
-    bottom: 0rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(180deg, $background 0%,  $dark-background 100%);
-    z-index: 3; // Overlap everything
+  position: fixed;
+  top: 0;
+  left: $sideHeaderWidth;
+  right: 0;
+  bottom: 0rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, $background 0%, $dark-background 100%);
+  z-index: 3; // Overlap everything
 
-    @media (max-width : $md) {
-        bottom: 5rem;
-        left: 0;
-    }
+  @media (max-width: $md) {
+    bottom: 5rem;
+    left: 0;
+  }
 
-    &__spinner{
-        img{
-            height: 2.3rem;
-        }
+  &__spinner {
+    img {
+      height: 2.3rem;
     }
-    &__text{
-        position: absolute;
-        bottom: 1rem;
-        color: $contrast-3;
-        font-size: $font-size-xsmall;
-        font-weight: $font-weight-bold;
-    }
+  }
+  &__text {
+    position: absolute;
+    bottom: 1rem;
+    color: $contrast-3;
+    font-size: $font-size-xsmall;
+    font-weight: $font-weight-bold;
+  }
 }
 
-.fade-enter-active, .fade-leave-active {
-    transition: opacity 0.5s;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to {
-    opacity: 0;
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }

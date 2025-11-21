@@ -17,32 +17,37 @@ const toggleAddLocation = () => {
   showAddLocation.value = !showAddLocation.value;
 };
 
-watch(() => uiStore.isTransitioning, (newValue) => {
-  const appElement = document.getElementById('app');
-  if (appElement) {
-    if (newValue) {
-      appElement.classList.add('is-transitioning');
-    } else {
-      appElement.classList.remove('is-transitioning');
+watch(
+  () => uiStore.isTransitioning,
+  (newValue) => {
+    const appElement = document.getElementById('app');
+    if (appElement) {
+      if (newValue) {
+        appElement.classList.add('is-transitioning');
+      } else {
+        appElement.classList.remove('is-transitioning');
+      }
     }
-  }
-});
+  },
+);
 
 onMounted(async () => {
   await versionStore.getVersion();
 });
 
-watch(() => versionStore.status, (newStatus) => {
-  if (newStatus === 'outdated') {
-    showUpdatePopup.value = true;
-  }
-});
+watch(
+  () => versionStore.status,
+  (newStatus) => {
+    if (newStatus === 'outdated') {
+      showUpdatePopup.value = true;
+    }
+  },
+);
 
 const goToUpdate = () => {
   showUpdatePopup.value = false;
   router.push('/app-settings');
 };
-
 </script>
 
 <template>
@@ -56,7 +61,9 @@ const goToUpdate = () => {
   <AddLocationComponent v-if="showAddLocation" @close="showAddLocation = false" />
 
   <!-- Content -->
-  <router-view />
+  <div class="content">
+    <router-view />
+  </div>
 
   <!-- Update Popup -->
   <div v-if="showUpdatePopup" class="update-popup-overlay">

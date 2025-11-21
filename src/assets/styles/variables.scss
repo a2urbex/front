@@ -1,18 +1,22 @@
 // Colors Dark mode
-$background : #0a0a0a;
-$dark-background : #050505;
+$background: #0a0a0a;
+$dark-background: #050505;
 $contrast: white;
 $contrast-5: #e1e1e1;
 $contrast-4: #808080;
 $contrast-3: #7a7a7a;
 $contrast-2: #494949;
 $contrast-1: #252525;
-$contrast-0 : #0c0c0c;
+$contrast-0: #0c0c0c;
 
 $primary: #ffaa55;
 $primary-dark: #ff7733;
 $blue: $primary; // Keeping alias for backward compatibility during refactor
-$darker-blue : $primary-dark;
+$darker-blue: $primary-dark;
+
+$bottomHeaderHeight: 80px;
+$sideHeaderWidth: 260px;
+$titleHeight: 70px;
 
 // Colors Light mode
 // $background : rgb(233, 233, 233);
@@ -27,96 +31,96 @@ $darker-blue : $primary-dark;
 
 // Font sizes
 
-$font-size-xsmall : 0.8rem;
-$font-size-small : 1rem;
-$font-size-medium : 1.2rem;
-$font-size-large : 1.4rem;
+$font-size-xsmall: 0.8rem;
+$font-size-small: 1rem;
+$font-size-medium: 1.2rem;
+$font-size-large: 1.4rem;
 
 // Font weights
 
-$font-weight-normal : 400;
-$font-weight-medium : 500;
-$font-weight-bold : 700;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
 
 // Page Width
 .page-width {
-    width: 100%;
-    padding-left: 2rem;
-    padding-right: 2rem;
+  width: 100%;
+  padding-left: 2rem;
+  padding-right: 2rem;
 
-    @media screen and (max-width: 768px) {
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-    }
+  @media screen and (max-width: 768px) {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }
 
-// Media Queries 
-$sm : 750px;
-$md : 990px;
-$xl : 1200px;
+// Media Queries
+$sm: 750px;
+$md: 990px;
+$xl: 1200px;
 
 // Utility
 
-.d-none {
-    @media (min-width: $md) {
-        display: none !important;
-    }
+@media (min-width: $md) {
+  .d-none {
+    display: none !important;
+  }
 }
 
-.m-none {
-    @media (max-width: $md) {
-        display: none !important;
-    }
+@media (max-width: $md) {
+  .m-none {
+    display: none !important;
+  }
 }
 
 .center {
-    text-align: center;
+  text-align: center;
 }
 
-// Icons 
+// Icons
 .icon {
-    border-radius: 5px;
-    margin: 0;
-    padding: 5px 10px;
-    cursor: pointer;
+  border-radius: 5px;
+  margin: 0;
+  padding: 5px 10px;
+  cursor: pointer;
 
-    &-earth {
-        background-color: rgba(129, 209, 255, .129);
-        color: #81d1ff;
-    }
+  &-earth {
+    background-color: rgba(129, 209, 255, 0.129);
+    color: #81d1ff;
+  }
 
-    &-waze {
-        background-color: rgba(52, 168, 81, .188);
-        color: #34a851;
-    }
+  &-waze {
+    background-color: rgba(52, 168, 81, 0.188);
+    color: #34a851;
+  }
 
-    &-edit {
-        background-color: hsla(0, 0%, 64%, .149);
-        color: #a3a3a3;
-    }
+  &-edit {
+    background-color: hsla(0, 0%, 64%, 0.149);
+    color: #a3a3a3;
+  }
 
-    &-delete {
-        background-color: hsla(0, 67%, 68%, .102);
-        color: #e47878;
-    }
+  &-delete {
+    background-color: hsla(0, 67%, 68%, 0.102);
+    color: #e47878;
+  }
 
-    &-visibility {
-        background-color: hsla(0, 0%, 64%, .149);
-        color: #a3a3a3;
-    }
+  &-visibility {
+    background-color: hsla(0, 0%, 64%, 0.149);
+    color: #a3a3a3;
+  }
 
-    &-open {
-        background-color: hsla(0, 0%, 64%, .149);
-        color: #a3a3a3;
-    }
+  &-open {
+    background-color: hsla(0, 0%, 64%, 0.149);
+    color: #a3a3a3;
+  }
 
-    &-share {
-        background-color: hsla(0, 0%, 64%, .149);
-        color: #a3a3a3;
-    }
+  &-share {
+    background-color: hsla(0, 0%, 64%, 0.149);
+    color: #a3a3a3;
+  }
 
-    &-copy-link {
-        background-color: rgba(128, 0, 128, .251);
-        color: #ad6dad;
-    }
+  &-copy-link {
+    background-color: rgba(128, 0, 128, 0.251);
+    color: #ad6dad;
+  }
 }

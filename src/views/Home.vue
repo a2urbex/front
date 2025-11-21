@@ -1,8 +1,11 @@
 <template>
   <div class="home">
-    <ThreeBackground ref="threeBackground" />
+    <transition name="fade">
+      <Loader v-if="isLoading" />
+    </transition>
+    <ThreeBackground ref="threeBackground" @ready="onSceneReady" />
     
-    <div class="home-content" :class="{ 'fade-out-content': isTransitioning }">
+    <div class="home-content" :class="{ 'fade-out-content': isTransitioning, 'hidden': isLoading }">
       
       <div :class="['hero-wrapper', { 'is-auth-active': showAuth }]">
         <div class="hero-section">
@@ -88,13 +91,13 @@
                   <div class="btn-glow"></div>
                 </button>
 
-                <router-link class="forgot-link" to="/forgot-password">
+                <a href="#" class="forgot-link" @click.prevent="activeTab = 'forgot'">
                   Forgot password?
-                </router-link>
+                </a>
               </form>
             </div>
 
-            <div v-else key="register" class="auth-form">
+            <div v-else-if="activeTab === 'register'" key="register" class="auth-form">
               <form @submit.prevent="handleRegister">
                 <div class="st-form-group">
                   <input 
@@ -140,6 +143,32 @@
                 </button>
               </form>
             </div>
+
+            <div v-else key="forgot" class="auth-form">
+              <form @submit.prevent="handleForgotPassword">
+                <div class="st-form-group">
+                  <input 
+                    autocomplete="email"
+                    type="email" 
+                    id="forgot-email"
+                    v-model="forgotEmail" 
+                    required 
+                    placeholder=" "
+                  />
+                  <label for="forgot-email">Email</label>
+                  <div class="input-line"></div>
+                </div>
+
+                <button type="submit" class="st-btn">
+                  <span>Reset Password</span>
+                  <div class="btn-glow"></div>
+                </button>
+
+                <a href="#" class="forgot-link" @click.prevent="activeTab = 'login'">
+                  Back to Sign In
+                </a>
+              </form>
+            </div>
           </transition>
         </div>
       </transition>
@@ -162,7 +191,17 @@ import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUIStore } from '@/stores/ui';
 import ThreeBackground from '@/components/ThreeBackground.vue';
+import Loader from '@/components/Loader.vue';
+
 const threeBackground = ref(null);
+const isLoading = ref(true);
+
+const onSceneReady = () => {
+  // Petit délai pour être sûr que la première frame est rendue
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 500);
+};
 
 const router = useRouter();
 const route = useRoute();
@@ -241,8 +280,20 @@ const handleRegister = async () => {
       registerData.value.username
     );
     await performTransition();
+    await performTransition();
   } catch (error) {
     console.error('Registration failed:', error);
+  }
+};
+
+const forgotEmail = ref('');
+
+const handleForgotPassword = async () => {
+  try {
+    await authStore.forgotPassword(forgotEmail.value);
+    activeTab.value = 'login';
+  } catch (error) {
+    console.error('Forgot password failed:', error);
   }
 };
 
@@ -275,7 +326,13 @@ onMounted(async () => {
   // Check if we should auto-open auth form from query params
   if (route.query.auth) {
     showAuth.value = true;
-    activeTab.value = route.query.auth === 'register' ? 'register' : 'login';
+    if (route.query.auth === 'register') {
+      activeTab.value = 'register';
+    } else if (route.query.auth === 'forgot') {
+      activeTab.value = 'forgot';
+    } else {
+      activeTab.value = 'login';
+    }
     // Clean up URL by removing query param
     router.replace({ path: '/', query: {} });
   }
@@ -289,6 +346,11 @@ onMounted(async () => {
 .fade-out-content {
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+
+.hidden {
+  opacity: 0;
   pointer-events: none;
 }
 

@@ -35,7 +35,7 @@ const clearCache = async () => {
         <img src="/logox192.png" class="app-settings__logo" alt="a2urbex logo" />
         <p class="app-settings__title">a2urbex @2025</p>
 
-        <p class="app-settings__version"> Current version: v{{ code_version }}</p>
+        <p class="app-settings__version"> Installed version: v{{ code_version }}</p>
         <p class="app-settings__version"> Latest version: v{{ latest_version }}</p>
 
             <div v-if="status === 'up-to-date'" class="app-settings__button refresh" @click="toggleOpen">

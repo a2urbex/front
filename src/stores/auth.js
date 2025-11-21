@@ -76,9 +76,7 @@ export const useAuthStore = defineStore('auth', {
             toast.warning('Logout successful!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             localStorage.removeItem('authToken');
 
-            setTimeout(() => {
-                router.push('/');
-              }, 1500);
+            router.push('/');
         },
 
         async validateToken() {

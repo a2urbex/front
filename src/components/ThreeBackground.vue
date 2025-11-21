@@ -15,16 +15,21 @@
  * Configuration centralisée via l'objet CONFIG pour un ajustement facile.
  */
 
-import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { onMounted, onBeforeUnmount, ref, defineEmits } from 'vue';
 import * as THREE from 'three';
+
+const emit = defineEmits(['ready']);
 
 // Textures (Optionnel, le code gère le fallback couleur si les images manquent)
 import buildingTextureUrl from '@/assets/textures/building.png';
+import sovietBuildingUrl from '@/assets/textures/soviet_building.png';
 import sovietBuilding1Url from '@/assets/textures/soviet_building_1.png';
 import sovietBuilding2Url from '@/assets/textures/soviet_building_2.png';
-import roadTextureUrl from '@/assets/textures/road.png';
+import roadTextureUrl from '@/assets/textures/road.jpg';
 import metalTextureUrl from '@/assets/textures/metal.png';
 import rustedMetalTextureUrl from '@/assets/textures/rusted_metal.jpg';
+
+import { generateRoadTexture, generateSidewalkTexture, generateMossTexture } from '@/utilities/textureGenerator';
 
 
 const container = ref(null);
@@ -46,9 +51,9 @@ const CONFIG = {
   
   // Végétation
   VEGETATION_DENSITY: {
-    TREES: 100,                   // Nombre d'arbres morts (total pour les 2 côtés)
-    ROAD_WEEDS: 200,              // Nombre d'herbes/buissons sur route et trottoirs
-    DEBRIS: 200                   // Nombre de débris sur la route
+    TREES: 50,                   // Nombre d'arbres morts (total pour les 2 côtés)
+    ROAD_WEEDS: 50,              // Nombre d'herbes/buissons sur route et trottoirs
+    DEBRIS: 50                   // Nombre de débris sur la route
   },
   
   // Bâtiments
@@ -79,8 +84,8 @@ const CONFIG = {
   
   // Monde infini (Système de recyclage des objets)
   INFINITE_WORLD: {
-    SPAWN_DISTANCE: 150,          // Distance devant la caméra pour générer/recycler les objets
-    DESPAWN_DISTANCE: 20,         // Distance DERRIÈRE la caméra pour recycler les objets (positif car Z > camera.Z)
+    SPAWN_DISTANCE: 80,          // Distance devant la caméra pour générer/recycler les objets
+    DESPAWN_DISTANCE: 5,         // Distance DERRIÈRE la caméra pour recycler les objets (positif car Z > camera.Z)
     CAMERA_SPEED: 0.05,           // Vitesse de déplacement de la caméra
     CAMERA_BOOST_SPEED: 0.5       // Vitesse lors du boost
   }
@@ -177,21 +182,41 @@ const init = () => {
   container.value.appendChild(renderer.domElement);
 
   // Textures
-  const textureLoader = new THREE.TextureLoader();
+  const loadingManager = new THREE.LoadingManager();
+  loadingManager.onLoad = () => {
+      emit('ready');
+  };
+
+  const textureLoader = new THREE.TextureLoader(loadingManager);
   const loadTex = (url) => textureLoader.load(url, (t) => {
       t.wrapS = t.wrapT = THREE.RepeatWrapping;
       t.anisotropy = renderer.capabilities.getMaxAnisotropy();
   }, undefined, () => {});
   
   const buildingTex = loadTex(buildingTextureUrl);
+  const sovietBuildingTex = loadTex(sovietBuildingUrl);
   const sovietBuilding1Tex = loadTex(sovietBuilding1Url);
   const sovietBuilding2Tex = loadTex(sovietBuilding2Url);
-  const buildingTextures = [buildingTex, sovietBuilding1Tex, sovietBuilding2Tex];
+  
+  const buildingTextures = [
+    buildingTex, 
+    sovietBuildingTex,
+    sovietBuilding1Tex, 
+    sovietBuilding2Tex
+  ];
 
+  // Texture de route
   const roadTex = loadTex(roadTextureUrl);
   if(roadTex) roadTex.repeat.set(1, 40);
+  
   const metalTex = loadTex(metalTextureUrl);
   const rustedMetalTex = loadTex(rustedMetalTextureUrl);
+  
+  // Texture de trottoir procédurale
+  const sidewalkTex = generateSidewalkTexture();
+  
+  // Texture de mousse
+  const mossTex = generateMossTexture();
 
 
   // Lumières
@@ -239,38 +264,123 @@ const init = () => {
     return weedGroup; 
   };
 
-  // Arbre mort détaillé
+  // Buisson sec
+  const createBush = (x, z) => {
+    const group = new THREE.Group();
+    const bushMat = new THREE.MeshStandardMaterial({ color: 0x2f3a25, roughness: 1, side: THREE.DoubleSide });
+    
+    const numLeaves = 5 + Math.random() * 5;
+    for(let i=0; i<numLeaves; i++) {
+        const s = 0.3 + Math.random() * 0.4;
+        const geo = new THREE.DodecahedronGeometry(s);
+        const mesh = new THREE.Mesh(geo, bushMat);
+        mesh.position.set((Math.random()-0.5)*0.5, s/2 + Math.random()*0.3, (Math.random()-0.5)*0.5);
+        mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+        mesh.castShadow = true;
+        group.add(mesh);
+    }
+    
+    group.position.set(x, 0, z);
+    const scale = 0.8 + Math.random() * 0.5;
+    group.scale.set(scale, scale, scale);
+    scene.add(group);
+    return group;
+  };
+
+  // Tache de mousse au sol
+  const createMossPatch = (x, z) => {
+    const size = 2 + Math.random() * 3;
+    const geo = new THREE.PlaneGeometry(size, size);
+    const mat = new THREE.MeshStandardMaterial({ 
+        map: mossTex, 
+        transparent: true, 
+        opacity: 0.8,
+        roughness: 1,
+        color: 0x4a5d23,
+        depthWrite: false // Pour éviter le z-fighting avec le sol
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.set(x, 0.02, z); // Légèrement au-dessus du sol
+    mesh.rotation.z = Math.random() * Math.PI;
+    scene.add(mesh);
+    return mesh;
+  };
+
+  // Arbre avec feuilles (Style amélioré)
   const createDeadTree = (x, z) => {
     const group = new THREE.Group();
     
-    const trunkH = 2 + Math.random() * 3;
-    const trunkRadius = 0.1 + Math.random() * 0.1;
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(trunkRadius, trunkRadius * 1.5, trunkH, 5), deadWoodMat);
-    trunk.position.y = trunkH / 2;
-    trunk.rotation.z = (Math.random() - 0.5) * 0.8;
-    trunk.rotation.x = (Math.random() - 0.5) * 0.8;
-    trunk.castShadow = true;
-    group.add(trunk);
+    // Tronc plus irrégulier
+    const trunkH = 3 + Math.random() * 4;
+    const trunkRadius = 0.15 + Math.random() * 0.1;
+    
+    // Construction du tronc avec plusieurs segments pour courbure
+    const numSegments = 4;
+    let currentY = 0;
+    let currentX = 0;
+    let currentZ = 0;
+    let currentRadius = trunkRadius;
+    
+    for(let i=0; i<numSegments; i++) {
+        const segmentH = trunkH / numSegments;
+        const nextRadius = currentRadius * 0.8;
+        const segmentGeo = new THREE.CylinderGeometry(nextRadius, currentRadius, segmentH, 6);
+        const segment = new THREE.Mesh(segmentGeo, deadWoodMat);
+        
+        // Inclinaison aléatoire
+        const tiltX = (Math.random() - 0.5) * 0.3;
+        const tiltZ = (Math.random() - 0.5) * 0.3;
+        
+        segment.position.set(currentX, currentY + segmentH/2, currentZ);
+        segment.rotation.x = tiltX;
+        segment.rotation.z = tiltZ;
+        segment.castShadow = true;
+        group.add(segment);
+        
+        currentY += segmentH;
+        currentX += Math.sin(tiltZ) * segmentH; // Approx
+        currentZ -= Math.sin(tiltX) * segmentH; // Approx
+        currentRadius = nextRadius;
+        
+        // Branches principales partant des segments
+        if (i > 0) {
+            const numBranches = 1 + Math.floor(Math.random() * 2);
+            for(let b=0; b<numBranches; b++) {
+                const branchLen = 1 + Math.random() * 2;
+                const branchR = currentRadius * 0.6;
+                const branch = new THREE.Mesh(new THREE.CylinderGeometry(branchR * 0.5, branchR, branchLen, 4), deadWoodMat);
+                
+                const angleY = Math.random() * Math.PI * 2;
+                const angleX = Math.PI / 3 + (Math.random() - 0.5) * 0.5;
+                
+                branch.position.set(currentX, currentY, currentZ);
+                branch.rotation.set(angleX, angleY, 0);
+                // Ajustement position pour partir du tronc
+                branch.translateY(branchLen/2);
+                
+                branch.castShadow = true;
+                group.add(branch);
 
-    const numBranches = 4 + Math.floor(Math.random() * 4);
-    for(let i=0; i<numBranches; i++) {
-        const branchLen = 1 + Math.random() * 2;
-        const branchRadius = 0.05 + Math.random() * 0.05;
-        const branch = new THREE.Mesh(new THREE.CylinderGeometry(branchRadius, branchRadius, branchLen), deadWoodMat);
-        branch.position.set((Math.random() - 0.5) * 1.5, trunkH * (0.6 + Math.random() * 0.4), (Math.random() - 0.5) * 1.5);
-        branch.rotation.set((Math.random() - 0.5) * Math.PI, 0, (Math.random() - 0.5) * Math.PI);
-        branch.castShadow = true;
-        group.add(branch);
+                // Feuilles sur les branches
+                if (Math.random() > 0.2) {
+                    const leafClusterSize = 0.5 + Math.random() * 0.5;
+                    const leafGeo = new THREE.DodecahedronGeometry(leafClusterSize);
+                    const leafMesh = new THREE.Mesh(leafGeo, deadLeavesMat);
+                    leafMesh.position.set(0, branchLen/2, 0); // Au bout de la branche
+                    leafMesh.scale.set(1, 0.5, 1);
+                    branch.add(leafMesh);
+                }
+            }
+        }
     }
 
-    const numLeavesClusters = 2 + Math.floor(Math.random() * 3);
-    for(let i=0; i<numLeavesClusters; i++) {
-        const leafSize = 0.6 + Math.random() * 0.6;
-        const leaves = new THREE.Mesh(new THREE.DodecahedronGeometry(leafSize), deadLeavesMat);
-        leaves.position.set((Math.random() - 0.5) * 3, trunkH + Math.random() * 2, (Math.random() - 0.5) * 3);
-        leaves.scale.set(Math.random()+0.5, Math.random()+0.5, Math.random()+0.5);
-        group.add(leaves);
-    }
+    // Amas de feuilles au sommet
+    const topLeavesSize = 1 + Math.random() * 1;
+    const topLeaves = new THREE.Mesh(new THREE.DodecahedronGeometry(topLeavesSize), deadLeavesMat);
+    topLeaves.position.set(currentX, currentY, currentZ);
+    topLeaves.scale.set(1 + Math.random(), 0.8 + Math.random(), 1 + Math.random());
+    group.add(topLeaves);
 
     group.position.set(x, 0, z);
     group.rotation.y = Math.random() * Math.PI;
@@ -567,7 +677,7 @@ const init = () => {
   const sidewalkWidth = 4;
   const sidewalkHeight = 0.4;
   const sidewalkGeo = new THREE.BoxGeometry(sidewalkWidth, sidewalkHeight, roadSegmentLength);
-  const sidewalkMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 1 });
+  const sidewalkMat = new THREE.MeshStandardMaterial({ map: sidewalkTex, color: 0x444444, roughness: 0.9 });
   
   const leftWalkSegments = [];
   const rightWalkSegments = [];
@@ -692,7 +802,28 @@ const init = () => {
   // Végétation sur route et trottoirs
   for(let i=0; i<CONFIG.VEGETATION_DENSITY.ROAD_WEEDS; i++) {
       const z = -Math.random() * spawnDistance + camera.position.z;
+      
+      // Herbes (peuvent être sur la route)
       if(Math.random() > 0.3) roadWeeds.push(createSmallWeed((Math.random() - 0.5) * roadWidth * 0.8, z, 0x3a4a2a));
+      
+      // Buissons aléatoires sur les côtés (JAMAIS sur la route)
+      // Route width = 10, donc les côtés sont à < -5 ou > 5
+      if(Math.random() > 0.8) {
+          // Côté gauche : entre -15 et -6
+          const bushX = -roadWidth/2 - 1 - Math.random() * 10;
+          roadWeeds.push(createBush(bushX, z));
+      }
+      if(Math.random() > 0.8) {
+          // Côté droit : entre 6 et 15
+          const bushX = roadWidth/2 + 1 + Math.random() * 10;
+          roadWeeds.push(createBush(bushX, z));
+      }
+
+      // Mousse sur la route/trottoirs
+      if(Math.random() > 0.7) {
+          roadWeeds.push(createMossPatch((Math.random() - 0.5) * (roadWidth + 4), z));
+      }
+
       if(Math.random() > 0.4) {
           roadWeeds.push(createSmallWeed(-roadWidth/2 - (Math.random()) * sidewalkWidth, z));
           roadWeeds.push(createSmallWeed(roadWidth/2 + (Math.random()) * sidewalkWidth, z));

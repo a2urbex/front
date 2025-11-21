@@ -94,7 +94,10 @@ export default createRouter({
           path: 'register', 
           redirect: { path: '/', query: { auth: 'register' } }
         },
-        { path: 'forgot-password', component: ResetPassword },
+        { 
+          path: 'forgot-password', 
+          redirect: { path: '/', query: { auth: 'forgot' } }
+        },
         { path: 'reset-password/:id', 
           component: NewPassword,
           props: route => ({ id: route.params.id })

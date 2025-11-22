@@ -33,7 +33,7 @@ import AppSettingsView from '@/views/AppSettings.vue'
 import AdminView from '@/views/Admin.vue'
 
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
@@ -72,7 +72,8 @@ export default createRouter({
     },
     {
       path: '/app-settings',
-      component: AppSettingsView
+      component: AppSettingsView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/admin',
@@ -106,3 +107,17 @@ export default createRouter({
     }
   ],
 })
+
+import { useAuthStore } from '@/stores/auth'
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  
+  if (to.meta.requiresAuth && !authStore.token) {
+    next({ path: '/', query: { auth: 'login' } })
+  } else {
+    next()
+  }
+})
+
+export default router

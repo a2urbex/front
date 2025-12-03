@@ -78,5 +78,5 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
-    @import '@/assets/styles/components/users.scss';
+    @use '@/assets/styles/components/users.scss' as *;
 </style>

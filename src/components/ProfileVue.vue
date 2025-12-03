@@ -165,5 +165,5 @@ const copyLink = () => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/styles/components/profile.scss';
+@use '@/assets/styles/components/profile.scss' as *;
 </style>

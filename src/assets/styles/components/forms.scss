@@ -1,4 +1,5 @@
-@import '../variables.scss';
+@use '../variables.scss' as *;
+@forward '../variables.scss';
 
 // Animations
 @mixin hover-scale {

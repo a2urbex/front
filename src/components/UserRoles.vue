@@ -1,5 +1,4 @@
 <script setup>
-import { defineProps, defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
 
@@ -97,5 +96,5 @@ const handleDeleteUser = async () => {
 </template>
 
 <style scoped>
-    @import '@/assets/styles/components/userRoles.scss';
+    @use '@/assets/styles/components/userRoles.scss' as *;
 </style>

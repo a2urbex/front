@@ -228,5 +228,5 @@ const handleClose = () => {
 </template>
 
 <style lang="scss">
-@import '../assets/styles/components/locationAdd.scss';
+@use '../assets/styles/components/locationAdd.scss' as *;
 </style>

@@ -1,5 +1,7 @@
-@import '@/assets/styles/base.scss';
-@import '@/assets/styles/components/forms.scss';
+@use '@/assets/styles/base.scss' as *;
+@use '@/assets/styles/components/forms.scss' as *;
+@forward '@/assets/styles/base.scss';
+@forward '@/assets/styles/components/forms.scss';
 
 .profile {
     padding: 2rem 1.5rem 0 1.5rem; // Reduced padding

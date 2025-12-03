@@ -1,5 +1,7 @@
 @use '@/assets/styles/base.scss' as base;
-@import '@/assets/styles/components/forms.scss';
+@use '@/assets/styles/components/forms.scss' as *;
+@forward '@/assets/styles/base.scss';
+@forward '@/assets/styles/components/forms.scss';
 
 .locations {
   &-header {

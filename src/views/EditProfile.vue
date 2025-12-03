@@ -148,5 +148,5 @@ const handleSubmit = async () => {
 </template>
 
 <style scoped>
-@import '@/assets/styles/components/editProfile.scss';
+@use '@/assets/styles/components/editProfile.scss' as *;
 </style>

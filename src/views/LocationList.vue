@@ -126,5 +126,5 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-@import '../assets/styles/components/locationList.scss';
+@use '../assets/styles/components/locationList.scss' as *;
 </style>

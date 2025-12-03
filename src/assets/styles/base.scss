@@ -1,5 +1,7 @@
-@import './variables.scss';
-@import './components/forms.scss';
+@use './variables.scss' as *;
+@use './components/forms.scss' as *;
+@forward './variables.scss';
+@forward './components/forms.scss';
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;

@@ -29,5 +29,5 @@ const switchForm = () => {
 </template>
 
 <style lang="scss">
-@import '../assets/styles/components/auth.scss';
+@use '../assets/styles/components/auth.scss' as *;
 </style>

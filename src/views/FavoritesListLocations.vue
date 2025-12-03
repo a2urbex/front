@@ -58,5 +58,5 @@ const listName = computed(() => favoritesStore.locationsListItems.name || 'No Li
 </template>
 
 <style lang="scss">
-@import '../assets/styles/components/locationList.scss';
+@use '../assets/styles/components/locationList.scss' as *;
 </style>

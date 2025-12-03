@@ -62,7 +62,7 @@ export const useFilterStore = defineStore('filter', {
         return acc;
       }, {});
 
-      if (this.query.trim()) cleanedFilters['string'] = [this.query.trim()];
+      if (this.query.trim()) cleanedFilters['string'] = this.query.trim();
 
       const locationStore = useLocationStore();
       locationStore.fetchLocations(1, cleanedFilters);

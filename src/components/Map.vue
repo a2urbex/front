@@ -165,5 +165,5 @@ const getMarkerOptions = (item) => {
 </template>
 
 <style lang="scss">
-@import '../assets/styles/components/map.scss';
+@use '../assets/styles/components/map.scss' as *;
 </style>

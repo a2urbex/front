@@ -82,7 +82,8 @@ const handleInputBlur = () => {
         <font-awesome-icon :icon="['fas', 'heart']" />
       </div>
     </div>
-    <div :class="['favorite-modal__content', { active: isActive }]">
+    <Teleport to="body">
+      <div :class="['favorite-modal__content', { active: isActive }]">
       <div class="favorite-modal__content-header" @click="toggleActive">
         <button class="close-button" @click="$emit('close')">
           <font-awesome-icon :icon="['fas', 'xmark']" />
@@ -107,10 +108,11 @@ const handleInputBlur = () => {
         </div>
         <button v-else class="favorite-modal__content-footer-button-create" @click="handleCreateList">Create List</button>
       </div>
-    </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <style lang="scss">
-@import '@/assets/styles/components/favoriteModal.scss';
+@use '@/assets/styles/components/favoriteModal.scss' as *;
 </style>

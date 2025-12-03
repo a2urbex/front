@@ -340,8 +340,8 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/styles/base.scss';
-@import '@/assets/styles/components/home.scss';
+@use '@/assets/styles/base.scss' as *;
+@use '@/assets/styles/components/home.scss' as *;
 
 .fade-out-content {
   opacity: 0;

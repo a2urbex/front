@@ -81,5 +81,5 @@ const wazeUrl = computed(() => {
 </template>
 
 <style lang="scss">
-@import '../assets/styles/components/locationCardDisplay.scss';
+@use '../assets/styles/components/locationCardDisplay.scss' as *;
 </style>

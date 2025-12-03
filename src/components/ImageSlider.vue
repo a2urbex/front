@@ -128,5 +128,5 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../assets/styles/components/imageSlider.scss';
+@use '../assets/styles/components/imageSlider.scss' as *;
 </style>

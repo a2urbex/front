@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 export const useVersionStore = defineStore('version', {
   state: () => ({
-    code_version: '0.0.91', // Use for dev only
+    code_version: '0.0.92', // Use for dev only
     latest_version: '',
   }),
   actions: {

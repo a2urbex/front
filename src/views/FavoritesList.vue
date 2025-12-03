@@ -86,5 +86,5 @@ onMounted(async () => {
 </template>
 
 <style lang="scss">
-@import '@/assets/styles/components/favoritesList.scss';
+@use '@/assets/styles/components/favoritesList.scss' as *;
 </style>

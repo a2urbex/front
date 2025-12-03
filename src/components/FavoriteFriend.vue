@@ -70,5 +70,5 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-@import '@/assets/styles/components/favoritesFriend.scss';
+@use '@/assets/styles/components/favoritesFriend.scss' as *;
 </style>

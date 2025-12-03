@@ -34,5 +34,5 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/styles/components/header.scss';
+@use '@/assets/styles/components/header.scss' as *;
 </style>

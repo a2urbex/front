@@ -1,4 +1,5 @@
-@import '@/assets/styles/base.scss';
+@use '@/assets/styles/base.scss' as *;
+@forward '@/assets/styles/base.scss';
 
 .map-header {
   box-shadow: #07070794 0px 6px 6px 3px;

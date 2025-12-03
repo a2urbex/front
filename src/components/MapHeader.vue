@@ -12,5 +12,5 @@ const mapStore = useMapStore();
 </template>
 
 <style lang="scss">
-@import '../assets/styles/components/mapHeader.scss';
+@use '../assets/styles/components/mapHeader.scss' as *;
 </style>

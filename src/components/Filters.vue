@@ -44,7 +44,7 @@ onMounted(async () => {
         <div class="filter__icon d-none">
           <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
         </div>
-        <input type="text" placeholder="Search locations..." @focus="filterUIStore.setShowContent(true)" v-model="query" @input="filterStore.applyFilters" />
+        <input type="text" placeholder="Search locations..." @focus="filterUIStore.setShowContent(true)" v-model="filterStore.query" @input="filterStore.applyFilters" />
         <button
           class="filter__search-close d-none"
           v-if="filterUIStore.showContent"
@@ -93,5 +93,5 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
-@import '../assets/styles/components/filters.scss';
+@use '../assets/styles/components/filters.scss' as *;
 </style>

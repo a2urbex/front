@@ -196,5 +196,5 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/styles/components/friends.scss';
+@use '@/assets/styles/components/friends.scss' as *;
 </style>

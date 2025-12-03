@@ -14,5 +14,5 @@
 </template>
 
 <style lang="scss">
-@import '../assets/styles/components/preloader.scss';
+@use '../assets/styles/components/preloader.scss' as *;
 </style>

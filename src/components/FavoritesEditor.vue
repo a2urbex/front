@@ -85,5 +85,5 @@ const handleShareClick = () => {
 </template>
 
 <style lang="scss">
-@import '@/assets/styles/components/favoritesListEditor.scss';
+@use '@/assets/styles/components/favoritesListEditor.scss' as *;
 </style>

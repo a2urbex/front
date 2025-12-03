@@ -79,5 +79,5 @@ const handleClose = () => {
 </template>
 
 <style lang="scss">
-@import '../assets/styles/components/locationEdit.scss';
+@use '../assets/styles/components/locationEdit.scss' as *;
 </style>

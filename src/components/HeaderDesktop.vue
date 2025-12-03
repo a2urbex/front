@@ -152,5 +152,5 @@ const clearCache = async () => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/styles/components/header-desktop.scss';
+@use '@/assets/styles/components/header-desktop.scss' as *;
 </style>

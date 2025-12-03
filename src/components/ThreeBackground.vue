@@ -15,7 +15,7 @@
  * Configuration centralisée via l'objet CONFIG pour un ajustement facile.
  */
 
-import { onMounted, onBeforeUnmount, ref, defineEmits } from 'vue';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
 import * as THREE from 'three';
 
 const emit = defineEmits(['ready']);

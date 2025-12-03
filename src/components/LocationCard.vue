@@ -52,5 +52,5 @@ const openLocationCardDisplay = () => {
 </template>
 
 <style lang="scss">
-@import '../assets/styles/components/locationCard.scss';
+@use '../assets/styles/components/locationCard.scss' as *;
 </style>

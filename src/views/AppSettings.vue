@@ -48,5 +48,5 @@ const clearCache = async () => {
 </template>
 
 <style lang="scss" scoped>
-    @import '@/assets/styles/components/appSettings.scss';
+    @use '@/assets/styles/components/appSettings.scss' as *;
 </style> 

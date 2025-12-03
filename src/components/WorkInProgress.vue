@@ -6,6 +6,6 @@
 </template>
 
 <style lang="scss" scoped>
-  @import '@/assets/styles/components/work-in-progress.scss';
+  @use '@/assets/styles/components/work-in-progress.scss' as *;
 </style>
 

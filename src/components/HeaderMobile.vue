@@ -122,5 +122,5 @@ const isLocationsRoute = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/styles/components/header-mobile.scss';
+@use '@/assets/styles/components/header-mobile.scss' as *;
 </style> 

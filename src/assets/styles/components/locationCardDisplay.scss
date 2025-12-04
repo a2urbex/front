@@ -1,4 +1,4 @@
-@import '@/assets/styles/base.scss';
+@use '@/assets/styles/base.scss' as *;
 
 .location-card-display {
   position: fixed;

@@ -69,6 +69,6 @@ onMounted(async () => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 @use '@/assets/styles/components/favoritesFriend.scss' as *;
 </style>

@@ -62,6 +62,7 @@ body {
     }
 
     @media (max-width: $md) {
+      overflow-x: hidden;
       padding-bottom: $bottomHeaderHeight;
     }
   }

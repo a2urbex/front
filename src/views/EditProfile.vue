@@ -20,6 +20,12 @@ const formData = ref({
     banner: null
 });
 
+const passwordData = ref({
+    password: '',
+    newPassword: '',
+    confirmPassword: ''
+});
+
 const imagePreview = ref(null);
 const bannerPreview = ref(null);
 
@@ -68,7 +74,47 @@ const handleImageChange = (event, type) => {
 
 const handleSubmit = async () => {
     try {
+        // Update profile information
         await editProfileStore.updateProfile(formData.value);
+
+        // Change password if provided
+        if (passwordData.value.password || passwordData.value.newPassword || passwordData.value.confirmPassword) {
+            // Validate password change
+            if (!passwordData.value.password) {
+                toast.error('Current password is required', {
+                    position: toast.POSITION.TOP_CENTER,
+                    theme: 'dark'
+                });
+                return;
+            }
+            if (!passwordData.value.newPassword) {
+                toast.error('New password is required', {
+                    position: toast.POSITION.TOP_CENTER,
+                    theme: 'dark'
+                });
+                return;
+            }
+            if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
+                toast.error('New passwords do not match', {
+                    position: toast.POSITION.TOP_CENTER,
+                    theme: 'dark'
+                });
+                return;
+            }
+
+            await editProfileStore.changePassword({
+                password: passwordData.value.password,
+                newPassword: passwordData.value.newPassword
+            });
+
+            // Clear password fields after successful change
+            passwordData.value = {
+                password: '',
+                newPassword: '',
+                confirmPassword: ''
+            };
+        }
+
         await authStore.fetchUserProfile();
     } catch (error) {
         console.error('Error updating profile:', error);
@@ -129,6 +175,30 @@ const handleSubmit = async () => {
                 </div>
             </div>
 
+            <div class="password-section">
+                <h3>Change Password</h3>
+                <div class="st-form-group">
+                    <input type="password" v-model="passwordData.password" placeholder=" " id="current-password">
+                    <label for="current-password">Current Password</label>
+                    <div class="input-line"></div>
+                    <font-awesome-icon :icon="['fas', 'lock']" class="input-icon" />
+                </div>
+
+                <div class="st-form-group">
+                    <input type="password" v-model="passwordData.newPassword" placeholder=" " id="new-password">
+                    <label for="new-password">New Password</label>
+                    <div class="input-line"></div>
+                    <font-awesome-icon :icon="['fas', 'lock']" class="input-icon" />
+                </div>
+
+                <div class="st-form-group">
+                    <input type="password" v-model="passwordData.confirmPassword" placeholder=" " id="confirm-password">
+                    <label for="confirm-password">Confirm New Password</label>
+                    <div class="input-line"></div>
+                    <font-awesome-icon :icon="['fas', 'lock']" class="input-icon" />
+                </div>
+            </div>
+
             <div class="form-group privacy-setting">
                 <label class="checkbox-label">
                     <span>Private Profile</span>
@@ -147,6 +217,6 @@ const handleSubmit = async () => {
     </div>
 </template>
 
-<style scoped>
-@use '@/assets/styles/components/editProfile.scss' as *;
+<style lang="scss" scoped>
+    @use '@/assets/styles/components/editProfile.scss' as *;
 </style>

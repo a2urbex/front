@@ -3,6 +3,7 @@ import { onMounted, computed } from 'vue';
 import { useProfileStore } from '@/stores/profile';
 import { useRoute } from 'vue-router';
 import PreLoader from '../components/PreLoader.vue';
+import UserRoleBadge from './UserRoleBadge.vue';
 import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
 
@@ -87,6 +88,17 @@ const getImageUrl = (location) => {
     : `${import.meta.env.VITE_API_BASE_URL}${location || ''}`;
 };
 
+const visibleImages = computed(() => {
+  const images = user.value?.images || [];
+  return images.map(img => {
+    const isA2urbex = typeof img === 'string' && img && (!img.startsWith('http') || img.includes('a2urbex.com'));
+    return {
+      src: isA2urbex ? getImageUrl(img) : '/default.png',
+      blurred: !isA2urbex,
+    };
+  });
+});
+
 onMounted(async () => {
   try {
     await Promise.all([
@@ -121,7 +133,10 @@ const copyLink = () => {
         <img v-if="user.image" :src="user.image" alt="Profile image">
       </div>
       <div class="profile__info">
-        <h2>{{ user.username }}</h2>
+        <h2>
+          {{ user.username }}
+          <UserRoleBadge :roles="user.roles" />
+        </h2>
         <div class="profile__stats">
           <p><span>{{ user.urbexCount }}</span> Location(s)</p>
           <p><span>{{ user.friendCount }}</span> Friend(s)</p>
@@ -157,9 +172,14 @@ const copyLink = () => {
       <a v-if="user.tiktok" :href="'http://tiktok.com/@' + user.tiktok" target="_blank"><font-awesome-icon :icon="['fab', 'tiktok']" /></a>
     </div>  
   </div>
-  <div v-if="!user.isPrivate || isSelf" class="profile__locations">
-    <div v-for="(location, index) in user.images" :key="index" class="profile__locations-item">
-        <img v-if="location"  :src="getImageUrl(location)" :alt="'location-profile-' + user.username">
+  <div v-if="(!user.isPrivate || isSelf) && visibleImages.length" class="profile__locations">
+    <div
+      v-for="(item, index) in visibleImages"
+      :key="index"
+      class="profile__locations-item"
+      :class="{ 'profile__locations-item--blurred': item.blurred }"
+    >
+        <img :src="item.src" :alt="'location-profile-' + user.username">
     </div>
   </div>
 </template>

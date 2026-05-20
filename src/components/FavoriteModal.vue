@@ -38,6 +38,13 @@ const toggleActive = async () => {
   }
 };
 
+watch(() => props.id, async (newId) => {
+  if (newId && isActive.value) {
+    await favoritesStore.getSummary();
+    await locationStore.getLocation(newId);
+  }
+});
+
 const isItemInFids = (itemId) => fidsRef.value.includes(itemId);
 
 const addToSelectedList = async (id) => {

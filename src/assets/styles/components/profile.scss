@@ -35,6 +35,18 @@
         @media (max-width: $md) {
             align-items: center;
         }
+
+        h2 {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            line-height: 1;
+
+            :deep(.user-role-badge) {
+                font-size: 0.6em;
+                margin-left: 0;
+            }
+        }
     }
 
     &__wrapper {
@@ -109,6 +121,7 @@
     &__image {
         width: 8rem; // Reduced from 10rem
         height: 8rem;
+        aspect-ratio: 1;
         background-image: url(/default-user.png);
         border-radius: 50%;
         background-size: cover;
@@ -207,6 +220,25 @@
 
                 &:hover {
                     transform: scale(1.1);
+                }
+            }
+
+            &--blurred {
+                cursor: default;
+
+                img {
+                    filter: blur(12px) brightness(0.6);
+                    transform: scale(1.1);
+
+                    &:hover {
+                        transform: scale(1.1);
+                    }
+                }
+
+                &:hover {
+                    transform: none;
+                    border-color: rgba(255, 255, 255, 0.1);
+                    box-shadow: none;
                 }
             }
         }

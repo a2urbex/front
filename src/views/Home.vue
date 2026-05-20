@@ -14,11 +14,26 @@
               <transition name="fade" mode="out-in">A2URBEX</transition></h1>
           </div>
           <p class="tagline">Your exploration co-pilot</p>
-          <p class="subtitle">We do not provide locations. We provide the tools to start your adventure.</p>
-          
-          <button 
-            v-if="!showAuth && !authStore.token" 
-            class="connect-btn" 
+
+          <p class="subtitle" v-if="locationCount !== null">
+            Currently listing <span class="count-value">{{ locationCount }}</span> locations. We only share our spots with trusted people.
+          </p>
+
+          <p class="contact-line">
+            Contact us
+            <a href="https://www.instagram.com/a2urbex" target="_blank" rel="noopener" class="instagram-link">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+              @a2urbex
+            </a>
+          </p>
+
+          <button
+            v-if="!showAuth && !authStore.token"
+            class="connect-btn"
             @click="handleConnectClick"
           >
             <span class="connect-icon">⚡</span>
@@ -44,11 +59,11 @@
             >
               Sign In
             </button>
-            <button 
+            <button
               :class="['auth-tab', { active: activeTab === 'register' }]"
               @click="activeTab = 'register'"
             >
-              Sign Up
+              Sign up
             </button>
           </div>
 
@@ -98,6 +113,10 @@
             </div>
 
             <div v-else-if="activeTab === 'register'" key="register" class="auth-form">
+              <p class="auth-notice">
+                After signing up, you'll be able to see your own locations and those shared by your friends.
+                Once an administrator approves your access request, you'll unlock the full A2urbex catalogue. Manual approval. Only for trusted people.
+              </p>
               <form @submit.prevent="handleRegister">
                 <div class="st-form-group">
                   <input 
@@ -138,7 +157,7 @@
                 </div>
 
                 <button type="submit" class="st-btn">
-                  <span>Join the Zone</span>
+                  <span>Send request</span>
                   <div class="btn-glow"></div>
                 </button>
               </form>
@@ -173,13 +192,17 @@
         </div>
       </transition>
 
-      <div class="footer-link">
+      <!-- <div class="footer-link">
         <a href="https://github.com/a2urbex" target="_blank" class="github-link">
           <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
           </svg>
           GitHub
         </a>
+      </div> -->
+
+      <div class="copyright">
+        © a2urbex 2026
       </div>
     </div>
   </div>
@@ -190,8 +213,11 @@ import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUIStore } from '@/stores/ui';
+import { request } from '@/services/api';
 import ThreeBackground from '@/components/ThreeBackground.vue';
 import Loader from '@/components/Loader.vue';
+
+const locationCount = ref(null);
 
 const threeBackground = ref(null);
 const isLoading = ref(true);
@@ -297,7 +323,19 @@ const handleForgotPassword = async () => {
   }
 };
 
+const fetchLocationCount = async () => {
+  try {
+    const res = await request('GET', `${import.meta.env.VITE_LOCATIONS_ENDPOINT}/count`);
+    if (res && typeof res.total === 'number') {
+      locationCount.value = res.total;
+    }
+  } catch (error) {
+    console.error('Failed to fetch location count:', error);
+  }
+};
+
 onMounted(async () => {
+  fetchLocationCount();
   // Check if user is already authenticated
   if (authStore.token) {
     const isValid = await authStore.validateToken();

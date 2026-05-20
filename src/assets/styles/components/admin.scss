@@ -19,9 +19,57 @@
 
   h3 {
     color: $primary;
+    margin-top: 0;
     margin-bottom: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+  }
+
+  &__section {
+    margin-bottom: 2.5rem;
+
+    h3 {
+      margin-bottom: 0;
+    }
+  }
+
+  &__section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &__section-hint {
+    color: #888;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+
+  &__badge {
+    background: rgba($primary, 0.15);
+    color: $primary;
+    border: 1px solid rgba($primary, 0.4);
+    padding: 0.15rem 0.6rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    &--muted {
+      background: rgba(255, 255, 255, 0.05);
+      color: #888;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  &__empty {
+    color: #666;
+    font-size: 0.9rem;
+    padding: 1rem;
+    border: 1px dashed rgba(255, 255, 255, 0.08);
+    border-radius: 0.6rem;
+    text-align: center;
   }
 
   &__users {
@@ -55,6 +103,11 @@
     border-radius: 0.8rem;
     transition: all 0.3s ease;
 
+    @media (max-width: $sm) {
+      gap: 0.6rem;
+      padding: 0.75rem;
+    }
+
     &:hover {
       background: rgba(255, 255, 255, 0.05);
       border-color: rgba($primary, 0.3);
@@ -77,11 +130,15 @@
     }
 
     &-info {
-      width: 100%;
+      flex: 1;
+      min-width: 0;
 
       &-email {
         font-size: 0.85rem;
         color: #888;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       &-username {
@@ -89,6 +146,21 @@
         font-weight: 500;
         color: #fff;
         margin-bottom: 0.2rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    &-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+      flex-shrink: 0;
+
+      @media (max-width: $sm) {
+        gap: 0.25rem;
       }
     }
 
@@ -106,6 +178,55 @@
         color: $primary;
         background: rgba($primary, 0.1);
         transform: rotate(90deg);
+      }
+    }
+
+    &--pending {
+      border-color: rgba($primary, 0.35);
+      background: rgba($primary, 0.04);
+    }
+  }
+
+  &__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    @media (max-width: $sm) {
+      padding: 0.4rem;
+      gap: 0;
+
+      span {
+        display: none;
+      }
+    }
+
+    &--approve {
+      color: #4ade80;
+      border-color: rgba(74, 222, 128, 0.4);
+
+      &:hover {
+        background: rgba(74, 222, 128, 0.12);
+        border-color: rgba(74, 222, 128, 0.7);
+      }
+    }
+
+    &--reject {
+      color: #f87171;
+      border-color: rgba(248, 113, 113, 0.4);
+
+      &:hover {
+        background: rgba(248, 113, 113, 0.12);
+        border-color: rgba(248, 113, 113, 0.7);
       }
     }
   }

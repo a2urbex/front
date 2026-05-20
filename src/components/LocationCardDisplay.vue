@@ -4,6 +4,7 @@ import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
 import FavoritesModal from './FavoriteModal.vue';
 import LocationEdit from './LocationEdit.vue';
+import UserRoleBadge from './UserRoleBadge.vue';
 const props = defineProps({
     location: Object
 });
@@ -36,6 +37,21 @@ const googleMapsUrl = computed(() => {
 const wazeUrl = computed(() => {
     return `https://waze.com/ul?q=${props.location.lat},${props.location.lon}&navigate=yes&zoom=17`;
 });
+
+const contributor = computed(() => {
+    if (props.location?.userId && props.location?.userUsername) {
+        return {
+            name: props.location.userUsername,
+            image: props.location.userImage || '/default-user.png',
+            isUser: true,
+        };
+    }
+    return {
+        name: 'A2urbex',
+        image: '/logox192.png',
+        isUser: false,
+    };
+});
 </script>
 
 <template>
@@ -64,6 +80,21 @@ const wazeUrl = computed(() => {
                         </div>
 
                         <h2>{{ location.name }}</h2>
+                        <router-link
+                            v-if="contributor.isUser"
+                            :to="`/profile/${location.userId}`"
+                            class="location-card-display__contributor is-clickable"
+                            @click="$emit('close')"
+                        >
+                            <img :src="contributor.image" :alt="contributor.name" class="location-card-display__contributor-image" />
+                            <span class="location-card-display__contributor-name">Added by {{ contributor.name }}</span>
+                            <UserRoleBadge :roles="location.userRoles" />
+                        </router-link>
+                        <div v-else class="location-card-display__contributor is-a2urbex">
+                            <img :src="contributor.image" :alt="contributor.name" class="location-card-display__contributor-image" />
+                            <span class="location-card-display__contributor-name">Added by {{ contributor.name }}</span>
+                            <font-awesome-icon :icon="['fas', 'server']" class="location-card-display__contributor-server" />
+                        </div>
                         <p class="location-card-display__category">
                             <font-awesome-icon :icon="['fas', 'font-awesome']" />{{ location.categoryName ? location.categoryName : 'Unknown' }}
                         </p>

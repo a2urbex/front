@@ -33,6 +33,30 @@ export const useUsersStore = defineStore('Users', {
                 this.loading = false;
             }
         },
+        async approveUser(id, roles) {
+            this.loading = true;
+            try {
+                await request('PUT', `${import.meta.env.VITE_USERS_ENDPOINT}/${id}/approve`, { roles });
+                this.getAll();
+            } catch (error) {
+                console.error('Failed to approve user :', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async updatePending(id, pending) {
+            this.loading = true;
+            try {
+                await request('PUT', `${import.meta.env.VITE_USERS_ENDPOINT}/${id}/pending`, { pending });
+                this.getAll();
+            } catch (error) {
+                console.error('Failed to update pending status :', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
         async deleteUser(id) {
             this.loading = true;
             try {

@@ -32,6 +32,7 @@ import {
   faShare,
   faRotateRight,
   faPlus,
+  faCheck,
   faCircleCheck,
   faChessRook,
   faHotel,
@@ -48,6 +49,9 @@ import {
   faGlobe,
   faPencil,
   faPenToSquare,
+  faShield,
+  faShieldHalved,
+  faServer,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -80,6 +84,7 @@ library.add(
   faShare,
   faRotateRight,
   faPlus,
+  faCheck,
   faCircleCheck,
   faChessRook,
   faHotel,
@@ -99,6 +104,9 @@ library.add(
   faPencil,
   faPenToSquare,
   faAngleDown,
+  faShield,
+  faShieldHalved,
+  faServer,
 );
 
 export default FontAwesomeIcon;

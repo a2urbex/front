@@ -31,6 +31,9 @@ import AppSettingsView from '@/views/AppSettings.vue'
 
 // ADMIN
 import AdminView from '@/views/Admin.vue'
+import AdminUsersView from '@/views/AdminUsers.vue'
+import AdminImportsView from '@/views/AdminImports.vue'
+import AdminDedupView from '@/views/AdminDedup.vue'
 
 
 const router = createRouter({
@@ -78,6 +81,18 @@ const router = createRouter({
     {
       path: '/admin',
       component: AdminView
+    },
+    {
+      path: '/admin/users',
+      component: AdminUsersView
+    },
+    {
+      path: '/admin/imports',
+      component: AdminImportsView
+    },
+    {
+      path: '/admin/dedup',
+      component: AdminDedupView
     },
     {
       path: '/edit-profile',

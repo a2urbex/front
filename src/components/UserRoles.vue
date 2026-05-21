@@ -1,5 +1,4 @@
 <script setup>
-import { useRouter } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
 
 const props = defineProps({
@@ -17,7 +16,6 @@ const props = defineProps({
     }
 });
 
-const router = useRouter();
 const usersStore = useUsersStore();
 const emit = defineEmits(['update:roles', 'close']);
 
@@ -27,9 +25,6 @@ const toggleRole = (role) => {
         ? currentRoles.filter(r => r !== role)
         : [...currentRoles, role];
     emit('update:roles', newRoles);
-    const query = { ...router.currentRoute.value.query };
-    query.roles = newRoles.join(',');
-    router.push({ query });
 };
 
 const handleOverlayClick = (event) => {

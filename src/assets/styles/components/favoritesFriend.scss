@@ -2,65 +2,130 @@
 @forward '@/assets/styles/base.scss';
 
 
-.favorite-friend{
+.favorite-friend {
     visibility: hidden;
     opacity: 0;
-    transition: all .3s;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     height: 0px;
-    input{
+    margin-top: 0.5rem;
+    width: 100%;
+
+    input {
         width: 100%;
-        margin-top: 1rem;
-        height: 2rem;
-        background-color: $background;
-        padding: 0 1rem;
-        border: 1px solid $contrast-1;
-        border-radius: .2rem;
-        font-size: $font-size-small;
+        height: 2.2rem;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0 0.8rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        color: #fff;
+        transition: all 0.25s ease;
+        font-family: inherit;
     
-        &:focus{
+        &::placeholder {
+            color: $contrast-3;
+        }
+
+        &:focus {
             outline: none;
+            border-color: $primary;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba($primary, 0.15);
         }
     }
 
-    &__list{
-        max-height: 10rem;
-        overflow: scroll;
-        padding-top: 1rem;
-        background-color: $background;
+    &__list {
+        max-height: 8rem;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+        margin-top: 0.75rem;
+        background-color: transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
 
+        /* Custom Scrollbar */
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            &:hover {
+                background: rgba($primary, 0.4);
+            }
+        }
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
     }
 
-    &__item{
+    &__item {
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        padding: .5rem;
-        font-size: $font-size-small;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+        cursor: pointer;
+        border-radius: 0.4rem;
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.02);
 
-        svg{
-            opacity: .6;
+        p {
+            margin: 0;
+            color: $contrast-5;
+            font-weight: 500;
         }
 
-        &-image{
-            width: 2rem;
-            height: 2rem;
-            overflow: hidden;
-            border-radius: 1rem;
-            background-position: center;
-            background-image: url('/default-user.png');
+        svg {
+            opacity: 0.5;
+            color: $primary;
+            transition: all 0.2s ease;
+        }
 
-            img{
+        &:hover {
+            background: rgba($primary, 0.08);
+            border-color: rgba($primary, 0.2);
+            
+            p {
+                color: #fff;
+            }
+
+            svg {
+                opacity: 1;
+                transform: scale(1.1) rotate(90deg);
+            }
+        }
+
+        &-image {
+            width: 1.8rem;
+            height: 1.8rem;
+            overflow: hidden;
+            border-radius: 50%;
+            background-color: #222;
+            background-image: url('/default-user.png');
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+
+            img {
                 object-fit: cover;
                 width: 100%;
                 height: 100%;
+                display: block;
             }
         }
     }
 
-    &__info{
+    &__info {
         display: flex;
         flex-direction: row;
-        gap: .6rem;
+        align-items: center;
+        gap: 0.6rem;
     }
 }

@@ -2,59 +2,159 @@
 @forward '@/assets/styles/base.scss';
 
 .favorites-list-editor {
-    transition: all .2s;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
     top: 0;
     left: 0;
     opacity: 0;
     z-index: 2;
     position: absolute;
     visibility: hidden;
-    background-color: $background;
-    border-radius: 20px;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 1.25rem;
     width: 100%;
     min-height: 100%;
-    padding: .8rem 1.5rem;
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+    border: 1px solid rgba($primary, 0.2);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
 
     h2 {
-        margin: 0;
-        font-size: .8rem;
+        margin: 0 0 1rem 0;
+        font-size: 0.95rem;
+        color: #fff;
+        font-weight: 600;
+        text-align: center;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: $primary;
+        }
 
         @media (max-width: $md) {
-            font-size: $font-size-small;
+            font-size: 1.05rem;
         }
     }
 
     &__link {
-        color: $contrast;
+        color: $contrast-4;
         position: absolute;
-        top: .8rem;
+        top: 1rem;
         right: 1.2rem;
+        transition: all 0.2s ease;
+
+        &:hover {
+            color: $primary;
+            transform: scale(1.1);
+        }
     }
 
     &__actions {
         display: flex;
-        gap: 1rem;
+        gap: 0.75rem;
         flex-direction: row;
         justify-content: center;
         align-items: center;
+        flex-wrap: wrap;
+        width: 100%;
 
         button {
             border: none;
+            outline: none;
+            padding: 0;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            color: $contrast-4;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            width: 2.2rem;
+            height: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            svg {
+                font-size: 0.9rem;
+                transition: transform 0.2s ease;
+            }
+
+            &:hover {
+                background: rgba($primary, 0.1);
+                border-color: rgba($primary, 0.4);
+                color: $primary;
+                box-shadow: 0 0 10px rgba($primary, 0.2);
+                transform: translateY(-2px);
+
+                svg {
+                    transform: scale(1.05);
+                }
+            }
+
+            &:active {
+                transform: scale(0.95);
+            }
+
+            &.icon-visibility {
+                &:hover {
+                    background: rgba(163, 163, 163, 0.1);
+                    border-color: rgba(163, 163, 163, 0.4);
+                    color: #fff;
+                    box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+                }
+            }
+
+            &.icon-open {
+                &:hover {
+                    background: rgba($primary, 0.1);
+                    border-color: rgba($primary, 0.4);
+                    color: $primary;
+                    box-shadow: 0 0 10px rgba($primary, 0.2);
+                }
+            }
+
+            &.icon-share {
+                &:hover {
+                    background: rgba(129, 209, 255, 0.1);
+                    border-color: rgba(129, 209, 255, 0.4);
+                    color: #81d1ff;
+                    box-shadow: 0 0 10px rgba(129, 209, 255, 0.25);
+                }
+            }
+
+            &.icon-copy-link {
+                &:hover {
+                    background: rgba(173, 109, 173, 0.15);
+                    border-color: rgba(173, 109, 173, 0.5);
+                    color: #d19ee6;
+                    box-shadow: 0 0 10px rgba(173, 109, 173, 0.25);
+                }
+            }
+
+            &.icon-delete {
+                background: rgba(228, 120, 120, 0.05);
+                border-color: rgba(228, 120, 120, 0.15);
+                color: #e47878;
+
+                &:hover {
+                    background: #e47878;
+                    border-color: #e47878;
+                    color: #000;
+                    box-shadow: 0 0 12px rgba(228, 120, 120, 0.4);
+                }
+            }
         }
 
         span {
             width: 1px;
-            height: 1.5rem;
-            background-color: $contrast-2;
-        }
-
-        .icon {
-            height: 2.2rem;
-            width: 2.2rem;
+            height: 1.25rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 0 0.25rem;
         }
     }
-
 }

@@ -85,14 +85,19 @@ const handleInputBlur = () => {
 <template>
   <div v-if="isLoggedIn">
     <div class="favorite-modal">
-      <div class="favorite-modal__trigger" @click="toggleActive">
+      <div
+        class="favorite-modal__trigger"
+        :class="{ 'is-favorite': fids && fids.length > 0 }"
+        @click="toggleActive"
+      >
         <font-awesome-icon :icon="['fas', 'heart']" />
       </div>
     </div>
     <Teleport to="body">
+      <div :class="['favorite-modal__overlay', { active: isActive }]" @click="toggleActive"></div>
       <div :class="['favorite-modal__content', { active: isActive }]">
-      <div class="favorite-modal__content-header" @click="toggleActive">
-        <button class="close-button" @click="$emit('close')">
+      <div class="favorite-modal__content-header">
+        <button class="close-button" @click="toggleActive">
           <font-awesome-icon :icon="['fas', 'xmark']" />
         </button>
         <h3>Add to list</h3>

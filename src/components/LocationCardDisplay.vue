@@ -74,9 +74,14 @@ const contributor = computed(() => {
                     </template>
                     <p v-else class="image-error">😭 Image not available</p>
                     <div class="location-card-display__bottom page-width">
-                        <div class="location-card-display__bottom-actions">
-                            <FavoritesModal :fids="location.fids" :id="location.id" />
-                            <LocationEdit v-if="userId && (isAdmin || location.userId === userId)" :location="location" @close="$emit('close')" />
+                        <div class="location-card-display__bottom-row">
+                            <p class="location-card-display__category">
+                                <font-awesome-icon :icon="['fas', 'font-awesome']" />{{ location.categoryName ? location.categoryName : 'Unknown' }}
+                            </p>
+                            <div class="location-card-display__bottom-actions">
+                                <FavoritesModal :fids="location.fids" :id="location.id" />
+                                <LocationEdit v-if="userId && (isAdmin || location.userId === userId)" :location="location" @close="$emit('close')" />
+                            </div>
                         </div>
 
                         <h2>{{ location.name }}</h2>
@@ -95,9 +100,6 @@ const contributor = computed(() => {
                             <span class="location-card-display__contributor-name">Added by {{ contributor.name }}</span>
                             <font-awesome-icon :icon="['fas', 'server']" class="location-card-display__contributor-server" />
                         </div>
-                        <p class="location-card-display__category">
-                            <font-awesome-icon :icon="['fas', 'font-awesome']" />{{ location.categoryName ? location.categoryName : 'Unknown' }}
-                        </p>
                         <a class="location-card__bottom-icon icon icon-earth" target="_blank" :href="googleMapsUrl">
                             <font-awesome-icon :icon="['fas', 'earth-europe']" /> Open with Maps
                         </a>

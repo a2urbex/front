@@ -7,6 +7,7 @@ export const useFilterStore = defineStore('filter', {
     fetching: false,
     filters: {},
     selectedFilters: {},
+    excludedSources: [],
     isCleared: false,
     query: '',
   }),
@@ -56,6 +57,23 @@ export const useFilterStore = defineStore('filter', {
       this.applyFilters();
     },
 
+    toggleExcludedSource(value) {
+      const idx = this.excludedSources.indexOf(value);
+      if (idx === -1) {
+        this.excludedSources.push(value);
+        if (this.selectedFilters.sources) {
+          this.selectedFilters.sources = this.selectedFilters.sources.filter((v) => v !== value);
+        }
+      } else {
+        this.excludedSources.splice(idx, 1);
+      }
+      this.applyFilters();
+    },
+
+    isExcludedSource(value) {
+      return this.excludedSources.includes(value);
+    },
+
     applyFilters() {
       const cleanedFilters = Object.keys(this.selectedFilters).reduce((acc, key) => {
         acc[key] = this.selectedFilters[key];
@@ -63,6 +81,7 @@ export const useFilterStore = defineStore('filter', {
       }, {});
 
       if (this.query.trim()) cleanedFilters['string'] = this.query.trim();
+      if (this.excludedSources.length) cleanedFilters['excludedSources'] = [...this.excludedSources];
 
       const locationStore = useLocationStore();
       locationStore.fetchLocations(1, cleanedFilters);
@@ -72,6 +91,7 @@ export const useFilterStore = defineStore('filter', {
       const filterUIStore = useFilterUIStore();
 
       this.selectedFilters = {};
+      this.excludedSources = [];
       this.query = '';
       this.isCleared = true;
 

@@ -38,6 +38,10 @@ watch(() => mapStore.open, async (open) => {
   if(!open) overlayOpen.value = false
 });
 
+watch(() => locationStore.selectedFilters, async () => {
+  if (mapStore.open) mapStore.getMapLocations();
+}, { deep: true });
+
 const displayOverlay = (item) => {
   overlayOpen.value = true
   itemSelected.value = toRaw(item)

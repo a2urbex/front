@@ -1051,6 +1051,9 @@ onMounted(async () => {
         position: relative;
         display: inline-flex;
         align-items: center;
+        gap: 0.1rem;
+        flex-direction: row;
+        flex-wrap: wrap;
 
         &:not(:last-child)::after {
           content: '•';

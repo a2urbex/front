@@ -263,6 +263,14 @@
             font-weight: 500;
           }
         }
+
+        &.excluded label,
+        &.excluded input:checked + label {
+          color: #ff6b6b;
+          background: rgba(255, 107, 107, 0.08);
+          text-decoration: line-through;
+          opacity: 0.7;
+        }
       }
     }
   }

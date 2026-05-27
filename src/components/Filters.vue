@@ -35,6 +35,28 @@ const filteredFilters = computed(() => {
 onMounted(async () => {
   filterStore.init();
 });
+
+const pressTimer = ref(null);
+const pressTriggered = ref(false);
+
+const startSourcePress = (value) => {
+  pressTriggered.value = false;
+  pressTimer.value = setTimeout(() => {
+    pressTriggered.value = true;
+    filterStore.toggleExcludedSource(value);
+  }, 500);
+};
+
+const cancelSourcePress = (event) => {
+  if (pressTimer.value) {
+    clearTimeout(pressTimer.value);
+    pressTimer.value = null;
+  }
+  if (pressTriggered.value && event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+};
 </script>
 
 <template>
@@ -69,13 +91,24 @@ onMounted(async () => {
 
             <div class="filter__item-content">
               <div class="filter__item-input-container">
-                <div class="filter__item-input" v-for="(label, value) in filterItems" :key="value">
+                <div
+                  class="filter__item-input"
+                  :class="{ excluded: filterKey === 'sources' && filterStore.isExcludedSource(value) }"
+                  v-for="(label, value) in filterItems"
+                  :key="value"
+                  @dblclick.prevent="filterKey === 'sources' && filterStore.toggleExcludedSource(value)"
+                  @touchstart="filterKey === 'sources' && startSourcePress(value)"
+                  @touchend="filterKey === 'sources' && cancelSourcePress($event)"
+                  @touchmove="filterKey === 'sources' && cancelSourcePress()"
+                  @touchcancel="filterKey === 'sources' && cancelSourcePress()"
+                  :title="filterKey === 'sources' ? 'Double-click (or long-press) to hide this source on the map' : ''"
+                >
                   <input
                     type="checkbox"
                     :id="`${idPrefix}${filterKey}-${value}`"
                     :value="value"
                     @change="(event) => filterStore.handleFilterChange(event, filterKey)"
-                    :checked="!filterStore.isCleared && label.toLowerCase() === 'france'"
+                    :checked="filterStore.selectedFilters[filterKey]?.includes(value) || (!filterStore.isCleared && label.toLowerCase() === 'france' && !filterStore.selectedFilters[filterKey])"
                   />
                   <label :for="`${idPrefix}${filterKey}-${value}`">{{ label }}</label>
                 </div>

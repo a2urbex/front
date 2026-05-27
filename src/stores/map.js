@@ -20,6 +20,7 @@ export const useMapStore = defineStore('Map', {
     async getMapLocations() {
       const location = useLocationStore();
       const filters = toRaw(location.selectedFilters)
+      const filtersSnapshot = JSON.parse(JSON.stringify(filters))
       const isSamePage = this.type === this.loaded.type && this.typeId === this.loaded.typeId;
 
       if(this.type === 'favorite') {
@@ -28,11 +29,11 @@ export const useMapStore = defineStore('Map', {
       }
 
       if(this.type === 'location') {
-        if(isSamePage && JSON.stringify(filters) === JSON.stringify(this.loaded.filters)) return this.locations;
-        this.locations = await this.loadLocation(filters)
+        if(isSamePage && JSON.stringify(filtersSnapshot) === JSON.stringify(this.loaded.filters)) return this.locations;
+        this.locations = await this.loadLocation(filtersSnapshot)
       }
-      
-      this.loaded = { type: this.type, typeId: this.typeId, filters: filters };
+
+      this.loaded = { type: this.type, typeId: this.typeId, filters: filtersSnapshot };
     },
     async loadLocation(filters) {
       try {

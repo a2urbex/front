@@ -23,7 +23,7 @@ import LocationAdd from '@/components/LocationAdd.vue'
 import FriendsList from '@/components/FriendsList.vue'
 import Profile from '@/components/ProfileVue.vue'
 
-// NAVIGATION 
+// NAVIGATION
 import HomeView from '@/views/Home.vue'
 
 // APP SETTINGS
@@ -34,6 +34,7 @@ import AdminView from '@/views/Admin.vue'
 import AdminUsersView from '@/views/AdminUsers.vue'
 import AdminImportsView from '@/views/AdminImports.vue'
 import AdminDedupView from '@/views/AdminDedup.vue'
+import AdminSourcesView from '@/views/AdminSources.vue'
 
 
 const router = createRouter({
@@ -45,7 +46,8 @@ const router = createRouter({
     },
     {
       path: '/location/add',
-      component : LocationAdd
+      component : LocationAdd,
+      meta: { requiresAuth: true }
     },
     {
       path: '/locations',
@@ -57,64 +59,58 @@ const router = createRouter({
     },
     {
       path: '/favorites',
-      component: FavoritesListView
+      component: FavoritesListView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/favorites/:id',
       component: FavoritesDetailView,
-      props: route => ({ id: route.params.id })
+      props: route => ({ id: route.params.id }),
+      meta: { requiresAuth: true }
     },
     {
       path: '/friends',
-      component: FriendsList
+      component: FriendsList,
+      meta: { requiresAuth: true }
     },
     {
       path: '/profile/:id',
       component: Profile,
-      props: route => ({ id: route.params.id })
+      props: route => ({ id: route.params.id }),
+      meta: { requiresAuth: true }
     },
     {
       path: '/app-settings',
       component: AppSettingsView,
       meta: { requiresAuth: true }
     },
-    {
-      path: '/admin',
-      component: AdminView
-    },
-    {
-      path: '/admin/users',
-      component: AdminUsersView
-    },
-    {
-      path: '/admin/imports',
-      component: AdminImportsView
-    },
-    {
-      path: '/admin/dedup',
-      component: AdminDedupView
-    },
+    { path: '/admin', component: AdminView, meta: { requiresAuth: true, requiresAdmin: true } },
+    { path: '/admin/users', component: AdminUsersView, meta: { requiresAuth: true, requiresAdmin: true } },
+    { path: '/admin/imports', component: AdminImportsView, meta: { requiresAuth: true, requiresAdmin: true } },
+    { path: '/admin/dedup', component: AdminDedupView, meta: { requiresAuth: true, requiresAdmin: true } },
+    { path: '/admin/sources', component: AdminSourcesView, meta: { requiresAuth: true, requiresAdmin: true } },
     {
       path: '/edit-profile',
-      component: EditProfile
+      component: EditProfile,
+      meta: { requiresAuth: true }
     },
     {
       path: '/',
       component: Auth,
       children: [
-        { 
-          path: 'login', 
+        {
+          path: 'login',
           redirect: { path: '/', query: { auth: 'login' } }
         },
-        { 
-          path: 'register', 
+        {
+          path: 'register',
           redirect: { path: '/', query: { auth: 'register' } }
         },
-        { 
-          path: 'forgot-password', 
+        {
+          path: 'forgot-password',
           redirect: { path: '/', query: { auth: 'forgot' } }
         },
-        { path: 'reset-password/:id', 
+        { path: 'reset-password/:id',
           component: NewPassword,
           props: route => ({ id: route.params.id })
         }
@@ -125,14 +121,21 @@ const router = createRouter({
 
 import { useAuthStore } from '@/stores/auth'
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  
+
   if (to.meta.requiresAuth && !authStore.token) {
-    next({ path: '/', query: { auth: 'login' } })
-  } else {
-    next()
+    return next({ path: '/', query: { auth: 'login' } })
   }
+
+  if (to.meta.requiresAdmin) {
+    if (authStore.token && (!authStore.userProfile || authStore.userProfile.isAdmin === undefined)) {
+      try { await authStore.fetchUserProfile() } catch (_) {}
+    }
+    if (!authStore.userProfile?.isAdmin) return next({ path: '/' })
+  }
+
+  next()
 })
 
 export default router

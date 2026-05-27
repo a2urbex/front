@@ -6,16 +6,21 @@ import { request } from '@/services/api'
 import { useUsersStore } from '@/stores/users'
 
 const ADMIN_IMPORTS = '/admin/imports'
+const ADMIN_SOURCES = '/admin/sources'
 
 const usersStore = useUsersStore()
 
-// Form options.
-// Special sentinel: 'a2urbex' is the platform itself (no user_id attached
-// to the imported locations). It must remain the default choice.
 const PLATFORM = 'a2urbex'
 const assignee = ref(PLATFORM)
 const overwriteDuplicates = ref(false)
 const createFavoritesList = ref(true)
+
+// Source selection (required)
+const sources = ref([])
+const sourceId = ref(null)
+const showNewSourceInput = ref(false)
+const newSourceName = ref('')
+const creatingSource = ref(false)
 
 // Upload state
 const isDragging = ref(false)
@@ -31,12 +36,41 @@ const fileInput = ref(null)
 const historyList = ref([])
 const historyLoading = ref(false)
 
-// User options for the assignee dropdown
 const userOptions = computed(() => {
   return (usersStore.users || [])
     .map(u => u.username)
     .filter(name => !!name && name.toLowerCase() !== PLATFORM)
 })
+
+const canUpload = computed(() => !!sourceId.value && !uploading.value && !uploadSuccess.value)
+
+const loadSources = async () => {
+  try {
+    const data = await request('GET', ADMIN_SOURCES)
+    sources.value = data?.list ?? []
+  } catch (e) {
+    console.error('Failed to load sources', e)
+  }
+}
+
+const createSource = async () => {
+  const name = newSourceName.value.trim()
+  if (!name) return
+  creatingSource.value = true
+  try {
+    const created = await request('POST', ADMIN_SOURCES, { name })
+    sources.value.push({ id: created.id, name: created.name, location_count: 0 })
+    sources.value.sort((a, b) => a.name.localeCompare(b.name))
+    sourceId.value = created.id
+    newSourceName.value = ''
+    showNewSourceInput.value = false
+    toast.success(`Source "${created.name}" created`)
+  } catch (e) {
+    toast.error(e?.message || 'Could not create source')
+  } finally {
+    creatingSource.value = false
+  }
+}
 
 const formatSize = (bytes) => {
   if (!bytes && bytes !== 0) return ''
@@ -97,6 +131,10 @@ const onFileSelect = (e) => {
 }
 
 const handleFile = (file) => {
+  if (!sourceId.value) {
+    toast.error('Select a source before uploading.')
+    return
+  }
   const name = file.name.toLowerCase()
   if (!name.endsWith('.kml') && !name.endsWith('.kmz')) {
     toast.error('Invalid file format. Only .kml and .kmz files are supported.')
@@ -119,6 +157,7 @@ const uploadFile = async (file) => {
     const fd = new FormData()
     fd.append('file', file)
     if (assignee.value) fd.append('assignee', assignee.value)
+    fd.append('sourceId', String(sourceId.value))
     fd.append('overwriteDuplicates', String(overwriteDuplicates.value))
     fd.append('createFavoritesList', String(createFavoritesList.value))
 
@@ -184,7 +223,7 @@ const deleteHistoryItem = async (item) => {
 
 onMounted(async () => {
   try { await usersStore.getAll() } catch (_) {}
-  await loadHistory()
+  await Promise.all([loadHistory(), loadSources()])
 })
 </script>
 
@@ -209,7 +248,7 @@ onMounted(async () => {
           @dragover="onDragOver"
           @dragleave="onDragLeave"
           @drop="onDrop"
-          @click="!uploading && !uploadSuccess && triggerFileInput()"
+          @click="canUpload && triggerFileInput()"
         >
           <input 
             type="file" 
@@ -283,6 +322,34 @@ onMounted(async () => {
           </div>
 
           <div class="imports-page__settings-body">
+            <!-- Source select (required) -->
+            <div class="imports-page__field">
+              <label for="import-source">Source <span style="color:#f87171">*</span></label>
+              <div class="custom-select-wrapper">
+                <select id="import-source" class="custom-select" v-model="sourceId">
+                  <option :value="null" disabled>Select a source…</option>
+                  <option v-for="s in sources" :key="s.id" :value="s.id">{{ s.name }}</option>
+                </select>
+              </div>
+              <div v-if="!showNewSourceInput" class="field-hint" style="display:flex;justify-content:space-between;align-items:center;gap:.5rem">
+                <span>Required. Imported locations will be tagged with this source.</span>
+                <button type="button" class="imports-page__reset-btn" style="margin:0;padding:.3rem .7rem;font-size:.75rem" @click="showNewSourceInput = true">New</button>
+              </div>
+              <div v-else class="imports-page__new-source-row">
+                <input
+                  v-model="newSourceName"
+                  type="text"
+                  class="custom-select"
+                  placeholder="New source name"
+                  @keyup.enter="createSource"
+                />
+                <button class="imports-page__reset-btn" :disabled="creatingSource || !newSourceName.trim()" @click="createSource">Create</button>
+                <button class="imports-page__reset-btn" style="background:transparent;border-color:rgba(255,255,255,0.1);color:#888" @click="showNewSourceInput = false; newSourceName = ''">Cancel</button>
+              </div>
+            </div>
+
+            <hr class="settings-divider" />
+
             <!-- Assignee select -->
             <div class="imports-page__field">
               <label for="import-assignee">Attribute imported locations to</label>
@@ -370,6 +437,7 @@ onMounted(async () => {
                   {{ fmtDate(item.started_at) }} — assigned to <strong>{{ item.assignee_username || '—' }}</strong>
                   <template v-if="item.uploader_username"> by <strong>{{ item.uploader_username }}</strong></template>
                 </span>
+                <span v-if="item.source_name" class="detail-tag">source <strong>{{ item.source_name }}</strong></span>
                 <span v-if="item.error" class="detail-tag error-detail" :title="item.error">{{ item.error }}</span>
               </div>
             </div>
@@ -753,6 +821,15 @@ onMounted(async () => {
       color: #666;
       line-height: 1.4;
     }
+  }
+
+  &__new-source-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.5rem;
+
+    input { flex: 1; }
   }
 
   // Custom Select Styling

@@ -16,11 +16,16 @@ export function request(method, route, body) {
         headers['Content-Type'] = 'application/json';
     }
 
+    const hasBody = body !== undefined && body !== null && method !== 'GET' && method !== 'HEAD';
+
     const params = {
         method: method,
         headers: isFormData ? headers : { ...headers, 'Content-Type': 'application/json' },
-        body: (['POST', 'PUT'].includes(method) && !isFormData) ? JSON.stringify(body) : body, 
     };
+
+    if (hasBody) {
+        params.body = isFormData ? body : JSON.stringify(body);
+    }
 
     return fetch(`${import.meta.env.VITE_API_BASE_URL}${route}`, params)
         .then((res) => {

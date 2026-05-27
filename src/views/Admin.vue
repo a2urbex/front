@@ -73,6 +73,20 @@ onMounted(async () => {
           <font-awesome-icon :icon="['fas', 'arrow-right']" class="arrow-icon" />
         </div>
       </router-link>
+
+      <!-- Card 4: Sources -->
+      <router-link to="/admin/sources" class="admin-hub__card">
+        <div class="admin-hub__card-icon admin-hub__card-icon--sources">
+          <font-awesome-icon :icon="['fas', 'tags']" />
+        </div>
+        <div class="admin-hub__card-content">
+          <h3>Source Manager</h3>
+          <p>Create, rename, merge or delete the sources used to tag imported locations.</p>
+        </div>
+        <div class="admin-hub__card-arrow">
+          <font-awesome-icon :icon="['fas', 'arrow-right']" class="arrow-icon" />
+        </div>
+      </router-link>
     </div>
   </div>
 </template>
@@ -198,6 +212,16 @@ onMounted(async () => {
       background: rgba(#a78bfa, 0.15);
       border-color: rgba(#a78bfa, 0.4);
       box-shadow: 0 0 15px rgba(#a78bfa, 0.15);
+    }
+
+    &-icon--sources {
+      color: #f59e0b;
+    }
+    &:hover .admin-hub__card-icon--sources {
+      color: #fff;
+      background: rgba(#f59e0b, 0.15);
+      border-color: rgba(#f59e0b, 0.4);
+      box-shadow: 0 0 15px rgba(#f59e0b, 0.15);
     }
 
     &-content {

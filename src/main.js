@@ -7,6 +7,9 @@ import { registerSW } from 'virtual:pwa-register';
 // Styling
 import './assets/styles/base.scss'
 import 'vue3-toastify/dist/index.css';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import FontAwesomeIcon from './utilities/fontawesome-icons';
 
 // Redirection globale: a2urbex.eu -> a2urbex.com temporairement pour migration de données

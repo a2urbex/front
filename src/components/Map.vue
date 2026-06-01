@@ -1,6 +1,7 @@
 <script setup>
-import { toRaw, watch, ref, computed } from 'vue';
-import { GoogleMap, Marker } from 'vue3-google-map';
+import { toRaw, watch, ref, computed, nextTick, onBeforeUnmount } from 'vue';
+import L from 'leaflet';
+import 'leaflet.markercluster';
 import { useLocationStore } from '@/stores/location';
 import { useRoute } from 'vue-router';
 import FavoritesModal from './FavoriteModal.vue';
@@ -21,22 +22,109 @@ const isAdmin = computed(() => authStore.userProfile?.isAdmin || false);
 const isAuthenticated = computed(() => !authStore.userProfile);
 const userId = computed(() => authStore.userProfile?.id);
 
-const apiKey = import.meta.env.VITE_MAPS_KEY;
-const center = { lat: 46.71109, lng: 1.7191036 };
+const center = [46.71109, 1.7191036];
 const zoom = 6;
 
 const overlayOpen = ref(false)
 const itemSelected = ref(null)
 
+// --- Carte Leaflet gérée en impératif (pas de composant par marker) ---
+const mapEl = ref(null)      // <div> hôte de la carte Leaflet
+let map = null               // instance L.Map
+let cluster = null           // L.markerClusterGroup
+let markersById = new Map()  // id location -> L.marker
+let selectedEl = null        // élément DOM du marker actuellement sélectionné
+
+const buildIcon = (item) => L.divIcon({
+  html: `<img src="/pins/pin-${item.categoryIcon || 'default'}.png" alt="${item.name ?? ''}" class="map-pin-img" />`,
+  className: 'map-pin',
+  iconSize: [20, 27],
+  iconAnchor: [10, 27],
+})
+
+const clearSelection = () => {
+  if (selectedEl) {
+    selectedEl.classList.remove('map-pin--selected')
+    selectedEl = null
+  }
+}
+
+const selectMarker = (item) => {
+  clearSelection()
+  const marker = markersById.get(item.id)
+  if (!marker) return
+  marker.setZIndexOffset(1000)
+  const el = marker.getElement() // null si le marker est replié dans un cluster
+  if (el) {
+    el.classList.add('map-pin--selected')
+    selectedEl = el
+  }
+}
+
+const renderMarkers = () => {
+  if (!map || !cluster) return
+  cluster.clearLayers()
+  markersById = new Map()
+  selectedEl = null
+
+  const locations = mapStore.locations || []
+  const layers = []
+  for (const item of locations) {
+    const lat = Number(item.lat)
+    const lon = Number(item.lon)
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue // ignore les coordonnées invalides
+    const marker = L.marker([lat, lon], { icon: buildIcon(item), title: item.name || '' })
+    marker.on('click', () => displayOverlay(item))
+    markersById.set(item.id, marker)
+    layers.push(marker)
+  }
+  cluster.addLayers(layers)
+
+  // ré-applique le highlight si une fiche est ouverte après un re-render (changement de filtres)
+  if (overlayOpen.value && itemSelected.value) selectMarker(itemSelected.value)
+}
+
+const initMap = () => {
+  if (map || !mapEl.value) return
+  map = L.map(mapEl.value, { center, zoom })
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  }).addTo(map)
+  cluster = L.markerClusterGroup({ chunkedLoading: true })
+  map.addLayer(cluster)
+  // recalcule la taille après l'animation d'ouverture du conteneur
+  setTimeout(() => { if (map) map.invalidateSize() }, 250)
+  renderMarkers()
+}
+
+const destroyMap = () => {
+  clearSelection()
+  if (map) {
+    map.remove()
+    map = null
+  }
+  cluster = null
+  markersById = new Map()
+}
+
 watch(() => route.fullPath, async () => {
   mapStore.open = false
   mapStore.locations = []
-}) 
+})
 
 watch(() => mapStore.open, async (open) => {
-  if(open) mapStore.getMapLocations();
-  if(!open) overlayOpen.value = false
+  if (open) {
+    await nextTick()
+    initMap()
+    mapStore.getMapLocations()
+  } else {
+    overlayOpen.value = false
+    destroyMap()
+  }
 });
+
+watch(() => mapStore.locations, () => renderMarkers());
 
 watch(() => locationStore.selectedFilters, async () => {
   if (mapStore.open) mapStore.getMapLocations();
@@ -45,7 +133,7 @@ watch(() => locationStore.selectedFilters, async () => {
 const displayOverlay = (item) => {
   overlayOpen.value = true
   itemSelected.value = toRaw(item)
-  console.log(toRaw(item))
+  selectMarker(item)
 }
 
 const emit = defineEmits(['close']);
@@ -69,50 +157,13 @@ const cancelDelete = () => {
     showDeleteConfirm.value = false;
 };
 
-const getMarkerOptions = (item) => {
-  const isSelected = itemSelected.value && itemSelected.value.id === item.id
-
-  const baseSize = { height: 27, width: 20 }
-  const selectedSize = { height: 36, width: 26 }
-  const size = isSelected ? selectedSize : baseSize
-
-	  // Use Google Maps native animation when available
-	  const gm = typeof window !== 'undefined' ? window.google : null
-	  const animation = isSelected && gm && gm.maps && gm.maps.Animation
-	    ? gm.maps.Animation.BOUNCE
-	    : null
-
-  return {
-    position: { lat: item.lat, lng: item.lon },
-    title: item.name,
-    zIndex: isSelected ? 10 : 2,
-    animation,
-    icon: {
-      url: `/pins/pin-${item.categoryIcon || 'default'}.png`,
-      scaledSize: size,
-      origin: { x: 0, y: 0 },
-      anchor: { x: size.width / 2, y: size.height },
-    },
-    shape: {
-      type: 'poly',
-      coords: [10, 0, 17, 3, 20, 9, 10, 27, 0, 9, 3, 3],
-    },
-  }
-}
-
+onBeforeUnmount(destroyMap)
 </script>
 
 <template>
   <transition name="map" mode="out-in">
       <div :class="['map-container', { 'full-height': !isAuthenticated }]" id="map" v-if="mapStore.open">
-        <GoogleMap :api-key="apiKey" style="width: 100%; height: 100%" :center="center" :zoom="zoom">
-          <Marker 
-            v-for="item in mapStore.locations"
-            :key="item.id"
-            @click="displayOverlay(item)"
-            :options="getMarkerOptions(item)"
-          />
-        </GoogleMap>
+        <div class="map-leaflet" ref="mapEl"></div>
 
         <transition name="map" mode="out-in">
             <div class="map-overlay" v-if="overlayOpen">
@@ -131,7 +182,7 @@ const getMarkerOptions = (item) => {
                   </div>
                 </div>
 
-                
+
                 <div class="map-overlay-image">
                   <ImageSlider :images="[itemSelected?.image, itemSelected?.image_maps]" />
                 </div>
@@ -149,7 +200,7 @@ const getMarkerOptions = (item) => {
                   <button v-if="isAdmin || itemSelected?.userId === userId" class="location-edit-button icon-delete" @click="handleDelete">
                       <font-awesome-icon :icon="['fas', 'trash']" />
                   </button>
-                  
+
                   <div v-if="showDeleteConfirm" class="delete-confirm-overlay map-overlay">
                       <div class="delete-confirm-dialog">
                           <h3>Confirm Delete</h3>

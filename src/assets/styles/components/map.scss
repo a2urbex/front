@@ -422,4 +422,44 @@
       }
     }
   }
+
+  /* --- Carte Leaflet (migration OpenStreetMap) --- */
+  .map-leaflet {
+    width: 100%;
+    height: 100%;
+    // contexte d'empilement isolé : confine les panes Leaflet (z-index 200-700)
+    // pour qu'ils ne passent pas au-dessus de .map-overlay (z-index 9)
+    position: relative;
+    z-index: 0;
+  }
+
+  .leaflet-container {
+    background: #000;
+    font-family: inherit;
+  }
+
+  // La div-icon Leaflet ne doit afficher que le pin, pas de cadre blanc par défaut
+  .map-pin {
+    background: transparent;
+    border: 0;
+  }
+
+  .map-pin-img {
+    display: block;
+    width: 20px;
+    height: 27px;
+    transform-origin: bottom center;
+    /* le transform de positionnement est porté par le conteneur .leaflet-marker-icon,
+       on anime donc l'img enfant sans casser le placement */
+  }
+
+  .map-pin--selected .map-pin-img {
+    animation: pin-bounce 0.6s ease infinite;
+  }
+} // fin #map
+
+// Rebond du pin sélectionné — hors #map car les @keyframes ne s'imbriquent pas
+@keyframes pin-bounce {
+  0%, 100% { transform: translateY(0) scale(1.3); }
+  50%      { transform: translateY(-12px) scale(1.3); }
 }

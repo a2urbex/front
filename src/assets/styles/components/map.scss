@@ -189,6 +189,46 @@
         pointer-events: none;
         z-index: 1;
       }
+
+      // État vide : aucune image disponible
+      &__empty {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.7rem;
+        background:
+          radial-gradient(110% 90% at 50% 38%, rgba($primary, 0.10) 0%, rgba(0, 0, 0, 0) 62%),
+          repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.018) 0 10px, rgba(255, 255, 255, 0) 10px 20px);
+
+        &-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          color: $primary;
+          background: rgba($primary, 0.08);
+          border: 1px solid rgba($primary, 0.28);
+          box-shadow:
+            0 6px 18px rgba(0, 0, 0, 0.45),
+            inset 0 0 18px rgba($primary, 0.12);
+          font-size: 1.4rem;
+          animation: map-empty-pulse 2.6s ease-in-out infinite;
+        }
+
+        &-label {
+          font-size: 0.62rem;
+          font-weight: 600;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, 0.42);
+        }
+      }
     }
 
     &-title {
@@ -456,10 +496,180 @@
   .map-pin--selected .map-pin-img {
     animation: pin-bounce 0.6s ease infinite;
   }
+
+  /* --- Loader "radar" pendant le chargement des points --- */
+  .map-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.2rem;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 50% 45%, rgba(8, 8, 8, 0.55) 0%, rgba(0, 0, 0, 0.78) 60%, rgba(0, 0, 0, 0.9) 100%);
+    backdrop-filter: blur(3px) saturate(120%);
+    -webkit-backdrop-filter: blur(3px) saturate(120%);
+
+    &-radar {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .ring {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        border-radius: 50%;
+        border: 1px solid rgba($primary, 0.35);
+        opacity: 0;
+        animation: radar-pulse 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+      }
+
+      .ring-2 { animation-delay: 0.8s; }
+      .ring-3 { animation-delay: 1.6s; }
+
+      // disque tournant balayé par le faisceau
+      .sweep {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg,
+          rgba($primary, 0) 0deg,
+          rgba($primary, 0) 270deg,
+          rgba($primary, 0.45) 350deg,
+          rgba($primary, 0.85) 360deg);
+        -webkit-mask: radial-gradient(circle, transparent 24px, #000 25px);
+        mask: radial-gradient(circle, transparent 24px, #000 25px);
+        animation: radar-sweep 1.6s linear infinite;
+        box-shadow: 0 0 30px rgba($primary, 0.18);
+      }
+
+      // cibles détectées : flashent au passage du faisceau (période = 1.6s, comme le sweep)
+      .blip {
+        position: absolute;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: $primary;
+        opacity: 0;
+        z-index: 1;
+        box-shadow: 0 0 8px rgba($primary, 0.9), 0 0 16px rgba($primary, 0.5);
+        animation: radar-blip 1.6s ease-out infinite;
+      }
+
+      // chaque blip : position (angle/rayon autour du centre) + délai = instant où le faisceau l'atteint
+      .blip-1 { top: 36px;  left: 100px; animation-delay: 0.18s; }
+      .blip-2 { top: 90px;  left: 123px; animation-delay: 0.49s; }
+      .blip-3 { top: 108px; left: 78px;  animation-delay: 0.76s; }
+      .blip-4 { top: 96px;  left: 28px;  animation-delay: 1.07s; }
+      .blip-5 { top: 44px;  left: 39px;  animation-delay: 1.38s; }
+
+      // pastille centrale avec le pin
+      .core {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        color: $primary;
+        font-size: 1.3rem;
+        background: linear-gradient(160deg, rgba(20, 20, 20, 0.95), rgba(8, 8, 8, 0.98));
+        border: 1px solid rgba($primary, 0.4);
+        box-shadow:
+          0 0 22px rgba($primary, 0.35),
+          inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        animation: radar-core 1.6s ease-in-out infinite;
+      }
+    }
+
+    &-text {
+      margin: 0;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.78);
+      text-shadow: 0 0 18px rgba($primary, 0.25);
+
+      .dots i {
+        display: inline-block;
+        opacity: 0.2;
+        animation: radar-dots 1.4s steps(1, end) infinite;
+      }
+
+      .dots i:nth-child(2) { animation-delay: 0.2s; }
+      .dots i:nth-child(3) { animation-delay: 0.4s; }
+    }
+  }
+
+  // fondu d'apparition/disparition du loader
+  .map-loader-enter-active,
+  .map-loader-leave-active {
+    transition: opacity 0.35s ease;
+  }
+
+  .map-loader-enter-from,
+  .map-loader-leave-to {
+    opacity: 0;
+  }
 } // fin #map
 
 // Rebond du pin sélectionné — hors #map car les @keyframes ne s'imbriquent pas
 @keyframes pin-bounce {
   0%, 100% { transform: translateY(0) scale(1.3); }
   50%      { transform: translateY(-12px) scale(1.3); }
+}
+
+// Pulsation douce de l'icône "aucune image"
+@keyframes map-empty-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), inset 0 0 18px rgba($primary, 0.12);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5), inset 0 0 26px rgba($primary, 0.22);
+  }
+}
+
+// Loader radar
+@keyframes radar-pulse {
+  0%   { transform: scale(0.35); opacity: 0; }
+  15%  { opacity: 0.8; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+@keyframes radar-sweep {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes radar-core {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 22px rgba($primary, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+  50%      { transform: scale(1.08); box-shadow: 0 0 34px rgba($primary, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12); }
+}
+
+@keyframes radar-dots {
+  0%, 100% { opacity: 0.2; }
+  50%      { opacity: 1; }
+}
+
+// flash d'une cible captée par le radar : apparition vive puis rémanence qui s'estompe
+@keyframes radar-blip {
+  0%   { opacity: 0; transform: scale(0.3); }
+  4%   { opacity: 1; transform: scale(1.5); }
+  14%  { opacity: 0.95; transform: scale(1); }
+  55%  { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 0; transform: scale(0.3); }
 }

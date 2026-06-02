@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth';
 import FavoritesModal from './FavoriteModal.vue';
 import LocationEdit from './LocationEdit.vue';
 import UserRoleBadge from './UserRoleBadge.vue';
+import ImagePlaceholder from './ImagePlaceholder.vue';
 const props = defineProps({
     location: Object
 });
@@ -72,7 +73,7 @@ const contributor = computed(() => {
                             @error="handleImageError"
                         >
                     </template>
-                    <p v-else class="image-error">😭 Image not available</p>
+                    <ImagePlaceholder v-else />
                     <div class="location-card-display__bottom page-width">
                         <div class="location-card-display__bottom-row">
                             <p class="location-card-display__category">

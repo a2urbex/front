@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
+import ImagePlaceholder from './ImagePlaceholder.vue';
 
 const props = defineProps({
     location: Object,
@@ -57,7 +58,7 @@ const openLocationCardDisplay = () => {
                     :style="{ display: imageLoading ? 'none' : 'block' }"
                 >
             </template>
-            <p v-else class="image-error">😭 Image not available</p>
+            <ImagePlaceholder v-else />
 
             <div class="location-card__top-overlay"></div>
 

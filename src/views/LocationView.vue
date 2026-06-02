@@ -16,6 +16,7 @@ const location = computed(() => locationStore.location);
 const imageError = ref(false);
 
 import FavoritesModal from '@/components/FavoriteModal.vue';
+import ImagePlaceholder from '@/components/ImagePlaceholder.vue';
 
 onMounted(async () => {
   try {
@@ -58,7 +59,7 @@ const copyLink = (id) => {
                         @error="handleImageError"
                     >
                 </template>
-                <p v-else class="image-error">😭 Image not available</p>
+                <ImagePlaceholder v-else />
                 <div class="location-card-display__bottom">
                     <FavoritesModal :fids="location.fids" :id="location.id" />
                     <h2>{{ location.name }}</h2>

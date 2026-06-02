@@ -10,6 +10,7 @@ export const useMapStore = defineStore('Map', {
     type: null,
     typeId: null,
     locations: [],
+    loading: false,
     loaded: { type: null, typeId: null, filters: null },
   }),
   actions: {
@@ -23,17 +24,22 @@ export const useMapStore = defineStore('Map', {
       const filtersSnapshot = JSON.parse(JSON.stringify(filters))
       const isSamePage = this.type === this.loaded.type && this.typeId === this.loaded.typeId;
 
-      if(this.type === 'favorite') {
-        if(isSamePage) return this.locations;
-        this.locations = await this.loadFavorite(this.typeId);
-      }
+      this.loading = true;
+      try {
+        if(this.type === 'favorite') {
+          if(isSamePage) return this.locations;
+          this.locations = await this.loadFavorite(this.typeId);
+        }
 
-      if(this.type === 'location') {
-        if(isSamePage && JSON.stringify(filtersSnapshot) === JSON.stringify(this.loaded.filters)) return this.locations;
-        this.locations = await this.loadLocation(filtersSnapshot)
-      }
+        if(this.type === 'location') {
+          if(isSamePage && JSON.stringify(filtersSnapshot) === JSON.stringify(this.loaded.filters)) return this.locations;
+          this.locations = await this.loadLocation(filtersSnapshot)
+        }
 
-      this.loaded = { type: this.type, typeId: this.typeId, filters: filtersSnapshot };
+        this.loaded = { type: this.type, typeId: this.typeId, filters: filtersSnapshot };
+      } finally {
+        this.loading = false;
+      }
     },
     async loadLocation(filters) {
       try {

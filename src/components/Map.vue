@@ -27,6 +27,7 @@ const zoom = 6;
 
 const overlayOpen = ref(false)
 const itemSelected = ref(null)
+const hasImage = computed(() => !!(itemSelected.value?.image || itemSelected.value?.image_maps))
 
 // --- Carte Leaflet gérée en impératif (pas de composant par marker) ---
 const mapEl = ref(null)      // <div> hôte de la carte Leaflet
@@ -91,7 +92,12 @@ const initMap = () => {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
   }).addTo(map)
-  cluster = L.markerClusterGroup({ chunkedLoading: true })
+  cluster = L.markerClusterGroup({
+    chunkedLoading: true,
+    maxClusterRadius: 40,
+    animate: false,            // pas d'animation de regroupement -> nettement moins de lag au zoom/pan
+    removeOutsideVisibleBounds: true,
+  })
   map.addLayer(cluster)
   // recalcule la taille après l'animation d'ouverture du conteneur
   setTimeout(() => { if (map) map.invalidateSize() }, 250)
@@ -165,6 +171,28 @@ onBeforeUnmount(destroyMap)
       <div :class="['map-container', { 'full-height': !isAuthenticated }]" id="map" v-if="mapStore.open">
         <div class="map-leaflet" ref="mapEl"></div>
 
+        <transition name="map-loader">
+          <div class="map-loader" v-if="mapStore.loading">
+            <div class="map-loader-radar">
+              <span class="ring ring-1"></span>
+              <span class="ring ring-2"></span>
+              <span class="ring ring-3"></span>
+              <span class="sweep"></span>
+              <span class="blip blip-1"></span>
+              <span class="blip blip-2"></span>
+              <span class="blip blip-3"></span>
+              <span class="blip blip-4"></span>
+              <span class="blip blip-5"></span>
+              <span class="core">
+                <font-awesome-icon :icon="['fas', 'map-pin']" />
+              </span>
+            </div>
+            <p class="map-loader-text">
+              Chargement des points<span class="dots"><i>.</i><i>.</i><i>.</i></span>
+            </p>
+          </div>
+        </transition>
+
         <transition name="map" mode="out-in">
             <div class="map-overlay" v-if="overlayOpen">
               <div class="map-overlay-inner">
@@ -184,7 +212,13 @@ onBeforeUnmount(destroyMap)
 
 
                 <div class="map-overlay-image">
-                  <ImageSlider :images="[itemSelected?.image, itemSelected?.image_maps]" />
+                  <ImageSlider v-if="hasImage" :images="[itemSelected?.image, itemSelected?.image_maps]" />
+                  <div v-else class="map-overlay-image__empty">
+                    <span class="map-overlay-image__empty-icon">
+                      <font-awesome-icon :icon="['fas', 'image']" />
+                    </span>
+                    <span class="map-overlay-image__empty-label">No image</span>
+                  </div>
                 </div>
                 <p class="map-overlay-title">{{ itemSelected?.name }}</p>
 

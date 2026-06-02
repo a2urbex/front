@@ -188,7 +188,7 @@ onBeforeUnmount(destroyMap)
               </span>
             </div>
             <p class="map-loader-text">
-              Chargement des points<span class="dots"><i>.</i><i>.</i><i>.</i></span>
+             Loading locations<span class="dots"><i>.</i><i>.</i><i>.</i></span>
             </p>
           </div>
         </transition>

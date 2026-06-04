@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 
-import { faWaze, faTiktok, faInstagram, faYoutube } from '@fortawesome/free-brands-svg-icons';
+import { faWaze, faTiktok, faInstagram, faYoutube, faPinterest } from '@fortawesome/free-brands-svg-icons';
 
 import {
   faEllipsisVertical,
@@ -123,6 +123,7 @@ library.add(
   faShield,
   faShieldHalved,
   faServer,
+  faPinterest,
 );
 
 export default FontAwesomeIcon;

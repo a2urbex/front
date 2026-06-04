@@ -87,6 +87,20 @@ onMounted(async () => {
           <font-awesome-icon :icon="['fas', 'arrow-right']" class="arrow-icon" />
         </div>
       </router-link>
+
+      <!-- Card 5: Pinterest -->
+      <router-link to="/admin/pinterest" class="admin-hub__card">
+        <div class="admin-hub__card-icon admin-hub__card-icon--pinterest">
+          <font-awesome-icon :icon="['fab', 'pinterest']" />
+        </div>
+        <div class="admin-hub__card-content">
+          <h3>Pinterest Manager</h3>
+          <p>Run and monitor the Pinterest board import, configure the schedule and choose the source for imported points.</p>
+        </div>
+        <div class="admin-hub__card-arrow">
+          <font-awesome-icon :icon="['fas', 'arrow-right']" class="arrow-icon" />
+        </div>
+      </router-link>
     </div>
   </div>
 </template>
@@ -222,6 +236,16 @@ onMounted(async () => {
       background: rgba(#f59e0b, 0.15);
       border-color: rgba(#f59e0b, 0.4);
       box-shadow: 0 0 15px rgba(#f59e0b, 0.15);
+    }
+
+    &-icon--pinterest {
+      color: #e60023;
+    }
+    &:hover .admin-hub__card-icon--pinterest {
+      color: #fff;
+      background: rgba(#e60023, 0.15);
+      border-color: rgba(#e60023, 0.4);
+      box-shadow: 0 0 15px rgba(#e60023, 0.15);
     }
 
     &-content {

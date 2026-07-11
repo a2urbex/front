@@ -322,6 +322,210 @@ export const generateRoadTexture = () => {
     return texture;
 };
 
+const overlayNoise = (ctx, width, height, opacity = 0.08) => {
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.drawImage(createNoiseCanvas(width, height, 1), 0, 0);
+    ctx.restore();
+};
+
+const addDrips = (ctx, width, height, count = 20, color = 'rgba(10,8,6,') => {
+    for (let i = 0; i < count; i++) {
+        const x = Math.random() * width;
+        const w = 3 + Math.random() * 14;
+        const len = height * (0.2 + Math.random() * 0.7);
+        const startY = Math.random() * height * 0.4;
+        const grad = ctx.createLinearGradient(x, startY, x, startY + len);
+        grad.addColorStop(0, color + (0.3 + Math.random() * 0.35) + ')');
+        grad.addColorStop(1, color + '0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(x, startY, w, len);
+    }
+};
+
+export const generateHospitalWallTexture = () => {
+    const w = 512, h = 512;
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d');
+    const bc = document.createElement('canvas'); bc.width = w; bc.height = h;
+    const bctx = bc.getContext('2d');
+
+    const uppers = ['#cdccc0', '#c6cec4', '#c8cccd', '#d0cabf'];
+    const dados = ['#6f847c', '#6d7b84', '#7c8a72', '#7f8f96'];
+    const stripes = ['#9c3b44', '#3a6ea5', '#c8952a', '#4a8a6a'];
+    const upper = uppers[Math.floor(Math.random() * uppers.length)];
+    const dado = dados[Math.floor(Math.random() * dados.length)];
+    const dadoTop = Math.floor(h * 0.62);
+
+    bctx.fillStyle = '#808080'; bctx.fillRect(0, 0, w, h);
+
+    ctx.fillStyle = upper; ctx.fillRect(0, 0, w, dadoTop);
+    ctx.fillStyle = dado; ctx.fillRect(0, dadoTop, w, h - dadoTop);
+
+    ctx.fillStyle = stripes[Math.floor(Math.random() * stripes.length)];
+    ctx.fillRect(0, dadoTop - 6, w, 6);
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fillRect(0, dadoTop, w, 2);
+
+    let g = ctx.createLinearGradient(0, h, 0, h - 130);
+    g.addColorStop(0, 'rgba(18,16,12,0.6)'); g.addColorStop(1, 'rgba(18,16,12,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    g = ctx.createLinearGradient(0, 0, 0, 90);
+    g.addColorStop(0, 'rgba(25,22,16,0.4)'); g.addColorStop(1, 'rgba(25,22,16,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+
+    addDrips(ctx, w, dadoTop, 9, 'rgba(60,45,25,');
+
+    for (let i = 0; i < 11; i++) {
+        const px = Math.random() * w, py = Math.random() * dadoTop;
+        const pr = 22 + Math.random() * 55;
+        ctx.beginPath();
+        const pts = 9;
+        for (let a = 0; a <= pts; a++) {
+            const ang = (a / pts) * Math.PI * 2;
+            const rr = pr * (0.55 + Math.random() * 0.55);
+            const xx = px + Math.cos(ang) * rr, yy = py + Math.sin(ang) * rr;
+            if (a === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+        }
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(120,110,95,0.5)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(30,25,20,0.35)';
+        ctx.lineWidth = 1.5; ctx.stroke();
+        bctx.fillStyle = '#6a6a6a';
+        bctx.beginPath(); bctx.arc(px, py, pr * 0.7, 0, Math.PI * 2); bctx.fill();
+    }
+
+    ctx.strokeStyle = 'rgba(20,20,20,0.22)';
+    for (let i = 0; i < 14; i++) {
+        ctx.lineWidth = 2 + Math.random() * 4;
+        const yy = dadoTop + Math.random() * (h - dadoTop);
+        const xx = Math.random() * w, len = 20 + Math.random() * 70;
+        ctx.beginPath(); ctx.moveTo(xx, yy);
+        ctx.lineTo(xx + len, yy + (Math.random() - 0.5) * 6); ctx.stroke();
+    }
+
+    ctx.globalCompositeOperation = 'multiply';
+    for (let i = 0; i < 6; i++) {
+        const x = Math.random() * w, y = Math.random() * dadoTop, r = 30 + Math.random() * 70;
+        const gg = ctx.createRadialGradient(x, y, 0, x, y, r);
+        gg.addColorStop(0, 'rgba(70,60,35,0.45)'); gg.addColorStop(1, 'rgba(70,60,35,0)');
+        ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    overlayNoise(ctx, w, h, 0.04);
+    overlayNoise(bctx, w, h, 0.08);
+
+    const map = new THREE.CanvasTexture(c);
+    const bump = new THREE.CanvasTexture(bc);
+    [map, bump].forEach(t => { t.wrapS = t.wrapT = THREE.RepeatWrapping; });
+    return { map, bump };
+};
+
+export const generateLinoleumTexture = () => {
+    const w = 512, h = 512;
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d');
+    const bc = document.createElement('canvas'); bc.width = w; bc.height = h;
+    const bctx = bc.getContext('2d');
+
+    ctx.fillStyle = '#a9a89c'; ctx.fillRect(0, 0, w, h);
+    bctx.fillStyle = '#888'; bctx.fillRect(0, 0, w, h);
+
+    for (let i = 0; i < 9000; i++) {
+        const x = Math.random() * w, y = Math.random() * h;
+        const s = 0.6 + Math.random() * 1.6;
+        const v = Math.random();
+        ctx.fillStyle = v < 0.4 ? 'rgba(120,118,108,0.5)'
+            : v < 0.7 ? 'rgba(150,148,138,0.5)'
+            : v < 0.9 ? 'rgba(90,88,80,0.5)'
+            : 'rgba(70,80,75,0.4)';
+        ctx.fillRect(x, y, s, s);
+    }
+
+    const tile = 128;
+    ctx.strokeStyle = 'rgba(40,40,38,0.5)'; ctx.lineWidth = 2;
+    bctx.strokeStyle = '#3a3a3a'; bctx.lineWidth = 2;
+    for (let x = 0; x <= w; x += tile) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+        bctx.beginPath(); bctx.moveTo(x, 0); bctx.lineTo(x, h); bctx.stroke();
+    }
+    for (let y = 0; y <= h; y += tile) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+        bctx.beginPath(); bctx.moveTo(0, y); bctx.lineTo(w, y); bctx.stroke();
+    }
+
+    ctx.globalCompositeOperation = 'multiply';
+    for (let i = 0; i < 24; i++) {
+        const x = Math.random() * w, y = Math.random() * h, r = 25 + Math.random() * 80;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        const wet = Math.random() > 0.5;
+        g.addColorStop(0, wet ? 'rgba(25,25,22,0.5)' : 'rgba(60,55,45,0.35)');
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.strokeStyle = 'rgba(20,20,18,0.3)';
+    for (let i = 0; i < 10; i++) {
+        ctx.lineWidth = 1 + Math.random() * 3;
+        const x = Math.random() * w, y = Math.random() * h, r = 20 + Math.random() * 60, a0 = Math.random() * 6;
+        ctx.beginPath(); ctx.arc(x, y, r, a0, a0 + 1 + Math.random() * 2); ctx.stroke();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    overlayNoise(ctx, w, h, 0.05);
+
+    const map = new THREE.CanvasTexture(c);
+    const bump = new THREE.CanvasTexture(bc);
+    [map, bump].forEach(t => { t.wrapS = t.wrapT = THREE.RepeatWrapping; });
+    return { map, bump };
+};
+
+export const generateCeilingTileTexture = () => {
+    const w = 512, h = 512;
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d');
+    const bc = document.createElement('canvas'); bc.width = w; bc.height = h;
+    const bctx = bc.getContext('2d');
+
+    const tiles = 4, ts = w / tiles;
+    ctx.fillStyle = '#3a3a38'; ctx.fillRect(0, 0, w, h);
+    bctx.fillStyle = '#555'; bctx.fillRect(0, 0, w, h);
+
+    for (let ty = 0; ty < tiles; ty++) {
+        for (let tx = 0; tx < tiles; tx++) {
+            const x = tx * ts, y = ty * ts, inset = 3;
+            const base = 205 + Math.random() * 22;
+            ctx.fillStyle = `rgb(${base},${base - 4},${base - 14})`;
+            ctx.fillRect(x + inset, y + inset, ts - inset * 2, ts - inset * 2);
+
+            ctx.fillStyle = 'rgba(0,0,0,0.12)';
+            for (let p = 0; p < 55; p++) {
+                ctx.fillRect(x + inset + Math.random() * (ts - 6), y + inset + Math.random() * (ts - 6), 1, 1);
+            }
+            if (Math.random() > 0.7) {
+                const sx = x + ts * (0.3 + Math.random() * 0.4), sy = y + ts * (0.3 + Math.random() * 0.4);
+                const r = ts * (0.2 + Math.random() * 0.3);
+                const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, r);
+                g.addColorStop(0, 'rgba(110,80,40,0.55)');
+                g.addColorStop(0.7, 'rgba(130,95,50,0.25)');
+                g.addColorStop(1, 'rgba(130,95,50,0)');
+                ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.fill();
+            }
+            if (Math.random() > 0.85) {
+                ctx.fillStyle = 'rgba(20,18,12,0.4)';
+                ctx.fillRect(x + inset, y + inset, ts - inset * 2, ts - inset * 2);
+            }
+            bctx.fillStyle = '#c0c0c0';
+            bctx.fillRect(x + inset, y + inset, ts - inset * 2, ts - inset * 2);
+        }
+    }
+    overlayNoise(ctx, w, h, 0.03);
+
+    const map = new THREE.CanvasTexture(c);
+    const bump = new THREE.CanvasTexture(bc);
+    [map, bump].forEach(t => { t.wrapS = t.wrapT = THREE.RepeatWrapping; });
+    return { map, bump };
+};
+
 /**
  * Génère une texture de trottoir (dalles béton)
  */

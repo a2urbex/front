@@ -7,44 +7,47 @@
     
     <div class="home-content" :class="{ 'fade-out-content': isTransitioning, 'hidden': isLoading }">
       
-      <div :class="['hero-wrapper', { 'is-auth-active': showAuth }]">
-        <div class="hero-section">
-          <div class="glitch-wrapper">
-            <h1 class="glitch-text" data-text="A2URBEX">
-              <transition name="fade" mode="out-in">A2URBEX</transition></h1>
-          </div>
-          <p class="tagline">Your exploration co-pilot</p>
+      <div :class="['hero', { 'is-auth-active': showAuth }]">
+        <div class="hero__eyebrow">
+          <span class="hero__dot"></span>
+          Urban exploration · trusted network
+        </div>
 
-          <p class="subtitle" v-if="locationCount !== null">
-            Currently listing <span class="count-value">{{ locationCount }}</span> locations. We only share our spots with trusted people.
-          </p>
+        <h1 class="hero__title">A2<span class="hero__title-accent">URBEX</span></h1>
 
-          <p class="contact-line">
-            Contact us
-            <a href="https://www.instagram.com/a2urbex" target="_blank" rel="noopener" class="instagram-link">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-              </svg>
-              @a2urbex
-            </a>
-          </p>
+        <p class="hero__tagline">Your exploration co-pilot.</p>
 
+        <p class="hero__meta" v-if="locationCount !== null">
+          <span class="hero__count">{{ locationCount }}</span> spots mapped — shared only with trusted people.
+        </p>
+
+        <div class="hero__actions">
           <button
             v-if="!showAuth && !authStore.token"
             class="connect-btn"
             @click="handleConnectClick"
           >
-            <span class="connect-icon">⚡</span>
             <span>Connect</span>
-            <div class="btn-glow"></div>
+            <svg class="connect-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </button>
+
+          <a href="https://www.instagram.com/a2urbex" target="_blank" rel="noopener" class="insta-link">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+            @a2urbex
+          </a>
         </div>
       </div>
 
-      <transition name="slideUp">
-        <div class="auth-container" v-if="showAuth && !authStore.token">
+      <transition name="fade">
+        <div class="auth-overlay" v-if="showAuth && !authStore.token">
+          <div class="auth-container">
           <button class="close-btn" @click="closeAuth" title="Close">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -189,6 +192,7 @@
               </form>
             </div>
           </transition>
+          </div>
         </div>
       </transition>
 

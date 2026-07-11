@@ -3,1114 +3,690 @@
 </template>
 
 <script setup>
-/**
- * 🌃 ThreeBackground - Scène 3D Pripyat/Chernobyl
- * 
- * Implémentation d'un monde infini optimisé avec recyclage d'objets :
- * - La caméra avance continuellement dans la scène
- * - Les objets qui passent derrière la caméra sont RECYCLÉS (repositionnés devant)
- * - Aucun objet n'est supprimé/recréé = pas de garbage collection = performance optimale
- * - Consommation mémoire constante quelle que soit la durée d'utilisation
- * 
- * Configuration centralisée via l'objet CONFIG pour un ajustement facile.
- */
-
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import * as THREE from 'three';
+import {
+  generateHospitalWallTexture,
+  generateLinoleumTexture,
+  generateCeilingTileTexture,
+} from '@/utilities/textureGenerator';
 
 const emit = defineEmits(['ready']);
-
-// Textures (Optionnel, le code gère le fallback couleur si les images manquent)
-import buildingTextureUrl from '@/assets/textures/building.png';
-import sovietBuildingUrl from '@/assets/textures/soviet_building.png';
-import sovietBuilding1Url from '@/assets/textures/soviet_building_1.png';
-import sovietBuilding2Url from '@/assets/textures/soviet_building_2.png';
-import roadTextureUrl from '@/assets/textures/road.jpg';
-import metalTextureUrl from '@/assets/textures/metal.png';
-import rustedMetalTextureUrl from '@/assets/textures/rusted_metal.jpg';
-
-import { generateRoadTexture, generateSidewalkTexture, generateMossTexture } from '@/utilities/textureGenerator';
-
-
 const container = ref(null);
-let scene, camera, renderer;
-let animationId;
-let mouseX = 0;
-let mouseY = 0;
 
-// ========================================
-// 🎛️ CONFIGURATION DE LA SCÈNE
-// ========================================
+const isMobile =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+
 const CONFIG = {
-  // Lampadaires
-  LAMP_COUNT: 6,                  // Nombre de lampadaires par côté (6 = 12 au total)
-  LAMP_MIN_DISTANCE: 15,          // Distance minimale entre deux lampadaires
-  
-  // Voitures abandonnées
-  CAR_COUNT: 5,                   // Nombre de carcasses de voitures
-  
-  // Végétation
-  VEGETATION_DENSITY: {
-    TREES: 50,                   // Nombre d'arbres morts (total pour les 2 côtés)
-    ROAD_WEEDS: 50,              // Nombre d'herbes/buissons sur route et trottoirs
-    DEBRIS: 50                   // Nombre de débris sur la route
-  },
-  
-  // Bâtiments
-  // On ne définit plus un nombre fixe total, mais une densité par "voie" (lane)
-  // Le système va générer suffisamment de bâtiments pour remplir les voies
-  
-  // Grande roue de Pripyat
-  FERRIS_WHEEL: {
-    X: -25,                       // Position X (-20 = gauche, 20 = droite)
-    Y: 14,                        // Hauteur
-    Z: -50,                       // Distance par rapport à la caméra au départ (10 = très proche/visible au début, -150 = loin)
-    ROTATION_Y: 0.5,              // Rotation sur l'axe Y
-    ROTATION_Z: 0.1               // Inclinaison
-  },
-  
-  // Éclairage
-  LIGHTING: {
-    // Pourcentages des états des lampadaires (total doit faire ~100)
-    LAMP_OFF_PERCENT: 20,         // 20% de lampadaires éteints
-    LAMP_ON_PERCENT: 30,          // 30% de lampadaires allumés en permanence
-    LAMP_FLICKER_PERCENT: 50,     // 50% de lampadaires qui clignotent
-    
-    // Luminosité globale de la scène
-    AMBIENT_INTENSITY: 5,       // Luminosité ambiante augmentée
-    MOON_INTENSITY: 8.0,          // Intensité de la lumière lunaire augmentée
-    LAMP_INTENSITY: 50            // Intensité des lampadaires individuels augmentée
-  },
-  
-  // Monde infini (Système de recyclage des objets)
-  INFINITE_WORLD: {
-    SPAWN_DISTANCE: 80,          // Distance devant la caméra pour générer/recycler les objets
-    DESPAWN_DISTANCE: 5,         // Distance DERRIÈRE la caméra pour recycler les objets (positif car Z > camera.Z)
-    CAMERA_SPEED: 0.05,           // Vitesse de déplacement de la caméra
-    CAMERA_BOOST_SPEED: 0.5       // Vitesse lors du boost
-  }
+  CORRIDOR_W: 3.4,
+  CORRIDOR_H: 2.9,
+  EYE_HEIGHT: 1.62,
+  BAY_LEN: 6,
+  BAY_COUNT: isMobile ? 9 : 13,
+  TILE: 0.6,
+
+  WALK_SPEED: 1.1,
+  BOOST_SPEED: 8.0,
+  WARP_SPEED: 30.0,
+
+  DUST_COUNT: isMobile ? 110 : 340,
+  PIXEL_RATIO: isMobile ? 1.5 : 2,
+  SHADOW_SIZE: isMobile ? 512 : 1024,
+  FOG_DENSITY: isMobile ? 0.044 : 0.03,
+  MAX_LIGHTS: isMobile ? 4 : 9,
 };
 
-// Tableaux pour la gestion dynamique des objets
-const flickrLights = []; // Lampadaires qui clignotent
-const particleSystemRefs = []; // Référence aux systèmes de particules (pour les animer)
-const buildings = []; // Référence aux bâtiments
-const lamps = []; // Référence aux lampadaires
-const deadTrees = []; // Référence aux arbres morts
-const roadWeeds = []; // Référence aux herbes sur la route
-const carcasseCars = []; // Référence aux carcasses de voitures
-let wheelGroup; // Référence à la grande roue
+let scene, camera, renderer, clock;
+let animationId;
+let flashlight, flashTarget, flashBase;
+let dust;
+const bays = [];
+const disposables = [];
+const flickerFixtures = [];
+let dynamicLights = 0;
 
-// --- GESTION DES VOIES DE BÂTIMENTS (LANES) ---
-// Pour créer de la profondeur (1er plan, 2e plan, 3e plan)
-const NUM_LANES = 3; 
-const LANE_OFFSET_X = 30; // Espacement X entre les plans
-const BASE_X_LEFT = -25;
-const BASE_X_RIGHT = 25;
+let pointerX = 0, pointerY = 0;
+let curX = 0, curY = 0;
 
-// Suivi de la position Z pour chaque voie de chaque côté
-// Structure: { left: [z1, z2, z3], right: [z1, z2, z3] }
-const laneZTrackers = {
-    left: new Array(NUM_LANES).fill(0),
-    right: new Array(NUM_LANES).fill(0)
-};
-
-
-// --- GESTION DU BOOST CAMÉRA (Top Level) ---
 let isBoosting = false;
 let isWarping = false;
-let currentSpeed = CONFIG.INFINITE_WORLD.CAMERA_SPEED;
+let currentSpeed = CONFIG.WALK_SPEED;
+let walkPhase = 0;
+let autoT = 0;
+const flashBaseIntensity = 42;
 
-const setBoost = (active) => {
-  isBoosting = active;
-};
+const L_THRESHOLD = CONFIG.BAY_LEN;
+const totalLength = CONFIG.BAY_LEN * CONFIG.BAY_COUNT;
 
+const setBoost = (active) => { isBoosting = active; };
 const warp = () => {
   isWarping = true;
-  return new Promise(resolve => setTimeout(resolve, 1500));
+  return new Promise((resolve) => setTimeout(resolve, 1500));
 };
-
 const fadeOut = () => {
-  if (container.value) {
-    container.value.classList.add('fade-out');
-  }
-  return new Promise(resolve => setTimeout(resolve, 800));
+  if (container.value) container.value.classList.add('fade-out');
+  return new Promise((resolve) => setTimeout(resolve, 800));
 };
-
-// Exposer la fonction pour le composant parent
 defineExpose({ setBoost, warp, fadeOut });
 
-const clearZoneAroundWheel = () => {
-    if (!wheelGroup) return;
-    const clearRadius = 50; 
-    
-    const checkAndMove = (obj) => {
-        const dx = obj.position.x - wheelGroup.position.x;
-        const dz = obj.position.z - wheelGroup.position.z;
-        const dist = Math.sqrt(dx*dx + dz*dz);
-        
-        if(dist < clearRadius) {
-            obj.position.z -= 80; 
-        }
-    };
-
-    deadTrees.forEach(checkAndMove);
-    lamps.forEach(checkAndMove);
-};
-
-
 const init = () => {
-  // --- 1. SCENE & ATMOSPHERE ---
+  clock = new THREE.Clock();
+
   scene = new THREE.Scene();
-  const fogColor = 0x1a1a1a; 
+  const fogColor = 0x0e1114;
   scene.background = new THREE.Color(fogColor);
-  scene.fog = new THREE.FogExp2(fogColor, 0.02); 
+  scene.fog = new THREE.FogExp2(fogColor, CONFIG.FOG_DENSITY);
 
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 2, 5);
+  camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 120);
+  camera.rotation.order = 'YXZ';
+  camera.position.set(0, CONFIG.EYE_HEIGHT, 0);
 
-  // Initialiser les positions de départ des bâtiments pour toutes les voies
-  const startZ = camera.position.z + 20;
-  laneZTrackers.left.fill(startZ);
-  laneZTrackers.right.fill(startZ);
-
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer = new THREE.WebGLRenderer({ antialias: !isMobile, powerPreference: 'high-performance' });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, CONFIG.PIXEL_RATIO));
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.18;
   container.value.appendChild(renderer.domElement);
 
-  // Textures
-  const loadingManager = new THREE.LoadingManager();
-  loadingManager.onLoad = () => {
-      emit('ready');
-  };
+  const W = CONFIG.CORRIDOR_W;
+  const H = CONFIG.CORRIDOR_H;
+  const L = CONFIG.BAY_LEN;
+  const halfW = W / 2;
 
-  const textureLoader = new THREE.TextureLoader(loadingManager);
-  const loadTex = (url) => textureLoader.load(url, (t) => {
-      t.wrapS = t.wrapT = THREE.RepeatWrapping;
-      t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  }, undefined, () => {});
-  
-  const buildingTex = loadTex(buildingTextureUrl);
-  const sovietBuildingTex = loadTex(sovietBuildingUrl);
-  const sovietBuilding1Tex = loadTex(sovietBuilding1Url);
-  const sovietBuilding2Tex = loadTex(sovietBuilding2Url);
-  
-  const buildingTextures = [
-    buildingTex, 
-    sovietBuildingTex,
-    sovietBuilding1Tex, 
-    sovietBuilding2Tex
-  ];
+  const wallTex = generateHospitalWallTexture();
+  const floorTex = generateLinoleumTexture();
+  const ceilTex = generateCeilingTileTexture();
 
-  // Texture de route
-  const roadTex = loadTex(roadTextureUrl);
-  if(roadTex) roadTex.repeat.set(1, 40);
-  
-  const metalTex = loadTex(metalTextureUrl);
-  const rustedMetalTex = loadTex(rustedMetalTextureUrl);
-  
-  // Texture de trottoir procédurale
-  const sidewalkTex = generateSidewalkTexture();
-  
-  // Texture de mousse
-  const mossTex = generateMossTexture();
+  wallTex.map.repeat.set(1 / 2.5, 1 / H);
+  wallTex.bump.repeat.set(1 / 2.5, 1 / H);
+  floorTex.map.repeat.set(W / 1.2, L / 1.2);
+  floorTex.bump.repeat.set(W / 1.2, L / 1.2);
+  ceilTex.map.repeat.set(W / 2.4, L / 2.4);
+  ceilTex.bump.repeat.set(W / 2.4, L / 2.4);
+  disposables.push(wallTex.map, wallTex.bump, floorTex.map, floorTex.bump, ceilTex.map, ceilTex.bump);
 
+  const wallMat = new THREE.MeshStandardMaterial({
+    map: wallTex.map, bumpMap: wallTex.bump, bumpScale: 0.03,
+    color: 0xffffff, roughness: 0.95, metalness: 0,
+  });
+  const floorMat = new THREE.MeshStandardMaterial({
+    map: floorTex.map, bumpMap: floorTex.bump, bumpScale: 0.02,
+    color: 0xffffff, roughness: 0.7, metalness: 0.02,
+  });
+  const ceilMat = new THREE.MeshStandardMaterial({
+    map: ceilTex.map, bumpMap: ceilTex.bump, bumpScale: 0.02,
+    color: 0xffffff, roughness: 1, metalness: 0,
+  });
+  const metalMat = new THREE.MeshStandardMaterial({ color: 0x9a9ea3, roughness: 0.5, metalness: 0.7 });
+  const darkMetalMat = new THREE.MeshStandardMaterial({ color: 0x3b3e42, roughness: 0.6, metalness: 0.5 });
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0xbdb8a8, roughness: 0.8, metalness: 0.05 });
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0x8f8a7e, roughness: 0.85 });
+  const rubberBaseMat = new THREE.MeshStandardMaterial({ color: 0x2c2d2f, roughness: 0.9 });
+  const mattressMat = new THREE.MeshStandardMaterial({ color: 0xcac4b4, roughness: 1 });
+  const plasticMat = new THREE.MeshStandardMaterial({ color: 0x394047, roughness: 0.7 });
+  const voidMat = new THREE.MeshBasicMaterial({ color: 0x040506 });
+  const roomMat = new THREE.MeshStandardMaterial({ color: 0x191b1e, roughness: 1, side: THREE.DoubleSide });
+  const fluoOnMat = () => new THREE.MeshBasicMaterial({ color: 0xdfefff });
+  const fluoOffMat = new THREE.MeshStandardMaterial({ color: 0x26292c, roughness: 0.6, emissive: 0x05070a });
+  const exitMat = new THREE.MeshBasicMaterial({ color: 0x25d07a });
+  const glassColdMat = new THREE.MeshBasicMaterial({ color: 0x2f4a63 });
 
-  // Lumières
-  const ambientLight = new THREE.AmbientLight(0x222222, CONFIG.LIGHTING.AMBIENT_INTENSITY);
-  scene.add(ambientLight);
+  const floorGeo = new THREE.PlaneGeometry(W, L);
+  const ceilGeo = new THREE.PlaneGeometry(W, L);
 
-  const moonLight = new THREE.DirectionalLight(0x667788, CONFIG.LIGHTING.MOON_INTENSITY);
-  moonLight.position.set(-20, 50, -20);
-  moonLight.castShadow = true;
-  moonLight.shadow.mapSize.width = 2048;
-  moonLight.shadow.mapSize.height = 2048;
-  moonLight.shadow.camera.near = 0.5;
-  moonLight.shadow.camera.far = 200;
-  moonLight.shadow.camera.left = -50;
-  moonLight.shadow.camera.right = 50;
-  moonLight.shadow.camera.top = 50;
-  moonLight.shadow.camera.bottom = -50;
-  scene.add(moonLight);
+  const hemi = new THREE.HemisphereLight(0x4c5765, 0x15181c, 1.05);
+  scene.add(hemi);
+  const fill = new THREE.DirectionalLight(0x37424e, 0.55);
+  fill.position.set(-4, 10, 4);
+  scene.add(fill);
 
-  // --- 2. DEFINITION DES MATERIAUX ---
-  const deadWoodMat = new THREE.MeshStandardMaterial({ color: 0x2b2118, roughness: 1 });
-  const deadLeavesMat = new THREE.MeshStandardMaterial({ color: 0x2f3a25, roughness: 1, side: THREE.DoubleSide });
-  const rustedMat = new THREE.MeshStandardMaterial({ map: rustedMetalTex, color: 0x663300, roughness: 0.9, metalness: 0.5 });
-  const concreteMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.9 }); 
+  flashlight = new THREE.SpotLight(0xffe6bd, flashBaseIntensity, 40, 0.5, 0.6, 1.4);
+  flashlight.position.set(0.2, -0.12, 0.1);
+  flashlight.castShadow = true;
+  flashlight.shadow.mapSize.width = CONFIG.SHADOW_SIZE;
+  flashlight.shadow.mapSize.height = CONFIG.SHADOW_SIZE;
+  flashlight.shadow.camera.near = 0.3;
+  flashlight.shadow.camera.far = 42;
+  flashlight.shadow.bias = -0.0008;
+  flashTarget = new THREE.Object3D();
+  flashTarget.position.set(0, 0, -10);
+  flashlight.target = flashTarget;
+  flashBase = new THREE.PointLight(0xffd9a0, 2.5, 4.5, 2);
+  flashBase.position.set(0.18, -0.25, 0.15);
+  camera.add(flashlight, flashTarget, flashBase);
+  scene.add(camera);
 
-  // --- 3. FONCTIONS UTILITAIRES POUR CREER DES OBJETS ---
+  const canAddLight = () => dynamicLights < CONFIG.MAX_LIGHTS;
 
-  // Petite herbe/buisson
-  const createSmallWeed = (x, z, color = 0x2f3a25) => {
-    const weedGroup = new THREE.Group();
-    const bladeMat = new THREE.MeshStandardMaterial({ color: color, side: THREE.DoubleSide });
+  const DOOR_W = 1.0, DOOR_H = 2.1;
 
-    for(let k=0; k<Math.random()*5 + 3; k++) {
-        const h = 0.2 + Math.random() * 0.8;
-        const w = 0.05 + Math.random() * 0.1;
-        const bladeGeo = new THREE.ConeGeometry(w, h, 3);
-        const blade = new THREE.Mesh(bladeGeo, bladeMat);
-        blade.position.set((Math.random()-0.5)*0.5, h/2, (Math.random()-0.5)*0.5);
-        blade.rotation.z = (Math.random()-0.5) * 1; 
-        blade.rotation.y = Math.random() * Math.PI;
-        weedGroup.add(blade);
+  const buildWallGeometry = (doorZs, side) => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-L / 2, 0);
+    shape.lineTo(L / 2, 0);
+    shape.lineTo(L / 2, H);
+    shape.lineTo(-L / 2, H);
+    shape.lineTo(-L / 2, 0);
+    for (const dz of doorZs) {
+      const cx = side * dz;
+      const hw = DOOR_W / 2 + 0.04;
+      const hole = new THREE.Path();
+      hole.moveTo(cx - hw, 0.06);
+      hole.lineTo(cx + hw, 0.06);
+      hole.lineTo(cx + hw, DOOR_H + 0.02);
+      hole.lineTo(cx - hw, DOOR_H + 0.02);
+      hole.lineTo(cx - hw, 0.06);
+      shape.holes.push(hole);
     }
-    weedGroup.position.set(x, 0, z);
-    scene.add(weedGroup);
-    return weedGroup; 
+    return new THREE.ShapeGeometry(shape);
   };
 
-  // Buisson sec
-  const createBush = (x, z) => {
+  const addBaseboard = (group, side, doorZs) => {
+    const sorted = [...doorZs].sort((a, b) => a - b);
+    let cursor = -L / 2;
+    const segs = [];
+    for (const dz of sorted) {
+      const s = dz - DOOR_W / 2 - 0.05, e = dz + DOOR_W / 2 + 0.05;
+      if (s > cursor) segs.push([cursor, s]);
+      cursor = e;
+    }
+    if (cursor < L / 2) segs.push([cursor, L / 2]);
+    for (const [a, b] of segs) {
+      if (b - a <= 0.05) continue;
+      const base = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, b - a), rubberBaseMat);
+      base.position.set(side * (halfW - 0.02), 0.06, (a + b) / 2);
+      group.add(base);
+    }
+  };
+
+  const addCeiling = (group) => {
+    const ceil = new THREE.Mesh(ceilGeo, ceilMat);
+    ceil.rotation.x = Math.PI / 2;
+    ceil.position.y = H;
+    ceil.receiveShadow = true;
+    group.add(ceil);
+
+    const holes = Math.floor(Math.random() * 3);
+    for (let i = 0; i < holes; i++) {
+      const cx = (Math.round((Math.random() - 0.5) * (W - CONFIG.TILE) / CONFIG.TILE)) * CONFIG.TILE;
+      const cz = (Math.random() - 0.5) * (L - CONFIG.TILE);
+      const hole = new THREE.Mesh(new THREE.PlaneGeometry(CONFIG.TILE * 0.95, CONFIG.TILE * 0.95), voidMat);
+      hole.rotation.x = Math.PI / 2;
+      hole.position.set(cx, H - 0.01, cz);
+      group.add(hole);
+      const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, W * 0.8, 8), metalMat);
+      pipe.rotation.z = Math.PI / 2;
+      pipe.position.set(0, H + 0.22, cz);
+      group.add(pipe);
+      const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.4 + Math.random() * 0.3, 4), darkMetalMat);
+      wire.position.set(cx + 0.1, H - 0.2, cz);
+      wire.rotation.z = (Math.random() - 0.5) * 0.5;
+      group.add(wire);
+      if (Math.random() > 0.5) {
+        const drop = new THREE.Mesh(new THREE.PlaneGeometry(CONFIG.TILE, CONFIG.TILE), ceilMat);
+        drop.position.set(cx, H - 0.25, cz + 0.2);
+        drop.rotation.set(Math.PI / 2 - 0.6, 0, 0.2);
+        group.add(drop);
+      }
+    }
+  };
+
+  const addFixtures = (group) => {
+    const count = 1 + (Math.random() > 0.5 ? 1 : 0);
+    for (let i = 0; i < count; i++) {
+      const fz = (i === 0 ? -1 : 1) * (L / 4) + (Math.random() - 0.5);
+      const fx = 0;
+      const fixture = new THREE.Group();
+      const broken = Math.random() > 0.55;
+      const lit = !broken && Math.random() > 0.35;
+
+      const panelMat = lit ? fluoOnMat() : fluoOffMat;
+      const panel = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 1.2), panelMat);
+      panel.rotation.x = Math.PI / 2;
+      panel.position.y = H - 0.02;
+      fixture.add(panel);
+      const housing = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.08, 1.28), darkMetalMat);
+      housing.position.y = H + 0.02;
+      fixture.add(housing);
+
+      if (broken) {
+        fixture.rotation.x = (Math.random() - 0.5) * 0.5;
+        fixture.rotation.z = (Math.random() - 0.5) * 0.4;
+        fixture.position.y = -0.1 - Math.random() * 0.15;
+      } else if (lit && canAddLight()) {
+        const tube = new THREE.PointLight(0xbcdcff, 5, 6, 2);
+        tube.position.set(fx, H - 0.25, fz);
+        fixture.add(tube);
+        dynamicLights++;
+        flickerFixtures.push({ light: tube, mat: panelMat, base: 5 });
+      }
+
+      fixture.position.set(fx, 0, fz);
+      group.add(fixture);
+    }
+  };
+
+  const addDoor = (group, side, zPos, isOpen) => {
+    const dw = DOOR_W, dh = DOOR_H;
+    const x = side * (halfW - 0.02);
+
+    const jambGeo = new THREE.BoxGeometry(0.1, dh, 0.09);
+    for (const oz of [-dw / 2, dw / 2]) {
+      const jamb = new THREE.Mesh(jambGeo, frameMat);
+      jamb.position.set(x, dh / 2, zPos + oz);
+      group.add(jamb);
+    }
+    const lintel = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, dw + 0.1), frameMat);
+    lintel.position.set(x, dh, zPos);
+    group.add(lintel);
+
+    if (isOpen) {
+      const depth = 1.8 + Math.random() * 0.9;
+      const cx = side * (halfW + depth / 2);
+      const rw = dw + 0.7;
+      const back = new THREE.Mesh(new THREE.PlaneGeometry(rw, dh), roomMat);
+      back.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
+      back.position.set(side * (halfW + depth), dh / 2, zPos);
+      back.receiveShadow = true;
+      group.add(back);
+      const rf = new THREE.Mesh(new THREE.PlaneGeometry(depth, rw), roomMat);
+      rf.rotation.x = -Math.PI / 2; rf.position.set(cx, 0.02, zPos); group.add(rf);
+      const rc = new THREE.Mesh(new THREE.PlaneGeometry(depth, rw), roomMat);
+      rc.rotation.x = Math.PI / 2; rc.position.set(cx, dh, zPos); group.add(rc);
+      for (const sz of [-1, 1]) {
+        const sw = new THREE.Mesh(new THREE.PlaneGeometry(depth, dh), roomMat);
+        sw.position.set(cx, dh / 2, zPos + sz * rw / 2);
+        group.add(sw);
+      }
+      if (Math.random() > 0.45) {
+        const win = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 1.15), glassColdMat);
+        win.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
+        win.position.set(side * (halfW + depth - 0.03), 1.35, zPos + (Math.random() - 0.5) * 0.5);
+        group.add(win);
+      }
+    }
+
+    const door = new THREE.Group();
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(0.05, dh - 0.05, dw), doorMat);
+    slab.position.z = dw / 2;
+    slab.castShadow = true;
+    door.add(slab);
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.13, 0.16), metalMat);
+    plate.position.set(-side * 0.03, dh - 0.35, dw * 0.5);
+    door.add(plate);
+    door.position.set(x, dh / 2, zPos - dw / 2);
+    door.rotation.order = 'YXZ';
+    if (isOpen) {
+      door.rotation.y = side > 0 ? -(0.7 + Math.random() * 0.8) : (0.7 + Math.random() * 0.8);
+    }
+    group.add(door);
+  };
+
+  const addHandrail = (group, side, doorZs) => {
+    const sorted = [...doorZs].sort((a, b) => a - b);
+    let cursor = -L / 2;
+    const segs = [];
+    for (const dz of sorted) {
+      const s = dz - DOOR_W / 2 - 0.08, e = dz + DOOR_W / 2 + 0.08;
+      if (s > cursor) segs.push([cursor, s]);
+      cursor = e;
+    }
+    if (cursor < L / 2) segs.push([cursor, L / 2]);
+    const x = side * (halfW - 0.07);
+    for (const [a, b] of segs) {
+      if (b - a < 0.35) continue;
+      const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, b - a, 8), metalMat);
+      rail.rotation.x = Math.PI / 2;
+      rail.position.set(x, 0.92, (a + b) / 2);
+      group.add(rail);
+      for (const bz of [a + 0.12, b - 0.12]) {
+        const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.04, 0.04), darkMetalMat);
+        bracket.position.set(side * (halfW - 0.03), 0.92, bz);
+        group.add(bracket);
+      }
+    }
+  };
+
+  const addExitSign = (group) => {
+    const zPos = (Math.random() - 0.5) * (L - 1);
+    const sign = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.16, 0.42), exitMat);
+    sign.position.set(0, H - 0.35, zPos);
+    group.add(sign);
+    if (canAddLight()) {
+      const gl = new THREE.PointLight(0x25d07a, 1.6, 3, 2);
+      gl.position.set(0, H - 0.4, zPos);
+      group.add(gl);
+      dynamicLights++;
+    }
+  };
+
+  const makeGurney = () => {
+    const g = new THREE.Group();
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.06, 1.95), metalMat);
+    frame.position.y = 0.75; frame.castShadow = true; g.add(frame);
+    const mat = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.12, 1.9), mattressMat);
+    mat.position.y = 0.84; mat.castShadow = true; g.add(mat);
+    for (const [sx, sz] of [[-0.34, -0.9], [0.34, -0.9], [-0.34, 0.9], [0.34, 0.9]]) {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.72, 6), metalMat);
+      leg.position.set(sx, 0.36, sz); g.add(leg);
+      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.04, 10), darkMetalMat);
+      wheel.rotation.z = Math.PI / 2; wheel.position.set(sx, 0.06, sz); g.add(wheel);
+    }
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.2, 1.2), metalMat);
+    rail.position.set(0.37, 0.98, 0); g.add(rail);
+    return g;
+  };
+
+  const makeWheelchair = () => {
+    const g = new THREE.Group();
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.48), plasticMat);
+    seat.position.y = 0.5; g.add(seat);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.55, 0.05), plasticMat);
+    back.position.set(0, 0.78, -0.22); g.add(back);
+    for (const sx of [-0.28, 0.28]) {
+      const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.025, 6, 16), darkMetalMat);
+      wheel.position.set(sx, 0.28, 0.05); g.add(wheel);
+      const front = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.03, 10), darkMetalMat);
+      front.rotation.z = Math.PI / 2; front.position.set(sx, 0.09, 0.28); g.add(front);
+    }
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.04), metalMat);
+    handle.position.set(0, 1.0, -0.24); g.add(handle);
+    g.traverse((o) => { o.castShadow = true; });
+    return g;
+  };
+
+  const makeIVPole = () => {
+    const g = new THREE.Group();
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.7, 6), metalMat);
+    pole.position.y = 0.85; g.add(pole);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.03, 5), darkMetalMat);
+    base.position.y = 0.03; g.add(base);
+    const hook = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.008, 4, 10), metalMat);
+    hook.position.set(0.05, 1.65, 0); g.add(hook);
+    g.traverse((o) => { o.castShadow = true; });
+    return g;
+  };
+
+  const makeCart = () => {
+    const g = new THREE.Group();
+    for (const yy of [0.35, 0.65, 0.9]) {
+      const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.03, 0.7), metalMat);
+      shelf.position.y = yy; g.add(shelf);
+    }
+    for (const [sx, sz] of [[-0.22, -0.32], [0.22, -0.32], [-0.22, 0.32], [0.22, 0.32]]) {
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.9, 6), metalMat);
+      post.position.set(sx, 0.45, sz); g.add(post);
+    }
+    g.traverse((o) => { o.castShadow = true; });
+    return g;
+  };
+
+  const makeFallenChair = () => {
+    const g = new THREE.Group();
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.06, 0.44), plasticMat);
+    seat.position.y = 0.45; g.add(seat);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.5, 0.05), plasticMat);
+    back.position.set(0, 0.72, -0.2); g.add(back);
+    for (const [sx, sz] of [[-0.18, -0.18], [0.18, -0.18], [-0.18, 0.18], [0.18, 0.18]]) {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.45, 0.04), darkMetalMat);
+      leg.position.set(sx, 0.22, sz); g.add(leg);
+    }
+    g.traverse((o) => { o.castShadow = true; });
+    return g;
+  };
+
+  const props = [makeGurney, makeWheelchair, makeIVPole, makeCart, makeFallenChair];
+
+  const addProps = (group) => {
+    const n = Math.random() > 0.55 ? (Math.random() > 0.6 ? 2 : 1) : 0;
+    for (let i = 0; i < n; i++) {
+      const p = props[Math.floor(Math.random() * props.length)]();
+      const side = Math.random() > 0.5 ? 1 : -1;
+      p.position.set(side * (halfW - 0.55 - Math.random() * 0.4), 0, (Math.random() - 0.5) * (L - 1.5));
+      p.rotation.y = Math.random() * Math.PI * 2;
+      if (Math.random() > 0.75) p.rotation.z = side * 1.3;
+      group.add(p);
+    }
+  };
+
+  const addFloorDebris = (group) => {
+    if (Math.random() > 0.5) {
+      const tile = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.02, 0.55), ceilMat);
+      tile.position.set((Math.random() - 0.5) * (W - 1), 0.02, (Math.random() - 0.5) * (L - 1));
+      tile.rotation.y = Math.random() * Math.PI;
+      tile.receiveShadow = true;
+      group.add(tile);
+    }
+    const papers = Math.floor(Math.random() * 4);
+    for (let i = 0; i < papers; i++) {
+      const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 0.25), mattressMat);
+      paper.rotation.x = -Math.PI / 2;
+      paper.rotation.z = Math.random() * Math.PI;
+      paper.position.set((Math.random() - 0.5) * (W - 0.6), 0.011, (Math.random() - 0.5) * L);
+      group.add(paper);
+    }
+  };
+
+  const addWindow = (group, side) => {
+    const zPos = (Math.random() - 0.5) * (L - 2);
+    const x = side * (halfW - 0.03);
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.3), glassColdMat);
+    glow.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
+    glow.position.set(x, 1.75, zPos);
+    group.add(glow);
+    const fr = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 1.3), frameMat);
+    fr.position.set(x, 1.75, zPos); group.add(fr);
+    const fr2 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.3, 0.06), frameMat);
+    fr2.position.set(x, 1.75, zPos); group.add(fr2);
+    if (canAddLight()) {
+      const light = new THREE.PointLight(0x5b79a0, 4, 5, 2);
+      light.position.set(side * (halfW - 0.9), 1.7, zPos);
+      group.add(light);
+      dynamicLights++;
+    }
+  };
+
+  const createBay = (index) => {
     const group = new THREE.Group();
-    const bushMat = new THREE.MeshStandardMaterial({ color: 0x2f3a25, roughness: 1, side: THREE.DoubleSide });
-    
-    const numLeaves = 5 + Math.random() * 5;
-    for(let i=0; i<numLeaves; i++) {
-        const s = 0.3 + Math.random() * 0.4;
-        const geo = new THREE.DodecahedronGeometry(s);
-        const mesh = new THREE.Mesh(geo, bushMat);
-        mesh.position.set((Math.random()-0.5)*0.5, s/2 + Math.random()*0.3, (Math.random()-0.5)*0.5);
-        mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
-        mesh.castShadow = true;
-        group.add(mesh);
+
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    group.add(floor);
+
+    addCeiling(group);
+
+    for (const side of [-1, 1]) {
+      const doorZs = [];
+      for (const slot of [-L / 4, L / 4]) {
+        if (Math.random() > 0.4) doorZs.push(slot + (Math.random() - 0.5) * 0.4);
+      }
+
+      const wall = new THREE.Mesh(buildWallGeometry(doorZs, side), wallMat);
+      wall.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
+      wall.position.set(side * halfW, 0, 0);
+      wall.receiveShadow = true;
+      group.add(wall);
+
+      addBaseboard(group, side, doorZs);
+      if (Math.random() > 0.4) addHandrail(group, side, doorZs);
+
+      for (const dz of doorZs) {
+        addDoor(group, side, dz, Math.random() > 0.45);
+      }
     }
-    
-    group.position.set(x, 0, z);
-    const scale = 0.8 + Math.random() * 0.5;
-    group.scale.set(scale, scale, scale);
+
+    addFixtures(group);
+    if (Math.random() > 0.7) addExitSign(group);
+
+    if (Math.random() > 0.75) addWindow(group, Math.random() > 0.5 ? 1 : -1);
+
+    addProps(group);
+    addFloorDebris(group);
+
+    group.position.z = -index * L + L;
     scene.add(group);
+    bays.push(group);
     return group;
   };
 
-  // Tache de mousse au sol
-  const createMossPatch = (x, z) => {
-    const size = 2 + Math.random() * 3;
-    const geo = new THREE.PlaneGeometry(size, size);
-    const mat = new THREE.MeshStandardMaterial({ 
-        map: mossTex, 
-        transparent: true, 
-        opacity: 0.8,
-        roughness: 1,
-        color: 0x4a5d23,
-        depthWrite: false // Pour éviter le z-fighting avec le sol
-    });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.rotation.x = -Math.PI / 2;
-    mesh.position.set(x, 0.02, z); // Légèrement au-dessus du sol
-    mesh.rotation.z = Math.random() * Math.PI;
-    scene.add(mesh);
-    return mesh;
-  };
+  for (let i = 0; i < CONFIG.BAY_COUNT; i++) createBay(i);
 
-  // Arbre avec feuilles (Style amélioré)
-  const createDeadTree = (x, z) => {
-    const group = new THREE.Group();
-    
-    // Tronc plus irrégulier
-    const trunkH = 3 + Math.random() * 4;
-    const trunkRadius = 0.15 + Math.random() * 0.1;
-    
-    // Construction du tronc avec plusieurs segments pour courbure
-    const numSegments = 4;
-    let currentY = 0;
-    let currentX = 0;
-    let currentZ = 0;
-    let currentRadius = trunkRadius;
-    
-    for(let i=0; i<numSegments; i++) {
-        const segmentH = trunkH / numSegments;
-        const nextRadius = currentRadius * 0.8;
-        const segmentGeo = new THREE.CylinderGeometry(nextRadius, currentRadius, segmentH, 6);
-        const segment = new THREE.Mesh(segmentGeo, deadWoodMat);
-        
-        // Inclinaison aléatoire
-        const tiltX = (Math.random() - 0.5) * 0.3;
-        const tiltZ = (Math.random() - 0.5) * 0.3;
-        
-        segment.position.set(currentX, currentY + segmentH/2, currentZ);
-        segment.rotation.x = tiltX;
-        segment.rotation.z = tiltZ;
-        segment.castShadow = true;
-        group.add(segment);
-        
-        currentY += segmentH;
-        currentX += Math.sin(tiltZ) * segmentH; // Approx
-        currentZ -= Math.sin(tiltX) * segmentH; // Approx
-        currentRadius = nextRadius;
-        
-        // Branches principales partant des segments
-        if (i > 0) {
-            const numBranches = 1 + Math.floor(Math.random() * 2);
-            for(let b=0; b<numBranches; b++) {
-                const branchLen = 1 + Math.random() * 2;
-                const branchR = currentRadius * 0.6;
-                const branch = new THREE.Mesh(new THREE.CylinderGeometry(branchR * 0.5, branchR, branchLen, 4), deadWoodMat);
-                
-                const angleY = Math.random() * Math.PI * 2;
-                const angleX = Math.PI / 3 + (Math.random() - 0.5) * 0.5;
-                
-                branch.position.set(currentX, currentY, currentZ);
-                branch.rotation.set(angleX, angleY, 0);
-                // Ajustement position pour partir du tronc
-                branch.translateY(branchLen/2);
-                
-                branch.castShadow = true;
-                group.add(branch);
-
-                // Feuilles sur les branches
-                if (Math.random() > 0.2) {
-                    const leafClusterSize = 0.5 + Math.random() * 0.5;
-                    const leafGeo = new THREE.DodecahedronGeometry(leafClusterSize);
-                    const leafMesh = new THREE.Mesh(leafGeo, deadLeavesMat);
-                    leafMesh.position.set(0, branchLen/2, 0); // Au bout de la branche
-                    leafMesh.scale.set(1, 0.5, 1);
-                    branch.add(leafMesh);
-                }
-            }
-        }
-    }
-
-    // Amas de feuilles au sommet
-    const topLeavesSize = 1 + Math.random() * 1;
-    const topLeaves = new THREE.Mesh(new THREE.DodecahedronGeometry(topLeavesSize), deadLeavesMat);
-    topLeaves.position.set(currentX, currentY, currentZ);
-    topLeaves.scale.set(1 + Math.random(), 0.8 + Math.random(), 1 + Math.random());
-    group.add(topLeaves);
-
-    group.position.set(x, 0, z);
-    group.rotation.y = Math.random() * Math.PI;
-    const s = 0.8 + Math.random() * 0.5;
-    group.scale.set(s, s, s);
-    scene.add(group);
-    return group; 
-  };
-
-  // Création d'un bâtiment
-  const createBuilding = (x, z, side, laneIndex) => {
-    // Dimensions augmentées
-    const width = 15 + Math.random() * 10; 
-    const height = 30 + Math.random() * 30; 
-    const depth = 15 + Math.random() * 10; 
-
-    const group = new THREE.Group();
-    const geo = new THREE.BoxGeometry(width, height, depth);
-    
-    const tex = buildingTextures[Math.floor(Math.random() * buildingTextures.length)];
-    const mat = new THREE.MeshStandardMaterial({ map: tex, color: 0x666666, roughness: 0.8 });
-    const mesh = new THREE.Mesh(geo, mat);
-    
-    mesh.position.y = height / 2; 
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    group.add(mesh);
-
-    // Balcons et extensions - TAILLE RÉDUITE
-    const numAddons = Math.floor(Math.random() * 6) + 2;
-    for(let i=0; i<numAddons; i++) {
-        // Réduction significative des dimensions des balcons
-        const addonW = width * (0.05 + Math.random() * 0.15); // Était 0.1 + 0.3
-        const addonH = height * 0.02 + Math.random() * 0.5;   // Était 0.05 + 1
-        const addonD = depth + 0.2 + Math.random() * 0.5;     // Était depth + 0.5 + 1
-        
-        const addonGeo = new THREE.BoxGeometry(addonW, addonH, addonD);
-        const addon = new THREE.Mesh(addonGeo, concreteMat);
-        addon.position.y = Math.random() * (height - addonH) + addonH/2;
-        addon.position.x = (Math.random() > 0.5 ? 1 : -1) * (width/2 + addonW/2 - 0.05);
-        addon.position.z = (Math.random() - 0.5) * (depth - 2);
-        addon.castShadow = true;
-        group.add(addon);
-    }
-
-    group.position.set(x, 0, z);
-    // On stocke laneIndex pour savoir à quelle voie appartient ce bâtiment lors du recyclage
-    group.userData = { width, height, depth, x, z, side, laneIndex }; 
-    scene.add(group);
-    buildings.push(group);
-
-    // Végétation au pied
-    for(let i=0; i<Math.random()*5 + 3; i++) {
-        const vx = x + (Math.random()-0.5) * (width + 2);
-        const vz = z + (Math.random()-0.5) * (depth + 2);
-        createSmallWeed(vx, vz, 0x3a4a2a); 
-    }
-
-    // Fenêtre
-    if (Math.random() > 0.95) {
-        const lightWin = new THREE.PointLight(0xffaa00, 1.5, 10);
-        lightWin.position.set(x + (Math.random()-0.5)*(width-1), Math.random() * (height-2) + 1, z + (depth/2 + 0.1) * (Math.random()>0.5?1:-1));
-        scene.add(lightWin);
-    }
-    return group;
-  };
-
-  // Barrière de chantier / sécurité
-  const createBarrier = (x, z, rotationY = 0) => {
-      const group = new THREE.Group();
-      const barrierMat = new THREE.MeshStandardMaterial({ color: 0xcc3300, roughness: 0.7, metalness: 0.2 });
-      const barrierLegMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.9 });
-
-      const board = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.4, 0.1), barrierMat);
-      board.position.y = 0.8;
-      group.add(board);
-      
-      const board2 = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.4, 0.1), barrierMat);
-      board2.position.y = 0.4;
-      group.add(board2);
-
-      const leg1 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.2), barrierLegMat);
-      leg1.position.set(-1, 0.6, 0);
-      group.add(leg1);
-      
-      const leg2 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.2), barrierLegMat);
-      leg2.position.set(1, 0.6, 0);
-      group.add(leg2);
-
-      const base1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 0.6), barrierLegMat);
-      base1.position.set(-1, 0.05, 0);
-      group.add(base1);
-      
-      const base2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 0.6), barrierLegMat);
-      base2.position.set(1, 0.05, 0);
-      group.add(base2);
-
-      group.position.set(x, 0, z);
-      group.rotation.y = rotationY;
-      scene.add(group);
-      return group;
-  };
-
-  // Création d'un lampadaire détaillé
-  const createLamp = (x, z, rotationY = 0) => {
-    const group = new THREE.Group();
-    const poleMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8, roughness: 0.5 });
-    
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 6), poleMat);
-    pole.position.y = 3;
-    pole.castShadow = true;
-    group.add(pole);
-
-    const armGeo = new THREE.BoxGeometry(1.8, 0.2, 0.2);
-    const arm = new THREE.Mesh(armGeo, poleMat);
-    const armXOffset = x > 0 ? -0.9 : 0.9;
-    arm.position.set(armXOffset, 5.9, 0);
-    arm.castShadow = true;
-    group.add(arm);
-
-    const headSupportGeo = new THREE.BoxGeometry(0.2, 0.3, 0.2);
-    const headSupport = new THREE.Mesh(headSupportGeo, poleMat);
-    const supportXOffset = x > 0 ? -1.7 : 1.7; 
-    headSupport.position.set(supportXOffset, 5.75, 0);
-    headSupport.castShadow = true;
-    group.add(headSupport);
-
-    const headGeo = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.5), poleMat);
-    const headXOffset = x > 0 ? -1.7 : 1.7;
-    headGeo.position.set(headXOffset, 5.6, 0);
-    headGeo.rotation.x = -Math.PI / 16; 
-    headGeo.castShadow = true;
-    group.add(headGeo);
-
-    const bulbGeo = new THREE.PlaneGeometry(0.4, 0.4);
-    const bulbMat = new THREE.MeshBasicMaterial({ color: 0x222222, side: THREE.DoubleSide }); 
-    const bulb = new THREE.Mesh(bulbGeo, bulbMat);
-    const bulbXOffset = x > 0 ? -1.69 : 1.69;
-    bulb.position.set(bulbXOffset, 5.6, 0);
-    bulb.rotation.y = x > 0 ? -Math.PI / 2 : Math.PI / 2;
-    bulb.rotation.x = -Math.PI / 16;
-    group.add(bulb);
-    
-    const rand = Math.random() * 100; 
-    let light = null;
-    let lightIntensity = CONFIG.LIGHTING.LAMP_INTENSITY;
-
-    const offThreshold = CONFIG.LIGHTING.LAMP_OFF_PERCENT;
-    const onThreshold = offThreshold + CONFIG.LIGHTING.LAMP_ON_PERCENT;
-
-    if (rand < offThreshold) { 
-    } else if (rand < onThreshold) { 
-        bulbMat.color.setHex(0xffaa55);
-        light = new THREE.SpotLight(0xffaa55, lightIntensity, 25, 0.7, 0.5, 1);
-        light.position.set(bulbXOffset, 5.6, 0);
-        
-        const targetX = x > 0 ? -1.7 : 1.7;
-        light.target.position.set(targetX, 0, 0);
-        
-        group.add(light);
-        group.add(light.target);
-        light.castShadow = true;
-    } else { 
-        bulbMat.color.setHex(0x444000); 
-        light = new THREE.PointLight(0xffaa55, 0, 20); 
-        light.position.set(bulbXOffset, 5.6, 0);
-        group.add(light);
-        flickrLights.push({ light: light, material: bulbMat, baseInt: lightIntensity });
-    }
-
-    group.position.set(x, 0, z);
-    group.rotation.y = rotationY;
-    group.userData = { x, z };
-    scene.add(group);
-    lamps.push(group);
-    return group;
-  };
-
-  const createAbandonedCar = (z) => {
-    const carGroup = new THREE.Group();
-    
-    const rustColor = new THREE.Color(0x7c493c); 
-    const baseColor = Math.random() > 0.6 ? 0x2e3532 : 0x7c493c; 
-    
-    const carMat = new THREE.MeshStandardMaterial({ 
-        map: metalTex, 
-        color: baseColor, 
-        roughness: 0.9, 
-        metalness: 0.1, 
-    });
-
-    const bodyGeo = new THREE.BoxGeometry(1.7, 0.6, 2.5);
-    const body = new THREE.Mesh(bodyGeo, carMat);
-    body.position.y = 0.5;
-    body.scale.set(1 + Math.random()*0.1, 1 - Math.random()*0.3, 1 - Math.random()*0.2); 
-    body.rotation.x = (Math.random() - 0.5) * 0.1; 
-    body.castShadow = true;
-    carGroup.add(body);
-
-    const hoodGeo = new THREE.BoxGeometry(1.7, 0.3, 1.5);
-    const hood = new THREE.Mesh(hoodGeo, carMat);
-    hood.position.y = 0.25;
-    hood.position.z = -2.0;
-    hood.scale.set(1, 1 - Math.random()*0.4, 1); 
-    hood.castShadow = true;
-    carGroup.add(hood);
-
-    const cabinGeo = new THREE.BoxGeometry(1.6, 0.7, 1.5);
-    const cabin = new THREE.Mesh(cabinGeo, carMat);
-    cabin.position.y = 1.0;
-    cabin.position.z = -0.5;
-    cabin.scale.set(1, 1 - Math.random()*0.6, 1); 
-    cabin.castShadow = true;
-    carGroup.add(cabin);
-    
-    const glassMat = new THREE.MeshPhysicalMaterial({
-        color: 0x555555, 
-        transmission: 0.1, 
-        roughness: 0.8, 
-        metalness: 0.1,
-        transparent: true
-    });
-    const windshieldGeo = new THREE.PlaneGeometry(1.5, 0.6);
-    const windshield = new THREE.Mesh(windshieldGeo, glassMat);
-    windshield.position.set(0, 1.1, -1.2);
-    windshield.rotation.x = -Math.PI / 6; 
-    windshield.castShadow = true;
-    carGroup.add(windshield);
-
-
-    const wheelGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.25); 
-    const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 1 });
-    const wheelPositions = [
-        {x: 0.9, z: 1.5, missing: false}, 
-        {x: -0.9, z: 1.5, missing: false},
-        {x: 0.9, z: -1.8, missing: Math.random() > 0.7}, 
-        {x: -0.9, z: -1.8, missing: false}
-    ];
-
-    wheelPositions.forEach(pos => {
-        if (!pos.missing) {
-            const wheel = new THREE.Mesh(wheelGeo, wheelMat);
-            wheel.position.set(pos.x, 0.3, pos.z);
-            wheel.rotation.x = Math.PI / 2;
-            
-            if (Math.random() > 0.5) {
-                wheel.scale.y = 1 + Math.random()*0.5; 
-                wheel.scale.z = 0.8; 
-                wheel.rotation.z = (Math.random() - 0.5) * 0.5;
-            }
-            carGroup.add(wheel);
-        } else {
-            const axleGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.2);
-            const axleMat = new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.8 });
-            const axle = new THREE.Mesh(axleGeo, axleMat);
-            axle.position.set(pos.x, 0.3, pos.z);
-            axle.rotation.x = Math.PI / 2;
-            carGroup.add(axle);
-        }
-    });
-
-    const side = Math.random() > 0.5 ? 1 : -1;
-    carGroup.position.set(side * (roadWidth/2 + 1 + Math.random() * 2), 0, z);
-    
-    carGroup.rotation.y = Math.random() * Math.PI * 0.5 + (side === 1 ? -0.4 : 0.4); 
-    carGroup.rotation.z = (Math.random() - 0.5) * 0.4; 
-
-    carGroup.userData = { side, z };
-    scene.add(carGroup);
-    carcasseCars.push(carGroup);
-    return carGroup;
-  };
-
-
-  // --- 4. SOL & ENVIRONNEMENT ---
-  const roadWidth = 10;
-  const roadSegmentLength = 100; 
-  const numberOfRoadSegments = 6; 
-  const totalRoadLength = roadSegmentLength * numberOfRoadSegments;
-
-
-  const roadGeo = new THREE.PlaneGeometry(roadWidth, roadSegmentLength);
-  const roadMat = new THREE.MeshStandardMaterial({ map: roadTex, color: 0x222222, roughness: 0.9, metalness: 0.1 });
-  const roadSegments = [];
-  for(let i=0; i<numberOfRoadSegments; i++) {
-      const road = new THREE.Mesh(roadGeo, roadMat);
-      road.rotation.x = -Math.PI / 2;
-      road.position.z = camera.position.z - roadSegmentLength * (numberOfRoadSegments/2) + i * roadSegmentLength;
-      road.receiveShadow = true;
-      scene.add(road);
-      roadSegments.push(road);
+  const dustGeo = new THREE.BufferGeometry();
+  const dPos = new Float32Array(CONFIG.DUST_COUNT * 3);
+  const dVel = new Float32Array(CONFIG.DUST_COUNT);
+  const spreadX = W, spreadY = H, spreadZ = 28;
+  for (let i = 0; i < CONFIG.DUST_COUNT; i++) {
+    dPos[i * 3] = (Math.random() - 0.5) * spreadX;
+    dPos[i * 3 + 1] = Math.random() * spreadY;
+    dPos[i * 3 + 2] = -Math.random() * spreadZ;
+    dVel[i] = 0.04 + Math.random() * 0.08;
   }
+  dustGeo.setAttribute('position', new THREE.BufferAttribute(dPos, 3));
+  const dustMat = new THREE.PointsMaterial({
+    color: 0xcfc9bc, size: 0.018, transparent: true, opacity: 0.32,
+    sizeAttenuation: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  });
+  dust = new THREE.Points(dustGeo, dustMat);
+  dust.userData = { dVel, spreadX, spreadY, spreadZ };
+  scene.add(dust);
 
-  const sidewalkWidth = 4;
-  const sidewalkHeight = 0.4;
-  const sidewalkGeo = new THREE.BoxGeometry(sidewalkWidth, sidewalkHeight, roadSegmentLength);
-  const sidewalkMat = new THREE.MeshStandardMaterial({ map: sidewalkTex, color: 0x444444, roughness: 0.9 });
-  
-  const leftWalkSegments = [];
-  const rightWalkSegments = [];
-  for(let i=0; i<numberOfRoadSegments; i++) {
-      const leftWalk = new THREE.Mesh(sidewalkGeo, sidewalkMat);
-      leftWalk.position.set(-roadWidth/2 - sidewalkWidth/2, sidewalkHeight/2, camera.position.z - roadSegmentLength * (numberOfRoadSegments/2) + i * roadSegmentLength);
-      leftWalk.receiveShadow = true;
-      scene.add(leftWalk);
-      leftWalkSegments.push(leftWalk);
-
-      const rightWalk = new THREE.Mesh(sidewalkGeo, sidewalkMat);
-      rightWalk.position.set(roadWidth/2 + sidewalkWidth/2, sidewalkHeight/2, camera.position.z - roadSegmentLength * (numberOfRoadSegments/2) + i * roadSegmentLength);
-      rightWalk.receiveShadow = true;
-      scene.add(rightWalk);
-      rightWalkSegments.push(rightWalk);
-  }
-
-  const groundPlaneGeo = new THREE.BoxGeometry(200, 0.8, roadSegmentLength); // Sol élargi pour couvrir les 3 plans
-  const groundMat = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 1 });
-  const groundPlaneLeftSegments = [];
-  const groundPlaneRightSegments = [];
-  for(let i=0; i<numberOfRoadSegments; i++) {
-      const groundPlaneLeft = new THREE.Mesh(groundPlaneGeo, groundMat);
-      groundPlaneLeft.position.set(-100, -0.4, camera.position.z - roadSegmentLength * (numberOfRoadSegments/2) + i * roadSegmentLength);
-      groundPlaneLeft.receiveShadow = true;
-      scene.add(groundPlaneLeft);
-      groundPlaneLeftSegments.push(groundPlaneLeft);
-
-      const groundPlaneRight = groundPlaneLeft.clone();
-      groundPlaneRight.position.x = 100;
-      scene.add(groundPlaneRight);
-      groundPlaneRightSegments.push(groundPlaneRight);
-  }
-
-
-  // --- 5. PEUPLEMENT INITIAL DES OBJETS ---
-  const spawnDistance = CONFIG.INFINITE_WORLD.SPAWN_DISTANCE;
-  const despawnDistance = CONFIG.INFINITE_WORLD.DESPAWN_DISTANCE;
-  const initialFillDistance = spawnDistance + 50;
-  
-  const isCollidingWithWheel = (z) => {
-      const wheelZ = CONFIG.FERRIS_WHEEL.Z;
-      const safetyMargin = 40; 
-      return (z < wheelZ + safetyMargin && z > wheelZ - safetyMargin);
-  };
-
-  // Remplissage des bâtiments pour chaque voie (lane)
-  for (let lane = 0; lane < NUM_LANES; lane++) {
-      // GAUCHE
-      while(laneZTrackers.left[lane] > camera.position.z - initialFillDistance) {
-          // Calcul de la position X de base pour cette voie
-          // Lane 0: -25, Lane 1: -55, Lane 2: -85
-          let baseX = BASE_X_LEFT - (lane * LANE_OFFSET_X);
-          let x = baseX - Math.random() * 10; // Variation légère
-
-          // Gestion collision roue UNIQUEMENT pour la voie 0 (la plus proche)
-          if (lane === 0 && isCollidingWithWheel(laneZTrackers.left[lane])) {
-              // On saute simplement la zone pour la voie 1
-              // Les voies 2 et 3 (arrière-plan) continueront d'afficher des bâtiments
-              laneZTrackers.left[lane] = CONFIG.FERRIS_WHEEL.Z - 40;
-              continue;
-          }
-
-          const b = createBuilding(x, laneZTrackers.left[lane], 'left', lane);
-          laneZTrackers.left[lane] -= (b.userData.depth + Math.random() * 5); 
-      }
-
-      // DROITE
-      while(laneZTrackers.right[lane] > camera.position.z - initialFillDistance) {
-          // Lane 0: 25, Lane 1: 55, Lane 2: 85
-          let baseX = BASE_X_RIGHT + (lane * LANE_OFFSET_X);
-          let x = baseX + Math.random() * 10;
-
-          const b = createBuilding(x, laneZTrackers.right[lane], 'right', lane);
-          laneZTrackers.right[lane] -= (b.userData.depth + Math.random() * 5);
-      }
-  }
-
-
-  // Lampadaires
-  const minLampDistance = CONFIG.LAMP_MIN_DISTANCE;
-  const lampPositions = []; 
-  
-  const tryCreateLamp = (x, side) => {
-    let attempts = 0;
-    const maxAttempts = 50;
-    
-    while(attempts < maxAttempts) {
-      const z = -Math.random() * spawnDistance + camera.position.z;
-      
-      let tooClose = false;
-      for(let pos of lampPositions) {
-        const distance = Math.abs(pos.z - z);
-        if(pos.side === side && distance < minLampDistance) {
-          tooClose = true;
-          break;
-        }
-      }
-      
-      if(!tooClose) {
-        createLamp(x, z);
-        lampPositions.push({ z, side });
-        return true;
-      }
-      attempts++;
-    }
-    return false;
-  };
-  
-  for(let i=0; i<CONFIG.LAMP_COUNT; i++) {
-    tryCreateLamp(-roadWidth/2 - 2, 'left');
-    tryCreateLamp(roadWidth/2 + 2, 'right');
-  }
-
-  // Arbres
-  for(let i=0; i<CONFIG.VEGETATION_DENSITY.TREES; i++) {
-      const z = -Math.random() * spawnDistance + camera.position.z;
-      if(Math.random() > 0.6) deadTrees.push(createDeadTree(-10 - Math.random()*10, z));
-      if(Math.random() > 0.6) deadTrees.push(createDeadTree(10 + Math.random()*10, z));
-  }
-
-  // Végétation sur route et trottoirs
-  for(let i=0; i<CONFIG.VEGETATION_DENSITY.ROAD_WEEDS; i++) {
-      const z = -Math.random() * spawnDistance + camera.position.z;
-      
-      // Herbes (peuvent être sur la route)
-      if(Math.random() > 0.3) roadWeeds.push(createSmallWeed((Math.random() - 0.5) * roadWidth * 0.8, z, 0x3a4a2a));
-      
-      // Buissons aléatoires sur les côtés (JAMAIS sur la route)
-      // Route width = 10, donc les côtés sont à < -5 ou > 5
-      if(Math.random() > 0.8) {
-          // Côté gauche : entre -15 et -6
-          const bushX = -roadWidth/2 - 1 - Math.random() * 10;
-          roadWeeds.push(createBush(bushX, z));
-      }
-      if(Math.random() > 0.8) {
-          // Côté droit : entre 6 et 15
-          const bushX = roadWidth/2 + 1 + Math.random() * 10;
-          roadWeeds.push(createBush(bushX, z));
-      }
-
-      // Mousse sur la route/trottoirs
-      if(Math.random() > 0.7) {
-          roadWeeds.push(createMossPatch((Math.random() - 0.5) * (roadWidth + 4), z));
-      }
-
-      if(Math.random() > 0.4) {
-          roadWeeds.push(createSmallWeed(-roadWidth/2 - (Math.random()) * sidewalkWidth, z));
-          roadWeeds.push(createSmallWeed(roadWidth/2 + (Math.random()) * sidewalkWidth, z));
-      }
-  }
-
-  // Débris route
-  const debrisMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.8 });
-  const smallDebrisGeo = [
-      new THREE.BoxGeometry(0.1, 0.1, 0.1),
-      new THREE.CylinderGeometry(0.05, 0.05, 0.2),
-      new THREE.DodecahedronGeometry(0.08)
-  ];
-  for(let i=0; i<CONFIG.VEGETATION_DENSITY.DEBRIS; i++) {
-      const geo = smallDebrisGeo[Math.floor(Math.random() * smallDebrisGeo.length)];
-      const debris = new THREE.Mesh(geo, debrisMat);
-      debris.position.set((Math.random()-0.5) * roadWidth * 0.8, 0.05, -Math.random()*spawnDistance + camera.position.z);
-      debris.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
-      debris.castShadow = true;
-      scene.add(debris);
-      roadWeeds.push(debris); 
-  }
-
-  // Carcasses de voitures
-  for(let i=0; i<CONFIG.CAR_COUNT; i++) {
-      createAbandonedCar(-Math.random() * spawnDistance + camera.position.z);
-  }
-
-
-  // --- 6. GRANDE ROUE (POSITIONNEMENT INITIAL) ---
-  wheelGroup = new THREE.Group();
-  wheelGroup.add(new THREE.Mesh(new THREE.TorusGeometry(12, 0.4, 8, 50), rustedMat));
-  
-  for(let i=0; i<12; i++) {
-      const spoke = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 24), rustedMat);
-      spoke.rotation.z = (i/12) * Math.PI * 2;
-      wheelGroup.add(spoke);
-      
-      const gondola = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.5, 1.2), rustedMat);
-      const angle = (i/12) * Math.PI * 2;
-      gondola.position.set(Math.cos(angle)*12, Math.sin(angle)*12, 0);
-      gondola.rotation.z = -angle; 
-      wheelGroup.add(gondola);
-  }
-  const support = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.8, 15), rustedMat);
-  support.position.set(-6, -8, -2);
-  support.rotation.z = -0.4;
-  wheelGroup.add(support);
-  const support2 = support.clone();
-  support2.position.set(6, -8, -2);
-  support2.rotation.z = 0.4;
-  wheelGroup.add(support2);
-
-  wheelGroup.position.set(CONFIG.FERRIS_WHEEL.X, CONFIG.FERRIS_WHEEL.Y, CONFIG.FERRIS_WHEEL.Z);
-  wheelGroup.rotation.y = CONFIG.FERRIS_WHEEL.ROTATION_Y;
-  wheelGroup.rotation.z = CONFIG.FERRIS_WHEEL.ROTATION_Z; 
-  scene.add(wheelGroup);
-
-  // --- 7. PARTICULES ---
-  const createParticleSystem = (numParticles, size, color, opacity, speed, spreadX, spreadY, spreadZ) => {
-    const pGeo = new THREE.BufferGeometry();
-    const pPos = new Float32Array(numParticles * 3);
-    const pVel = new Float32Array(numParticles); 
-
-    for(let i=0; i<numParticles; i++) {
-        pPos[i*3] = (Math.random() - 0.5) * spreadX;
-        pPos[i*3+1] = Math.random() * spreadY;
-        pPos[i*3+2] = (Math.random() - 0.5) * spreadZ;
-        pVel[i] = speed + Math.random() * speed;
-    }
-    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-    const pMat = new THREE.PointsMaterial({
-        color: color, size: size, transparent: true, opacity: opacity, blending: THREE.AdditiveBlending
-    });
-    const system = new THREE.Points(pGeo, pMat);
-    scene.add(system);
-    particleSystemRefs.push({ system, pVel, numParticles, spreadX, spreadY, spreadZ });
-  };
-
-  createParticleSystem(8000, 0.08, 0xaaaaaa, 0.6, 0.02, 80, 40, 80);
-  createParticleSystem(4000, 0.05, 0x888888, 0.4, 0.01, 100, 50, 100);
-
-  createParticleSystem(8000, 0.08, 0xaaaaaa, 0.6, 0.02, 80, 40, 80);
-  createParticleSystem(4000, 0.05, 0x888888, 0.4, 0.01, 100, 50, 100);
-
-  // --- 8. GESTION DU BOOST CAMÉRA ---
-  // (Déplacé au niveau supérieur pour defineExpose)
-
-  // --- 9. ANIMATION LOOP ---
-  const animate = () => {
-    animationId = requestAnimationFrame(animate);
-
-    // 1. Camera Mouvement
-    let targetSpeed = isBoosting ? CONFIG.INFINITE_WORLD.CAMERA_BOOST_SPEED : CONFIG.INFINITE_WORLD.CAMERA_SPEED;
-    if (isWarping) targetSpeed = 4.0; // Vitesse extrême pour le warp
-    
-    currentSpeed += (targetSpeed - currentSpeed) * 0.05;
-    camera.position.z -= currentSpeed;
-
-    camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
-    camera.position.y += (2 + mouseY - camera.position.y) * 0.05;
-    camera.lookAt(camera.position.x * 0.5, camera.position.y, camera.position.z - 10);
-
-    // 2. SYSTÈME DE MONDE INFINI - RECYCLAGE DES OBJETS
-    const recycleThreshold = CONFIG.INFINITE_WORLD.DESPAWN_DISTANCE; 
-    const roadRecycleThreshold = roadSegmentLength / 2 + 20; 
-
-    roadSegments.forEach(segment => {
-        if(segment.position.z - camera.position.z > roadRecycleThreshold) {
-            segment.position.z -= numberOfRoadSegments * roadSegmentLength;
-        }
-    });
-    leftWalkSegments.forEach(segment => {
-        if(segment.position.z - camera.position.z > roadRecycleThreshold) {
-            segment.position.z -= numberOfRoadSegments * roadSegmentLength;
-        }
-    });
-    rightWalkSegments.forEach(segment => {
-        if(segment.position.z - camera.position.z > roadRecycleThreshold) {
-            segment.position.z -= numberOfRoadSegments * roadSegmentLength;
-        }
-    });
-    groundPlaneLeftSegments.forEach(segment => {
-        if(segment.position.z - camera.position.z > roadRecycleThreshold) {
-            segment.position.z -= numberOfRoadSegments * roadSegmentLength;
-        }
-    });
-    groundPlaneRightSegments.forEach(segment => {
-        if(segment.position.z - camera.position.z > roadRecycleThreshold) {
-            segment.position.z -= numberOfRoadSegments * roadSegmentLength;
-        }
-    });
-
-    // Recyclage des objets (Bâtiments, Arbres, etc.)
-    buildings.forEach(building => {
-        if(building.position.z - camera.position.z > recycleThreshold) {
-            const side = building.userData.side;
-            const lane = building.userData.laneIndex; // Récupère la voie
-            
-            let newZ;
-            
-            if (side === 'left') {
-                newZ = laneZTrackers.left[lane] - (building.userData.depth + Math.random() * 5);
-                
-                // Gestion collision roue (Voie 0 seulement)
-                if (lane === 0 && isCollidingWithWheel(newZ)) {
-                    newZ = CONFIG.FERRIS_WHEEL.Z - 40;
-                }
-
-                laneZTrackers.left[lane] = newZ;
-                
-                // Position X basée sur la voie
-                let baseX = BASE_X_LEFT - (lane * LANE_OFFSET_X);
-                let newX = baseX - Math.random() * 10;
-                
-                building.position.z = newZ;
-                building.position.x = newX;
-
-            } else {
-                newZ = laneZTrackers.right[lane] - (building.userData.depth + Math.random() * 5);
-                laneZTrackers.right[lane] = newZ;
-                
-                let baseX = BASE_X_RIGHT + (lane * LANE_OFFSET_X);
-                let newX = baseX + Math.random() * 10;
-                
-                building.position.z = newZ;
-                building.position.x = newX;
-            }
-        }
-    });
-
-    // Recyclage Lampadaires
-    lamps.forEach(lamp => {
-        if(lamp.position.z - camera.position.z > recycleThreshold) {
-             let newZ = camera.position.z - spawnDistance;
-             if (wheelGroup && Math.abs(newZ - wheelGroup.position.z) < 50 && Math.abs(lamp.position.x - wheelGroup.position.x) < 50) {
-                 newZ -= 80;
-             }
-             lamp.position.z = newZ;
-        }
-    });
-
-    // Recyclage Arbres
-    deadTrees.forEach(tree => {
-        if(tree.position.z - camera.position.z > recycleThreshold) {
-             let newZ = camera.position.z - spawnDistance;
-             let newX = (Math.random() > 0.5 ? 1 : -1) * (10 + Math.random() * 15);
-             
-             if (wheelGroup) {
-                const dx = newX - wheelGroup.position.x;
-                const dz = newZ - wheelGroup.position.z;
-                if (Math.sqrt(dx*dx + dz*dz) < 50) {
-                    newZ -= 80;
-                }
-            }
-             
-             tree.position.z = newZ;
-             tree.position.x = newX;
-        }
-    });
-
-    // Recyclage Herbes et Débris sur la route
-    roadWeeds.forEach(weed => {
-        if(weed.position.z - camera.position.z > recycleThreshold) {
-             weed.position.z = camera.position.z - spawnDistance;
-             const isRoad = Math.random() > 0.4;
-             if(isRoad) {
-                 weed.position.x = (Math.random() - 0.5) * roadWidth * 0.8;
-             } else {
-                 weed.position.x = (Math.random() > 0.5 ? 1 : -1) * (roadWidth/2 + Math.random() * sidewalkWidth);
-             }
-        }
-    });
-
-    // Recyclage Voitures
-    carcasseCars.forEach(car => {
-        if(car.position.z - camera.position.z > recycleThreshold) {
-             car.position.z = camera.position.z - spawnDistance - Math.random() * 50;
-             const side = Math.random() > 0.5 ? 1 : -1;
-             car.position.x = side * (roadWidth/2 + 1 + Math.random() * 2);
-             car.rotation.y = Math.random() * Math.PI * 0.3 + (side === 1 ? -0.2 : 0.2);
-        }
-    });
-
-    // 3. Animation Particules
-    particleSystemRefs.forEach(({ system, pVel, numParticles, spreadX, spreadY, spreadZ }) => {
-        const pos = system.geometry.attributes.position.array;
-        for(let i=0; i<numParticles; i++) {
-            pos[i*3+1] -= pVel[i]; 
-            if(pos[i*3+1] < 0) {
-                pos[i*3+1] = spreadY; 
-                pos[i*3] = camera.position.x + (Math.random()-0.5)*spreadX; 
-                pos[i*3+2] = camera.position.z - (spreadZ/2) + (Math.random())*spreadZ; 
-            }
-        }
-        system.geometry.attributes.position.needsUpdate = true;
-    });
-
-    // 4. Clignotement Lampadaires
-    flickrLights.forEach(item => {
-        if(Math.random() > 0.92) { 
-            item.light.intensity = Math.random() > 0.5 ? item.baseInt : 0;
-            item.material.color.setHex(item.light.intensity > 0 ? 0xffaa00 : 0x222222);
-        }
-    });
-
-    renderer.render(scene, camera);
-  };
-
+  renderer.render(scene, camera);
+  requestAnimationFrame(() => emit('ready'));
   animate();
 };
 
-const onMouseMove = (e) => {
-  mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-  mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+const animate = () => {
+  animationId = requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const t = clock.elapsedTime;
+  autoT += dt;
+
+  let target = CONFIG.WALK_SPEED;
+  if (isBoosting) target = CONFIG.BOOST_SPEED;
+  if (isWarping) target = CONFIG.WARP_SPEED;
+  currentSpeed += (target - currentSpeed) * Math.min(1, dt * 3);
+
+  const dz = currentSpeed * dt;
+  camera.position.z -= dz;
+  walkPhase += dz * 1.4;
+
+  const bobY = Math.sin(walkPhase * 2) * 0.03;
+  const bobX = Math.sin(walkPhase) * 0.03;
+  camera.position.y = CONFIG.EYE_HEIGHT + bobY;
+  camera.position.x = bobX + curX * 0.28;
+
+  curX += (pointerX - curX) * Math.min(1, dt * 2.5);
+  curY += (pointerY - curY) * Math.min(1, dt * 2.5);
+  camera.rotation.y = -curX * 0.3 + Math.sin(autoT * 0.28) * 0.025;
+  camera.rotation.x = -curY * 0.18 + Math.sin(autoT * 0.21) * 0.018;
+  camera.rotation.z = Math.sin(walkPhase) * 0.006;
+
+  flashTarget.position.x = Math.sin(walkPhase * 0.6) * 0.45 + Math.sin(t * 1.7) * 0.3;
+  flashTarget.position.y = Math.cos(walkPhase * 0.9) * 0.25 + Math.sin(t * 2.3) * 0.18 - 0.3;
+  flashlight.position.x = 0.2 + Math.sin(t * 1.3) * 0.025;
+  flashlight.position.y = -0.12 + Math.cos(t * 1.1) * 0.018;
+
+  if (Math.random() > 0.99) {
+    flashlight.intensity = flashBaseIntensity * (0.4 + Math.random() * 0.4);
+  } else {
+    flashlight.intensity += (flashBaseIntensity - flashlight.intensity) * 0.3;
+  }
+
+  for (const f of flickerFixtures) {
+    if (Math.random() > 0.95) {
+      const on = Math.random() > 0.2;
+      f.light.intensity = on ? f.base * (0.8 + Math.random() * 0.4) : f.base * 0.3;
+      f.mat.color.setHex(on ? 0xdfefff : 0x38454f);
+    }
+  }
+
+  for (const bay of bays) {
+    if (bay.position.z - camera.position.z > L_THRESHOLD) {
+      bay.position.z -= totalLength;
+    }
+  }
+
+  const d = dust.userData;
+  const arr = dust.geometry.attributes.position.array;
+  for (let i = 0; i < d.dVel.length; i++) {
+    arr[i * 3 + 1] -= d.dVel[i] * dt * 4;
+    arr[i * 3] += Math.sin(t * 0.5 + i) * 0.0015;
+    if (arr[i * 3 + 1] < 0) {
+      arr[i * 3 + 1] = d.spreadY;
+      arr[i * 3] = camera.position.x + (Math.random() - 0.5) * d.spreadX;
+      arr[i * 3 + 2] = camera.position.z - Math.random() * d.spreadZ;
+    }
+    if (arr[i * 3 + 2] - camera.position.z > 4) {
+      arr[i * 3 + 2] = camera.position.z - Math.random() * d.spreadZ;
+      arr[i * 3 + 1] = Math.random() * d.spreadY;
+      arr[i * 3] = camera.position.x + (Math.random() - 0.5) * d.spreadX;
+    }
+  }
+  dust.geometry.attributes.position.needsUpdate = true;
+
+  renderer.render(scene, camera);
 };
 
+const onPointerMove = (e) => {
+  pointerX = (e.clientX / window.innerWidth) * 2 - 1;
+  pointerY = -((e.clientY / window.innerHeight) * 2 - 1);
+};
+const onTouchMove = (e) => {
+  if (!e.touches || !e.touches.length) return;
+  const tch = e.touches[0];
+  pointerX = (tch.clientX / window.innerWidth) * 2 - 1;
+  pointerY = -((tch.clientY / window.innerHeight) * 2 - 1);
+};
 const onResize = () => {
-    if(camera && renderer) {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    }
+  if (!camera || !renderer) return;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 };
 
 onMounted(() => {
   init();
-  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mousemove', onPointerMove);
+  window.addEventListener('touchmove', onTouchMove, { passive: true });
   window.addEventListener('resize', onResize);
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener('mousemove', onMouseMove);
+  window.removeEventListener('mousemove', onPointerMove);
+  window.removeEventListener('touchmove', onTouchMove);
   window.removeEventListener('resize', onResize);
   cancelAnimationFrame(animationId);
-  if(renderer) {
-      renderer.dispose();
-  } 
+
+  if (scene) {
+    scene.traverse((obj) => {
+      if (obj.geometry) obj.geometry.dispose();
+      if (obj.material) {
+        const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+        mats.forEach((m) => {
+          if (m.map) m.map.dispose();
+          if (m.bumpMap) m.bumpMap.dispose();
+          m.dispose();
+        });
+      }
+    });
+  }
+  disposables.forEach((tex) => tex && tex.dispose && tex.dispose());
+  if (renderer) renderer.dispose();
 });
 </script>
 
 <style scoped>
 .three-container {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: #0a0a0a;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0e1114;
   z-index: 0;
   overflow: hidden;
   transition: opacity 0.8s ease-in-out;

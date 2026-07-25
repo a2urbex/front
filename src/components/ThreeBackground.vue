@@ -1,5 +1,7 @@
 <template>
-  <div ref="container" class="three-container"></div>
+  <div ref="container" class="three-container">
+    <div class="glitch-fx"></div>
+  </div>
 </template>
 
 <script setup>
@@ -28,7 +30,6 @@ const CONFIG = {
 
   WALK_SPEED: 1.1,
   BOOST_SPEED: 8.0,
-  WARP_SPEED: 30.0,
 
   DUST_COUNT: isMobile ? 110 : 340,
   PIXEL_RATIO: isMobile ? 1.5 : 2,
@@ -50,7 +51,10 @@ let pointerX = 0, pointerY = 0;
 let curX = 0, curY = 0;
 
 let isBoosting = false;
-let isWarping = false;
+let isFalling = false;
+let fallT = 0;
+let fallVel = 0;
+let hasGlitched = false;
 let currentSpeed = CONFIG.WALK_SPEED;
 let walkPhase = 0;
 let autoT = 0;
@@ -60,15 +64,18 @@ const L_THRESHOLD = CONFIG.BAY_LEN;
 const totalLength = CONFIG.BAY_LEN * CONFIG.BAY_COUNT;
 
 const setBoost = (active) => { isBoosting = active; };
-const warp = () => {
-  isWarping = true;
+const fall = () => {
+  fallT = 0;
+  fallVel = 0;
+  hasGlitched = false;
+  isFalling = true;
   return new Promise((resolve) => setTimeout(resolve, 1500));
 };
 const fadeOut = () => {
   if (container.value) container.value.classList.add('fade-out');
   return new Promise((resolve) => setTimeout(resolve, 800));
 };
-defineExpose({ setBoost, warp, fadeOut });
+defineExpose({ setBoost, fall, fadeOut });
 
 const init = () => {
   clock = new THREE.Clock();
@@ -388,6 +395,7 @@ const init = () => {
     back.position.set(0, 0.78, -0.22); g.add(back);
     for (const sx of [-0.28, 0.28]) {
       const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.025, 6, 16), darkMetalMat);
+      wheel.rotation.y = Math.PI / 2;
       wheel.position.set(sx, 0.28, 0.05); g.add(wheel);
       const front = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.03, 10), darkMetalMat);
       front.rotation.z = Math.PI / 2; front.position.set(sx, 0.09, 0.28); g.add(front);
@@ -565,9 +573,28 @@ const animate = () => {
   const t = clock.elapsedTime;
   autoT += dt;
 
+  if (isFalling) {
+    fallT += dt;
+    const FLOOR_Y = 0.22;
+    if (camera.position.y > FLOOR_Y) {
+      fallVel += 15 * dt;
+      camera.position.y -= fallVel * dt;
+      camera.rotation.z += dt * 0.7;
+      camera.rotation.x += dt * 0.9;
+      if (camera.position.y <= FLOOR_Y) {
+        camera.position.y = FLOOR_Y;
+        if (!hasGlitched && container.value) {
+          hasGlitched = true;
+          container.value.classList.add('glitching');
+        }
+      }
+    }
+    renderer.render(scene, camera);
+    return;
+  }
+
   let target = CONFIG.WALK_SPEED;
   if (isBoosting) target = CONFIG.BOOST_SPEED;
-  if (isWarping) target = CONFIG.WARP_SPEED;
   currentSpeed += (target - currentSpeed) * Math.min(1, dt * 3);
 
   const dz = currentSpeed * dt;
@@ -694,5 +721,50 @@ onBeforeUnmount(() => {
 
 .fade-out {
   opacity: 0;
+}
+
+.glitch-fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 2;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.06) 0,
+    rgba(255, 255, 255, 0.06) 2px,
+    transparent 2px,
+    transparent 5px
+  );
+  mix-blend-mode: screen;
+}
+
+.three-container.glitching {
+  animation: glitchFall 0.6s steps(3, end) forwards;
+}
+
+.three-container.glitching .glitch-fx {
+  animation: glitchLines 0.6s steps(4, end) forwards;
+}
+
+@keyframes glitchFall {
+  0% { transform: none; filter: none; opacity: 1; }
+  8% { transform: translate(-9px, 4px) scale(1.02); filter: hue-rotate(25deg) contrast(1.5); }
+  16% { transform: translate(11px, -6px); filter: invert(0.15) saturate(2); }
+  24% { transform: translate(-13px, 2px) skewX(-5deg); filter: hue-rotate(-45deg) contrast(1.6); }
+  32% { transform: translate(7px, 9px); filter: contrast(2.2) brightness(1.3); }
+  45% { transform: translate(-4px, -3px); filter: brightness(0.6); opacity: 0.9; }
+  70% { transform: none; filter: brightness(0.25) contrast(2); opacity: 0.45; }
+  100% { transform: none; filter: brightness(0); opacity: 0; }
+}
+
+@keyframes glitchLines {
+  0%, 100% { opacity: 0; transform: translateY(0); }
+  10% { opacity: 0.85; transform: translateY(-5px); }
+  20% { opacity: 0.2; }
+  35% { opacity: 0.9; transform: translateY(7px); }
+  50% { opacity: 0.3; }
+  65% { opacity: 0.75; transform: translateY(-3px); }
+  80% { opacity: 0; }
 }
 </style>

@@ -274,14 +274,10 @@ const performTransition = async () => {
   showAuth.value = false; // Hide auth modal if open
   
   if (threeBackground.value) {
-    // 1. Warp speed effect
-    const warpPromise = threeBackground.value.warp();
-    // 2. Wait a bit for the warp to be visible
-    await new Promise(resolve => setTimeout(resolve, 800));
-    // 3. Fade out the scene
+    const fallPromise = threeBackground.value.fall();
+    await new Promise(resolve => setTimeout(resolve, 600));
     await threeBackground.value.fadeOut();
-    // 4. Wait for warp to finish (total 1.5s)
-    await warpPromise;
+    await fallPromise;
   }
   
   await router.push('/locations');

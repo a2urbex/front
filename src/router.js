@@ -36,6 +36,7 @@ import AdminImportsView from '@/views/AdminImports.vue'
 import AdminDedupView from '@/views/AdminDedup.vue'
 import AdminSourcesView from '@/views/AdminSources.vue'
 import AdminPinterestView from '@/views/AdminPinterest.vue'
+import AdminNotifyView from '@/views/AdminNotify.vue'
 
 
 const router = createRouter({
@@ -91,6 +92,7 @@ const router = createRouter({
     { path: '/admin/dedup', component: AdminDedupView, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/admin/sources', component: AdminSourcesView, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/admin/pinterest', component: AdminPinterestView, meta: { requiresAuth: true, requiresAdmin: true } },
+    { path: '/admin/notify', component: AdminNotifyView, meta: { requiresAuth: true, requiresAdmin: true } },
     {
       path: '/edit-profile',
       component: EditProfile,
@@ -135,6 +137,12 @@ router.beforeEach(async (to, from, next) => {
       try { await authStore.fetchUserProfile() } catch (_) {}
     }
     if (!authStore.userProfile?.isAdmin) return next({ path: '/' })
+  }
+
+  if (to.path === '/locations' && authStore.token) {
+    const { useExplorationStore } = await import('@/stores/exploration')
+    const active = useExplorationStore().active
+    if (active?.favoriteId) return next({ path: `/favorites/${active.favoriteId}` })
   }
 
   next()

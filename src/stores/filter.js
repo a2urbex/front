@@ -1,6 +1,30 @@
 import { defineStore } from 'pinia';
 import { useFilterUIStore } from './filterUI';
 import { useLocationStore } from './location';
+import { request } from '@/services/api';
+
+// Géoloc envoyée uniquement si l'utilisateur l'a déjà autorisée (aucune demande ici)
+const grantedPosition = async () => {
+  try {
+    const perm = await navigator.permissions?.query({ name: 'geolocation' });
+    if (perm?.state !== 'granted') return null;
+    return await new Promise((resolve) =>
+      navigator.geolocation.getCurrentPosition((p) => resolve(p.coords), () => resolve(null), { timeout: 4000, maximumAge: 600000 }),
+    );
+  } catch {
+    return null;
+  }
+};
+
+export const resolveDefaultCountry = async () => {
+  try {
+    const pos = await grantedPosition();
+    const qs = pos ? `?lat=${pos.latitude}&lon=${pos.longitude}` : '';
+    return await request('GET', `${import.meta.env.VITE_ACCOUNT_ENDPOINT}/country${qs}`);
+  } catch {
+    return null;
+  }
+};
 
 export const useFilterStore = defineStore('filter', {
   state: () => ({
@@ -19,15 +43,13 @@ export const useFilterStore = defineStore('filter', {
 
         const locationStore = useLocationStore();
         this.filters = await locationStore.getFilters();
-        // Initialize selectedFilters with default checked values
-        Object.entries(this.filters).forEach(([filterKey, filterItems]) => {
-          Object.entries(filterItems).forEach(([value, label]) => {
-            if (label.toLowerCase() === 'france') {
-              if (!this.selectedFilters[filterKey]) this.selectedFilters[filterKey] = [];
-              this.selectedFilters[filterKey].push(value);
-            }
-          });
-        });
+        // Pays par défaut : réglage du compte > pays détecté > FR
+        const country = await resolveDefaultCountry();
+        const countryId = country?.countryId != null ? String(country.countryId) : null;
+        const countries = this.filters.countries || {};
+        const fallback = Object.keys(countries).find((id) => countries[id].toLowerCase() === 'france');
+        const selected = countryId && countries[countryId] ? countryId : fallback;
+        if (selected) this.selectedFilters.countries = [selected];
 
         this.fetching = false;
         this.applyFilters();

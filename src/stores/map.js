@@ -11,6 +11,12 @@ export const useMapStore = defineStore('Map', {
     typeId: null,
     locations: [],
     loading: false,
+    showInvalid: false,
+    zone: null,
+    dateFrom: null,
+    dateTo: null,
+    clipTo: null,
+    highlightFrom: null,
     loaded: { type: null, typeId: null, filters: null },
   }),
   actions: {
@@ -18,11 +24,21 @@ export const useMapStore = defineStore('Map', {
       this.type = type;
       this.typeId = typeId;
     },
-    async getMapLocations() {
+    setZone(zone) {
+      this.zone = zone;
+      this.getMapLocations();
+    },
+    setDateRange(from, to, highlightFrom = null) {
+      this.dateFrom = from ? new Date(from).toISOString() : null;
+      this.dateTo = to ? new Date(to).toISOString() : null;
+      this.highlightFrom = highlightFrom;
+      this.getMapLocations();
+    },
+    async getMapLocations(force = false) {
       const location = useLocationStore();
       const filters = toRaw(location.selectedFilters)
-      const filtersSnapshot = JSON.parse(JSON.stringify(filters))
-      const isSamePage = this.type === this.loaded.type && this.typeId === this.loaded.typeId;
+      const filtersSnapshot = { ...JSON.parse(JSON.stringify(filters)), showInvalid: this.showInvalid, zone: this.zone, dateFrom: this.dateFrom, dateTo: this.dateTo }
+      const isSamePage = !force && this.type === this.loaded.type && this.typeId === this.loaded.typeId;
 
       this.loading = true;
       try {
@@ -51,8 +67,13 @@ export const useMapStore = defineStore('Map', {
     },
     async loadFavorite(id) {
       try {
-        const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}`);
-        return data.list || []
+        const data = await request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/${id}${this.showInvalid ? '?showInvalid=1' : ''}`);
+        const list = data.list || []
+        navigator.serviceWorker?.controller?.postMessage({
+          type: 'CACHE_LIST',
+          urls: list.flatMap((l) => [l.image, l.image_maps]),
+        })
+        return list
       } catch (error) {
         console.error('Error fetching favorites:', error);
       }

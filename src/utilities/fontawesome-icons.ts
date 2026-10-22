@@ -5,6 +5,17 @@ import { faWaze, faTiktok, faInstagram, faYoutube, faPinterest } from '@fortawes
 
 import {
   faEllipsisVertical,
+  faLocationCrosshairs,
+  faSliders,
+  faListUl,
+  faBell,
+  faPlay,
+  faPause,
+  faDrawPolygon,
+  faCircleDot,
+  faCalendarDays,
+  faFolderPlus,
+  faBan,
   faAt,
   faEarthEurope,
   faAngleLeft,
@@ -63,6 +74,17 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
+  faLocationCrosshairs,
+  faSliders,
+  faListUl,
+  faBell,
+  faPlay,
+  faPause,
+  faDrawPolygon,
+  faCircleDot,
+  faCalendarDays,
+  faFolderPlus,
+  faBan,
   faAt,
   faEllipsisVertical,
   faEarthEurope,

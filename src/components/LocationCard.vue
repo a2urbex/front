@@ -1,12 +1,22 @@
 <script setup>
 import { computed, ref } from 'vue';
 import ImagePlaceholder from './ImagePlaceholder.vue';
+import { useRoute } from 'vue-router';
+import { usePositionStore } from '@/stores/position';
+import { useExplorationStore } from '@/stores/exploration';
+import { statusEmoji } from '@/utilities/field';
 
 const props = defineProps({
     location: Object,
 });
 
 const emit = defineEmits(['open-location']);
+const route = useRoute();
+const position = usePositionStore();
+const exploration = useExplorationStore();
+const distance = computed(() =>
+    exploration.active && route.params.id === exploration.active.favoriteId ? position.labelTo(props.location) : '',
+);
 const imageError = ref(false);
 const imageLoading = ref(true);
 
@@ -74,6 +84,9 @@ const openLocationCardDisplay = () => {
             <span v-if="isFavorite" class="location-card__favorite" aria-label="Favorite">
                 <font-awesome-icon :icon="['fas', 'heart']" />
             </span>
+
+            <span v-if="distance" class="location-card__distance">{{ distance }}</span>
+            <span v-if="statusEmoji(location)" class="location-card__status" :class="{ 'is-invalid': location.status === 'invalid' }">{{ statusEmoji(location) }}{{ location.danger ? '⚠️' : '' }}</span>
 
             <div class="location-card__caption">
                 <h2>{{ truncatedName }}</h2>

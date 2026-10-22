@@ -6,11 +6,16 @@ import FavoritesModal from './FavoriteModal.vue';
 import LocationEdit from './LocationEdit.vue';
 import UserRoleBadge from './UserRoleBadge.vue';
 import ImagePlaceholder from './ImagePlaceholder.vue';
+import FieldStatus from './FieldStatus.vue';
+import { usePositionStore } from '@/stores/position';
 const props = defineProps({
     location: Object
 });
 
 const imageError = ref(false);
+const position = usePositionStore();
+// Statut terrain : l'objet vient de la liste du store, on le met à jour en place
+const onStatusUpdated = (updated) => Object.assign(props.location, updated);
 const authStore = useAuthStore();
 const isAdmin = computed(() => authStore.userProfile?.isAdmin || false);
 const userId = computed(() => authStore.userProfile?.id || null);
@@ -86,6 +91,8 @@ const contributor = computed(() => {
                         </div>
 
                         <h2>{{ location.name }}</h2>
+                        <p v-if="position.pos" class="location-card-display__distance">{{ position.labelTo(location) }} from you</p>
+                        <FieldStatus v-if="userId" :key="location.id" :item="location" @updated="onStatusUpdated" />
                         <router-link
                             v-if="contributor.isUser"
                             :to="`/profile/${location.userId}`"

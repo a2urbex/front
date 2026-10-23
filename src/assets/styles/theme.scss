@@ -52,3 +52,48 @@ $sat: env(safe-area-inset-top, 0px);
   .locations-container.favorites-containers { margin-top: 16px !important; }
   body.has-bottom-nav #map { top: calc(7rem + #{$sat}) !important; }
 }
+
+// Actions "Open with Maps / Waze" de la fiche point : neutres, accent au survol (comme les autres actions)
+.location-card-display .location-card__bottom-icon {
+  background: #161616 !important;
+  border: 1px solid #2e2e2e !important;
+  color: #d8d3ca !important;
+  box-shadow: none !important;
+  svg { color: inherit !important; }
+  &:hover { border-color: $primary !important; color: $primary !important; }
+}
+
+// --- Filtres mobile ---
+@media (max-width: $md) {
+  // Panneau plein écran : seule la liste défile (sinon 200+ pays débordent sous l'écran, inaccessibles),
+  // avec la place de la nav du bas
+  .filter__container.active .filter__wrapper { display: flex; flex-direction: column; height: 100%; }
+  .filter__container.active .filter__filters {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: calc(#{$bottomHeaderHeight} + var(--nav-extra) + env(safe-area-inset-bottom, 0px) + 16px);
+  }
+  .filter__container.active .filter__item-content { max-height: none !important; }
+}
+
+// Filtres dans le panneau de la carte : le composant garde sinon sa mise en page mobile
+// (fixe en haut de l'écran) et s'affiche hors du panneau
+.map-filters {
+  .filter__container {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    transform: none !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  .filter__wrapper { height: auto !important; }
+  .filter__filters { padding: 0 0 8px !important; overflow: visible !important; }
+  .filter__item-content { max-height: 45vh !important; overflow-y: auto !important; position: static !important; }
+}

@@ -7,7 +7,7 @@ const props = defineProps({
     location: Object
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'deleted']);
 const showEditPopup = ref(false);
 const showDeleteConfirm = ref(false);
 const showContainer = ref(false);
@@ -26,6 +26,7 @@ const confirmDelete = async () => {
     if (props.location && props.location.id) {
         await locationStore.deleteLocation(props.location.id);
         showDeleteConfirm.value = false;
+        emit('deleted', props.location.id);
         emit('close');
     }
 };

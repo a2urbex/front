@@ -9,6 +9,7 @@ import LocationEdit from './LocationEdit.vue';
 import UserRoleBadge from './UserRoleBadge.vue';
 import ImagePlaceholder from './ImagePlaceholder.vue';
 import FieldStatus from './FieldStatus.vue';
+import ImageSlider from './ImageSlider.vue';
 import { usePositionStore } from '@/stores/position';
 const props = defineProps({
     location: Object
@@ -17,7 +18,11 @@ const props = defineProps({
 const imageError = ref(false);
 const position = usePositionStore();
 // Statut terrain : l'objet vient de la liste du store, on le met à jour en place
-const onStatusUpdated = (updated) => Object.assign(props.location, updated);
+const emit = defineEmits(['close', 'deleted', 'status-updated']);
+const onStatusUpdated = (updated) => {
+    Object.assign(props.location, updated);
+    emit('status-updated', { ...props.location });
+};
 const authStore = useAuthStore();
 const isAdmin = computed(() => authStore.userProfile?.isAdmin || false);
 const userId = computed(() => authStore.userProfile?.id || null);
@@ -73,7 +78,11 @@ const contributor = computed(() => {
                     <button class="share-button" @click="copyLink(location.id)">
                         <font-awesome-icon :icon="['fa', 'share']" />
                     </button>
-                    <template v-if="!imageError && location.image || location.image_maps">
+                    <!-- Photo + vue Google Maps : défilables quand les deux existent (comme l'ancienne fiche carte) -->
+                    <div v-if="location.image && location.image_maps" class="location-card-display__slider">
+                        <ImageSlider :images="[location.image, location.image_maps]" />
+                    </div>
+                    <template v-else-if="!imageError && location.image || location.image_maps">
                         <img 
                             :src="location.image || location.image_maps" 
                             alt="Location image"
@@ -88,7 +97,7 @@ const contributor = computed(() => {
                             </p>
                             <div class="location-card-display__bottom-actions">
                                 <FavoritesModal :fids="location.fids" :id="location.id" />
-                                <LocationEdit v-if="!demo && userId && (isAdmin || location.userId === userId)" :location="location" @close="$emit('close')" />
+                                <LocationEdit v-if="!demo && userId && (isAdmin || location.userId === userId)" :location="location" @close="$emit('close')" @deleted="(id) => $emit('deleted', id)" />
                             </div>
                         </div>
 

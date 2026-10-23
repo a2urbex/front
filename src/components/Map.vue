@@ -5,11 +5,9 @@ import { icon as faIcon } from '@fortawesome/fontawesome-svg-core';
 import 'leaflet.markercluster';
 import { useLocationStore } from '@/stores/location';
 import { useRoute } from 'vue-router';
-import FavoritesModal from './FavoriteModal.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useMapStore } from '@/stores/map';
-import ImageSlider from './ImageSlider.vue';
-import FieldStatus from './FieldStatus.vue';
+import LocationCardDisplay from './LocationCardDisplay.vue';
 import DateSlider from './DateSlider.vue';
 import Filters from './Filters.vue';
 import { createZoneDraw } from '@/utilities/zoneDraw';
@@ -38,7 +36,6 @@ const zoom = 6;
 
 const overlayOpen = ref(false)
 const itemSelected = ref(null)
-const hasImage = computed(() => !!(itemSelected.value?.image || itemSelected.value?.image_maps))
 
 // --- Carte Leaflet gérée en impératif (pas de composant par marker) ---
 const mapEl = ref(null)      // <div> hôte de la carte Leaflet
@@ -330,32 +327,25 @@ const displayOverlay = (item) => {
 }
 
 const emit = defineEmits(['close']);
-const showDeleteConfirm = ref(false);
 
-const handleDelete = async () => {
-    showDeleteConfirm.value = true;
-};
+const closeSheet = () => {
+  overlayOpen.value = false
+  itemSelected.value = null
+  clearSelection()
+}
 
-const confirmDelete = async () => {
-    if (itemSelected.value && itemSelected.value.id) {
-        await locationStore.deleteLocation(itemSelected.value.id);
-        mapStore.locations = mapStore.locations.filter(loc => loc.id !== itemSelected.value.id);
-        showDeleteConfirm.value = false;
-        overlayOpen.value = false;
-        itemSelected.value = null;
-    }
-};
-
-const cancelDelete = () => {
-    showDeleteConfirm.value = false;
-};
+// Suppression depuis le menu ⋮ de la fiche : on retire le pin
+const onDeleted = (id) => {
+  mapStore.locations = mapStore.locations.filter((loc) => loc.id !== id)
+  closeSheet()
+}
 
 onBeforeUnmount(destroyMap)
 </script>
 
 <template>
   <transition name="map" mode="out-in">
-      <div :class="['map-container', { 'full-height': !isAuthenticated, 'has-sheet': overlayOpen }]" id="map" v-if="mapStore.open">
+      <div :class="['map-container', { 'full-height': !isAuthenticated }]" id="map" v-if="mapStore.open">
         <div class="map-leaflet" ref="mapEl"></div>
 
         <div class="map-field-ctrl">
@@ -446,65 +436,17 @@ onBeforeUnmount(destroyMap)
           </div>
         </transition>
 
-        <transition name="sheet">
-            <div class="map-overlay" v-if="overlayOpen">
-              <div class="map-overlay-inner">
-                <div class="top">
-                  <div class="top-left">
-                    <div class="pin-category">
-                      <font-awesome-icon :icon="['fa', itemSelected?.categoryIcon || 'fa-map-pin' ]" />
-                      <span>{{ itemSelected?.categoryName || 'other' }}</span>
-                    </div>
-                  </div>
-                  <div class="top-right">
-                    <div class="top-right-item" @click="() => overlayOpen = false">
-                      <font-awesome-icon :icon="['fa', 'xmark']" />
-                    </div>
-                  </div>
-                </div>
-
-
-                <div class="map-overlay-image">
-                  <ImageSlider v-if="hasImage" :images="[itemSelected?.image, itemSelected?.image_maps]" />
-                  <div v-else class="map-overlay-image__empty">
-                    <span class="map-overlay-image__empty-icon">
-                      <font-awesome-icon :icon="['fas', 'image']" />
-                    </span>
-                    <span class="map-overlay-image__empty-label">No image</span>
-                  </div>
-                </div>
-                <p class="map-overlay-fake" v-if="itemSelected?.fake">Fake data · this place does not exist</p>
-                <p class="map-overlay-title">{{ itemSelected?.name }}</p>
-                <p class="map-overlay-dist" v-if="position.pos && itemSelected">{{ position.labelTo(itemSelected) }} from you</p>
-                <FieldStatus v-if="itemSelected?.id" :key="itemSelected.id" :item="itemSelected" @updated="onStatusUpdated" />
-
-                <div class="map-overlay-action">
-                  <a class="pin-waze" target="_blank" :href="`https://waze.com/ul?q=${itemSelected?.lat},${itemSelected?.lon}&navigate=yes&zoom=17`">
-                    <font-awesome-icon :icon="['fab', 'waze']" />
-                  </a>
-                  <a class="pin-maps" target="_blank" :href="`https://www.google.com/maps?t=k&q=${itemSelected?.lat},${itemSelected?.lon}`">
-                    <font-awesome-icon :icon="['fas', 'earth-europe']" />
-                  </a>
-                  <FavoritesModal :fids="itemSelected?.fids" :id="itemSelected?.id" />
-
-                  <button v-if="isAdmin || itemSelected?.userId === userId" class="location-edit-button icon-delete" @click="handleDelete">
-                      <font-awesome-icon :icon="['fas', 'trash']" />
-                  </button>
-
-                  <div v-if="showDeleteConfirm" class="delete-confirm-overlay map-overlay">
-                      <div class="delete-confirm-dialog">
-                          <h3>Confirm Delete</h3>
-                          <p>Are you sure you want to delete this location?</p>
-                          <div class="delete-confirm-actions">
-                              <button class="btn-cancel" @click="cancelDelete">Cancel</button>
-                              <button class="btn-delete" @click="confirmDelete">Delete</button>
-                          </div>
-                      </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-        </transition>
+        <!-- Même fiche que depuis la liste (LocationCardDisplay), montée dans <body> comme elle -->
+        <Teleport to="body">
+          <LocationCardDisplay
+            v-if="overlayOpen && itemSelected"
+            :key="itemSelected.id"
+            :location="itemSelected"
+            @close="closeSheet"
+            @deleted="onDeleted"
+            @status-updated="onStatusUpdated"
+          />
+        </Teleport>
       </div>
   </transition>
 </template>

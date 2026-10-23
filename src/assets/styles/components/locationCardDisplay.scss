@@ -400,3 +400,7 @@
 .location-card-display__distance { margin: 8px 0 12px; font: 500 12px $font-mono; color: $primary; }
 
 .location-card-display__fake { margin: 4px 0 12px; display: inline-block; padding: 3px 8px; background: repeating-linear-gradient(-45deg, #1a1408 0 6px, #141005 6px 12px); border: 1px solid rgba(255, 138, 31, 0.5); color: #ffb26b; font: 500 10px 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
+
+// Diaporama (photo + vue Maps) : même emprise que l'image seule
+.location-card-display__slider { width: 100%; height: 45vh; max-height: 420px; overflow: hidden;
+  img { width: 100%; height: 100%; object-fit: cover; } }

@@ -71,14 +71,14 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
+        // Rechargement complet : aucune donnée de la session précédente (compte démo ou autre compte)
+        // ne doit rester en mémoire (points, listes, profil, mode démo, exploration…)
         async logout() {
             stopDemo();
             this.token = null;
             this.userProfile = {};
-            toast.warning('Logout successful!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
             localStorage.removeItem('authToken');
-
-            router.push('/');
+            window.location.replace('/');
         },
 
         // 401 => request() déconnecte déjà. Une erreur réseau (hors-ligne, API lente) ne doit pas déconnecter.

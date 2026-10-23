@@ -5,7 +5,7 @@ import { toast } from 'vue3-toastify'
 import { request } from '@/services/api'
 
 const CHANNELS = [
-  { key: 'users_news', label: 'New spots (admins)' },
+  { key: 'users_news', label: 'New spots (admins, superusers)' },
   { key: 'outings', label: 'Outings' },
   { key: 'admin_system', label: 'System (admins)' },
 ]

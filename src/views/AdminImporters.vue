@@ -9,6 +9,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL
 const authStore = useAuthStore()
 
 const importers = ref([])
+const schedule = ref([])
 // État par importeur : options saisies, job en cours, logs, flux SSE
 const ui = reactive({})
 const streams = {}
@@ -24,6 +25,7 @@ const STAT_LABELS = {
 }
 
 const load = async () => {
+  schedule.value = (await request('GET', '/admin/schedule')) || []
   importers.value = (await request('GET', '/admin/importers')) || []
   for (const imp of importers.value) {
     if (!ui[imp.key]) ui[imp.key] = { args: {}, limit: '', job: null, logs: [] }
@@ -93,6 +95,19 @@ onBeforeUnmount(() => Object.values(streams).forEach((s) => s.close()))
       places already on the map (≈40 m) are skipped. Start with a <b>dry run</b>: it only counts, nothing is written.
     </p>
 
+    <div class="importers__schedule">
+      <span class="importers__schedule-title">Automatic runs</span>
+      <p v-if="!schedule.length" class="importers__schedule-off">Disabled on this server (SCHEDULER=off).</p>
+      <ul v-else>
+        <li v-for="t in schedule" :key="t.key">
+          <b>{{ t.label }}</b>
+          <time>{{ fmtTime(t.nextRun) }}</time>
+          <small v-if="t.last">last: {{ t.last.result }}</small>
+        </li>
+      </ul>
+      <p class="importers__schedule-note">Random time every day, dedup in the evening after the imports. Reports go to admins only.</p>
+    </div>
+
     <section v-for="imp in importers" :key="imp.key" class="importer" :class="{ 'is-running': isRunning(imp.key) }">
       <header class="importer__head">
         <h3>{{ imp.source }}</h3>
@@ -147,6 +162,14 @@ onBeforeUnmount(() => Object.values(streams).forEach((s) => s.close()))
 .importers {
   max-width: 860px;
   padding-block: 20px 40px;
+  &__schedule { margin: 0 0 20px; padding: 14px 16px; background: #111; border: 1px solid #262626;
+    ul { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 8px 0 6px; padding: 0; list-style: none; }
+    li { display: flex; gap: 8px; align-items: baseline; font-size: 13px; }
+    b { color: #e8e4dc; font-weight: 600; }
+    time { font: 12px $font-mono; color: $primary; }
+    small { font: 11px $font-mono; color: #777; } }
+  &__schedule-title { font: 500 10px $font-mono; text-transform: uppercase; letter-spacing: .08em; color: #777; }
+  &__schedule-off, &__schedule-note { margin: 4px 0 0; font: 12px $font-mono; color: #777; }
   &__intro { color: #9a958c; font-size: 14px; line-height: 1.5; margin: 0 0 20px; b { color: #e8e4dc; } }
 }
 .importer {

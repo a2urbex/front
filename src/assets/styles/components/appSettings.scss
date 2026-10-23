@@ -4,10 +4,8 @@
 @forward '@/assets/styles/components/forms.scss';
 
 .app-settings {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    position: relative;
+    margin: 24px auto;
     width: 90%;
     max-width: 420px;
     padding: 2.25rem 1.75rem 2rem;
@@ -18,8 +16,8 @@
     text-align: center;
 
     background: linear-gradient(165deg, rgba(25, 25, 25, 0.92) 0%, rgba(10, 10, 10, 0.95) 100%);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 1.5rem;
     box-shadow:
@@ -145,7 +143,7 @@
     }
 
     .outaded {
-        background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+        background: $primary;
         color: #1a1100;
         border: none;
         animation: pulse 2s infinite;
@@ -173,3 +171,22 @@
         box-shadow: 0 0 0 0 rgba($primary, 0);
     }
 }
+
+.app-settings__section {
+  width: 100%;
+  max-width: 360px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #2a2a2a;
+  text-align: left;
+}
+.app-settings__label { display: block; margin-bottom: 6px; font: 11px $font-mono; text-transform: uppercase; letter-spacing: .08em; color: #888; }
+.app-settings__select { width: 100%; padding: 10px; background: #1c1c1c; color: #eee; border: 1px solid #333; border-radius: 2px; }
+.app-settings__hint { margin-top: 6px; font: 12px $font-mono; color: #777; }
+
+.app-settings__reset { width: 100%; padding: 10px; background: none; color: #e07060; border: 1px solid #5a2a24; cursor: pointer; }
+
+.app-settings__toggle { display: flex; justify-content: space-between; width: 100%; padding: 10px 0; background: none; border: 0; border-bottom: 1px solid #222; color: #ddd; cursor: pointer; font: inherit;
+  b { font: 12px $font-mono; color: #777; } &.on b { color: #ff8a1f; } &:disabled { cursor: default; } }
+
+.app-settings__test { width: 100%; margin: 8px 0; padding: 10px; background: #1a1a1a; border: 1px solid #2e2e2e; color: #ff8a1f; font: 500 12px 'JetBrains Mono', monospace; cursor: pointer; }

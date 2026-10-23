@@ -46,6 +46,19 @@ onMounted(async () => {
         </div>
       </router-link>
 
+      <router-link to="/admin/notify" class="admin-hub__card">
+        <div class="admin-hub__card-icon">
+          <font-awesome-icon :icon="['fas', 'bell']" />
+        </div>
+        <div class="admin-hub__card-content">
+          <h3>Notifications</h3>
+          <p>Send a push notification to a channel (new spots, outings, system).</p>
+        </div>
+        <div class="admin-hub__card-arrow">
+          <font-awesome-icon :icon="['fas', 'arrow-right']" class="arrow-icon" />
+        </div>
+      </router-link>
+
       <!-- Card 2: Imports -->
       <router-link to="/admin/imports" class="admin-hub__card">
         <div class="admin-hub__card-icon admin-hub__card-icon--imports">

@@ -27,6 +27,11 @@ watch(() => explorationStore.active, (a) => {
   else positionStore.stop();
 }, { immediate: true });
 
+// Rôle changé par un admin : le profil se met à jour au retour au premier plan, sans reconnexion
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && authStore.token) authStore.fetchUserProfile().catch(() => {});
+});
+
 watch(() => authStore.token, (token) => {
   if (token) explorationStore.fetch().then(() => {
     const a = explorationStore.active;

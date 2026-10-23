@@ -9,6 +9,18 @@ export const isIOS = () => /iPhone|iPad|iPod/.test(ua) || (navigator.platform ==
 export const isAndroid = () => /Android/i.test(ua);
 export const isMobile = () => isIOS() || isAndroid() || /Mobi/i.test(ua);
 
+// Sur iOS, seul Safari sait installer une PWA (Chrome, Firefox, Edge… doivent renvoyer vers Safari)
+export const iosOtherBrowser = () => {
+  if (!isIOS()) return null;
+  if (/CriOS/.test(ua)) return 'Chrome';
+  if (/FxiOS/.test(ua)) return 'Firefox';
+  if (/EdgiOS/.test(ua)) return 'Edge';
+  if (/OPiOS|OPT\//.test(ua)) return 'Opera';
+  if (/GSA\//.test(ua)) return 'Google';
+  if (/DuckDuckGo/.test(ua)) return 'DuckDuckGo';
+  return null;
+};
+
 export const inAppBrowser = () => {
   if (/Instagram/i.test(ua)) return 'Instagram';
   if (/FBAN|FBAV|FB_IAB|Messenger/i.test(ua)) return 'Facebook';

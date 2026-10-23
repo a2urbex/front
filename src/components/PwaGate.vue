@@ -2,12 +2,12 @@
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { toast } from 'vue3-toastify';
-import { isStandalone, isMobile, isIOS, inAppBrowser, installPrompt, promptInstall, hasBypass, setBypass } from '@/utilities/pwa';
+import { isStandalone, isMobile, isIOS, inAppBrowser, iosOtherBrowser, installPrompt, promptInstall, hasBypass, setBypass } from '@/utilities/pwa';
 
 const route = useRoute();
 const bypassed = ref(hasBypass());
 
-const app = inAppBrowser();
+const app = inAppBrowser() || iosOtherBrowser();
 const ios = isIOS();
 const ipad = ios && !/iPhone|iPod/.test(navigator.userAgent);
 
@@ -44,12 +44,15 @@ const escape = () => {
 
       <template v-if="variant === 'inapp'">
         <h2 class="pwa-gate__title">Open in {{ ios ? 'Safari' : 'Chrome' }}</h2>
-        <p class="pwa-gate__text">
+        <p class="pwa-gate__text" v-if="ios">
+          On iPhone, a2urbex can only be installed from <b>Safari</b>. {{ app }} can't do it.
+        </p>
+        <p class="pwa-gate__text" v-else>
           You are inside the {{ app }} browser. a2urbex can't be installed from here.
         </p>
         <ol class="pwa-gate__steps">
-          <li><span>01</span>Tap the <b>•••</b> menu {{ ios ? 'at the bottom right' : 'at the top right' }}.</li>
-          <li><span>02</span>Choose <b>Open in {{ ios ? 'Safari' : 'browser' }}</b>.</li>
+          <li><span>01</span>Tap <b>Copy link</b> below.</li>
+          <li><span>02</span>Open <b>{{ ios ? 'Safari' : 'Chrome' }}</b> and paste it in the address bar.</li>
         </ol>
         <button class="pwa-gate__btn" @click="copyLink">Copy link</button>
       </template>

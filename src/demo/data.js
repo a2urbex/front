@@ -51,7 +51,7 @@ const fakeImage = (hue) => {
     const win = Array.from({ length: int(2, 8) }, () => `<rect x="${x + int(6, bw - 16)}" y="${h - bh + int(10, bh - 30)}" width="8" height="12" fill="hsl(${hue},30%,8%)"/>`).join('');
     return `<rect x="${x}" y="${h - bh}" width="${bw}" height="${bh}" fill="hsl(${hue},12%,${int(14, 24)}%)"/>${win}`;
   }).join('');
-  return svg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="hsl(${hue},25%,${int(22, 34)}%)"/><stop offset="1" stop-color="hsl(${hue},20%,6%)"/></linearGradient><filter id="b"><feGaussianBlur stdDeviation="${rand(1.5, 4).toFixed(1)}"/></filter></defs><rect width="${w}" height="${h}" fill="url(#g)"/><g filter="url(#b)">${bars}</g><text x="${w - 14}" y="${h - 14}" text-anchor="end" font-family="monospace" font-size="16" fill="rgba(255,255,255,.45)">FAKE DATA · DEMO</text></svg>`);
+  return svg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="hsl(${hue},25%,${int(22, 34)}%)"/><stop offset="1" stop-color="hsl(${hue},20%,6%)"/></linearGradient><filter id="b"><feGaussianBlur stdDeviation="${rand(1.5, 4).toFixed(1)}"/></filter></defs><rect width="${w}" height="${h}" fill="url(#g)"/><g filter="url(#b)">${bars}</g><rect x="${w / 2 - 150}" y="${h / 2 - 34}" width="300" height="68" fill="rgba(0,0,0,.45)"/><text x="${w / 2}" y="${h / 2 + 14}" text-anchor="middle" font-family="monospace" font-weight="700" font-size="40" letter-spacing="4" fill="rgba(255,190,120,.85)">FAKE DATA</text></svg>`);
 };
 
 const avatar = (name, hue) =>

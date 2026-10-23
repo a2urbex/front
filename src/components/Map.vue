@@ -303,6 +303,7 @@ const destroyMap = () => {
 watch(() => route.fullPath, async () => {
   mapStore.open = false
   mapStore.locations = []
+  mapStore.loaded = { type: null, typeId: null, filters: null }
 })
 
 watch(() => mapStore.open, async (open) => {
@@ -417,8 +418,8 @@ onBeforeUnmount(destroyMap)
 
         <DateSlider v-if="isGlobal && showSlider" class="map-date-slider" />
 
-        <button class="map-next" v-if="nextPoint" @click="goToNext">
-          <span class="map-next__label">Next</span>
+        <button class="map-next" v-if="nextPoint" @click="goToNext" title="Closest unvisited spot">
+          <font-awesome-icon class="map-next__icon" :icon="['fas', 'location-arrow']" />
           <span class="map-next__name">{{ nextPoint.item.name || 'Unnamed' }}</span>
           <span class="map-next__dist">{{ formatDistance(nextPoint.d) }}</span>
         </button>

@@ -105,7 +105,7 @@ onBeforeUnmount(() => Object.values(streams).forEach((s) => s.close()))
           <small v-if="t.last">last: {{ t.last.result }}</small>
         </li>
       </ul>
-      <p class="importers__schedule-note">Random time every day, dedup in the evening after the imports. Reports go to admins only.</p>
+      <p class="importers__schedule-note">Random time every day (imports 7:00-15:00), dedup at the end of the afternoon after the imports. Reports go to admins only.</p>
     </div>
 
     <section v-for="imp in importers" :key="imp.key" class="importer" :class="{ 'is-running': isRunning(imp.key) }">

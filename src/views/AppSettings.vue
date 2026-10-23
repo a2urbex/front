@@ -61,7 +61,7 @@ const togglePref = async (p) => {
 };
 onMounted(() => { if (useAuthStore().token) loadPush(); });
 
-const sourceLabel = { account: 'account', geolocation: 'position', language: 'browser language', default: 'default' };
+const sourceLabel = { account: 'account', geolocation: 'GPS position', ip: 'IP address', language: 'browser language', default: 'default' };
 const saveCountry = async () => {
   await request('PUT', `${import.meta.env.VITE_ACCOUNT_ENDPOINT}/country`, { code: countrySetting.value || null });
   country.value = await resolveDefaultCountry();

@@ -30,9 +30,8 @@ export const useAuthStore = defineStore('auth', {
                     localStorage.setItem('authToken', data.token);
                     toast.success('Login successful!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
                     await this.fetchUserProfile();
-                    setTimeout(() => {
-                        router.push('/locations');
-                    }, 1500);
+                    // L'accueil gère sa propre transition puis la navigation ; une 2e redirection la coupait en plein vol
+                    if (router.currentRoute.value.path !== '/') router.push('/locations');
                 }
             } catch (error) {
                 throw error;

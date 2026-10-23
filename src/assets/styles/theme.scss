@@ -2,7 +2,7 @@
 // Chargé en dernier (main.js) pour primer sur les styles de composants.
 @use './variables.scss' as *;
 
-*:not(img):not(svg):not(.map-dot):not(.leaflet-marker-icon):not(.leaflet-marker-icon *):not([class*='avatar']):not([class*='user-image']):not([class*='-image']):not([class*='dot']):not([class*='pulse']):not([class*='ring']):not([class*='radar']):not([class*='blip']):not([class*='sweep']):not([class*='core']):not([class*='spinner']):not([class*='badge']):not(.switch):not(.slider):not([type='radio']) {
+*:not(svg):not(.leaflet-marker-icon):not(.leaflet-marker-icon *):not(.leaflet-tile):not([class*='dot']):not([class*='pulse']):not([class*='ring']):not([class*='radar']):not([class*='blip']):not([class*='sweep']):not([class*='core']):not([class*='spinner']):not(.switch):not(.slider):not([type='radio']) {
   border-radius: 2px !important;
 }
 
@@ -47,6 +47,8 @@ $sat: env(safe-area-inset-top, 0px);
   .map-header.small-header { top: calc(#{$titleHeight} + #{$sat}) !important; }
   .map-header:not(.small-header) { top: calc(4rem + #{$sat}) !important; }
   .filter__container { padding-top: $sat !important; }
-  .locations-container { margin-top: calc(7rem + #{$sat}) !important; }
+  // 7rem = barre de recherche + List/Map de la page Locations uniquement ; dans une liste, le contenu suit le bouton
+  .locations-container:not(.favorites-containers) { margin-top: calc(7rem + #{$sat}) !important; }
+  .locations-container.favorites-containers { margin-top: 16px !important; }
   body.has-bottom-nav #map { top: calc(7rem + #{$sat}) !important; }
 }

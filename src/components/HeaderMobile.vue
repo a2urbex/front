@@ -50,15 +50,18 @@ const logout = async () => {
 const clearCache = forceAppUpdate;
 
 const mapStore = useMapStore();
+const exploration = useExplorationStore();
 const route = computed(() => router.currentRoute.value);
+// L'onglet actif dépend de la section (la route), jamais de la vue List/Map du haut
 const tab = computed(() => {
   if (isOpen.value) return 'profile';
-  if (mapStore.open || route.value.path === '/locations') return 'map';
-  if (route.value.path.startsWith('/favorites')) return route.value.query.view === 'outings' ? 'outings' : 'lists';
+  const p = route.value.path;
+  if (exploration.active && p === `/favorites/${exploration.active.favoriteId}`) return 'map';
+  if (p === '/locations') return 'map';
+  if (p.startsWith('/favorites')) return route.value.query.view === 'outings' ? 'outings' : 'lists';
   return '';
 });
 
-const exploration = useExplorationStore();
 
 // En exploration, l'onglet Map ouvre la carte de la liste active
 const openMap = async () => {
@@ -81,7 +84,7 @@ const isLocationsRoute = computed(() => {
     <ExplorationBar />
     <div class="bottom-nav__tabs">
     <button class="bottom-nav__tab" :class="{ on: tab === 'map' }" @click="openMap">
-      <font-awesome-icon :icon="['fas', 'map-location-dot']" /><span>Map</span>
+      <font-awesome-icon :icon="['fas', exploration.active ? 'compass' : 'map-location-dot']" /><span>{{ exploration.active ? 'Explore' : 'Map' }}</span>
     </button>
     <router-link class="bottom-nav__tab" :class="{ on: tab === 'lists' }" to="/favorites" @click="isOpen = false; mapStore.open = false">
       <font-awesome-icon :icon="['fas', 'list-ul']" /><span>Lists</span>

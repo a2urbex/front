@@ -1,4 +1,5 @@
 <script setup>
+import { apiImage } from '@/utilities/apiImage';
 import { ref, onMounted } from 'vue';
 import { useFavoritesStore } from '@/stores/favorites';
 
@@ -20,9 +21,7 @@ const onKeyPress = async () => {
 };
 
 const getFriendImageUrl = (friend) => {
-  return friend.image
-    ? `${import.meta.env.VITE_API_BASE_URL}${friend.image}`
-    : '';
+  return apiImage(friend.image);
 };
 
 // Trigger when a friend item is clicked

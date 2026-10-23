@@ -1,4 +1,5 @@
 <script setup>
+import { apiImage } from '@/utilities/apiImage';
 import { onMounted, computed, ref } from 'vue';
 import { useUsersStore } from '@/stores/users';
 import PreLoader from '../components/PreLoader.vue';
@@ -17,9 +18,7 @@ const filteredUsers = computed(() => {
 });
 
 const getUserImageUrl = (user) => {
-  return user.image
-    ? `${import.meta.env.VITE_API_BASE_URL}${user.image}`
-    : '/default-user.png';
+  return apiImage(user.image) || '/default-user.png';
 };
 
 onMounted(async () => {

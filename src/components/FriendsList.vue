@@ -1,4 +1,5 @@
 <script setup>
+import { apiImage } from '@/utilities/apiImage';
 import { onMounted, computed, ref } from 'vue';
 import { useProfileStore } from '@/stores/profile';
 import PreLoader from '../components/PreLoader.vue';
@@ -12,9 +13,7 @@ const isLoading = computed(() => profileStore.loading);
 const activeTab = ref('friends');
 
 const getFriendImageUrl = (friend) => {
-  return friend.image
-    ? `${import.meta.env.VITE_API_BASE_URL}${friend.image}`
-    : '';
+  return apiImage(friend.image);
 };
 
 const removeFriend = async (friendId) => {

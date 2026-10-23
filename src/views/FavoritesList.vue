@@ -1,4 +1,5 @@
 <script setup>
+import { apiImage } from '@/utilities/apiImage';
 import { onMounted, onBeforeUnmount, ref, computed } from 'vue';
 import FavoritesEditor from '@/components/FavoritesEditor.vue';
 import { useFavoritesStore } from '@/stores/favorites';
@@ -87,7 +88,7 @@ onMounted(async () => {
                     </p>
                     <div class="favorites__content-users">
                         <div class="favorites__content-users-entry" v-for="(user) in favorite.users" :key="user.id">
-                            <img v-if="user.image" :src="`${API_BASE_URL}/${user.image}`" :alt="user.name">
+                            <img v-if="user.image" :src="apiImage(user.image)" :alt="user.name">
                         </div>
                     </div>
                     <div class="favorites__content-edit">                        

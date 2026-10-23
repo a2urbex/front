@@ -1,4 +1,5 @@
 <script setup>
+import { apiImage } from '@/utilities/apiImage';
 import { onMounted, computed } from 'vue';
 import { useProfileStore } from '@/stores/profile';
 import { useRoute } from 'vue-router';
@@ -83,9 +84,7 @@ const buttonIcon = computed(() => {
 });
 
 const getImageUrl = (location) => {
-  return location && location.includes('http')
-    ? location
-    : `${import.meta.env.VITE_API_BASE_URL}${location || ''}`;
+  return apiImage(location);
 };
 
 const visibleImages = computed(() => {

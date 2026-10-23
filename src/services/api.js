@@ -1,7 +1,23 @@
 import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
+import { isDemo, DemoBlocked } from '@/demo/session';
+
+const TOAST = { position: toast.POSITION.TOP_CENTER, pauseOnHover: true, theme: 'dark' };
+
+// Démo : aucune requête réseau, réponses du backend simulé (chargé à la demande)
+const demoCall = async (method, route, body) => {
+    const { demoRequest } = await import('@/demo/api');
+    try {
+        return await demoRequest(method, route, body);
+    } catch (e) {
+        if (e instanceof DemoBlocked) toast.info(e.message, { ...TOAST, autoClose: 2500 });
+        else toast.error(e.message, { ...TOAST, autoClose: 2000 });
+        throw e;
+    }
+};
 
 export function request(method, route, body) {
+    if (isDemo()) return demoCall(method, route, body);
     const auth = useAuthStore();
 
     const headers = {

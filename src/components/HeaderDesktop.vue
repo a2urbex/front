@@ -1,5 +1,10 @@
 <script setup>
+import { apiImage } from '@/utilities/apiImage';
 import ExplorationBar from '@/components/ExplorationBar.vue';
+import DemoBanner from '@/components/DemoBanner.vue';
+import { isDemo } from '@/demo/session';
+import { forceAppUpdate } from '@/utilities/appUpdate';
+const demo = isDemo();
 import { computed, ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useVersionStore } from '@/stores/version';
@@ -25,7 +30,7 @@ const isLocationsRoute = computed(() => router.currentRoute.value.path === '/loc
 const isFavoritesRoute = computed(() => router.currentRoute.value.path.includes('/favorites/'));
 
 const profileImageUrl = computed(() => {
-  return userProfile.value.image ? `${import.meta.env.VITE_API_BASE_URL}${userProfile.value.image}` : '';
+  return apiImage(userProfile.value.image);
 });
 
 const isUserSectionOpen = ref(false);
@@ -42,23 +47,7 @@ const logout = async () => {
   authStore.logout();
 };
 
-const clearCache = async () => {
-  if ('serviceWorker' in navigator) {
-    const registrations = await navigator.serviceWorker.getRegistrations();
-    for (let registration of registrations) {
-      registration.unregister();
-    }
-  }
-  if ('caches' in window) {
-    const cacheNames = await caches.keys();
-    console.log('Caches cleared:' + cacheNames);
-    for (let cacheName of cacheNames) {
-      console.log('Caches cleared:' + cacheName);
-      caches.delete(cacheName);
-    }
-  }
-  window.location.reload();
-};
+const clearCache = forceAppUpdate;
 </script>
 
 <template>
@@ -67,6 +56,7 @@ const clearCache = async () => {
       <router-link v-if="isLoggedIn" class="header-desktop__logo-link" to="/locations"> A2Urbex </router-link>
       <router-link v-else class="header-desktop__logo-link" to="/"> A2Urbex </router-link>
     </div>
+    <DemoBanner />
 
     <div v-if="isLoggedIn" class="header-desktop__content">
       <nav class="header-desktop__section header-desktop__section--primary">
@@ -134,7 +124,7 @@ const clearCache = async () => {
             <span>My profile</span>
           </router-link>
 
-          <router-link class="header-desktop__nav-link" to="/edit-profile">
+          <router-link v-if="!demo" class="header-desktop__nav-link" to="/edit-profile">
             <font-awesome-icon :icon="['fa', 'gear']" />
             <span>Account settings</span>
           </router-link>

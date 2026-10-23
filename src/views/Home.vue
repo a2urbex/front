@@ -35,6 +35,7 @@
           </button>
 
           <button v-if="!showAuth && !authStore.token" class="request-link" @click="requestAccess">Request access</button>
+          <router-link v-if="!showAuth && !authStore.token" class="request-link" to="/demo">Try the demo</router-link>
 
           <a href="https://www.instagram.com/a2urbex" target="_blank" rel="noopener" class="insta-link">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

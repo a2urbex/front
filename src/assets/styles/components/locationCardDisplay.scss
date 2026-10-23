@@ -398,3 +398,5 @@
   }
 }
 .location-card-display__distance { margin: 0 0 8px; font: 500 12px $font-mono; color: $primary; }
+
+.location-card-display__fake { margin: 8px 16px 0; display: inline-block; padding: 3px 8px; background: repeating-linear-gradient(-45deg, #1a1408 0 6px, #141005 6px 12px); border: 1px solid rgba(255, 138, 31, 0.5); color: #ffb26b; font: 500 10px 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }

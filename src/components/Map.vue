@@ -473,6 +473,7 @@ onBeforeUnmount(destroyMap)
                     <span class="map-overlay-image__empty-label">No image</span>
                   </div>
                 </div>
+                <p class="map-overlay-fake" v-if="itemSelected?.fake">Fake data · this place does not exist</p>
                 <p class="map-overlay-title">{{ itemSelected?.name }}</p>
                 <p class="map-overlay-dist" v-if="position.pos && itemSelected">{{ position.labelTo(itemSelected) }} from you</p>
                 <FieldStatus v-if="itemSelected?.id" :key="itemSelected.id" :item="itemSelected" @updated="onStatusUpdated" />

@@ -1,9 +1,13 @@
 <script setup>
+import { apiImage } from '@/utilities/apiImage';
 import { forceAppUpdate } from '@/utilities/appUpdate';
 import { computed, ref, nextTick, watch } from 'vue';
 import { useMapStore } from '@/stores/map';
 import { useExplorationStore } from '@/stores/exploration';
 import ExplorationBar from '@/components/ExplorationBar.vue';
+import DemoBanner from '@/components/DemoBanner.vue';
+import { isDemo } from '@/demo/session';
+const demo = isDemo();
 import { useAuthStore } from '@/stores/auth';
 import { useVersionStore } from '@/stores/version';
 import { useRouter } from 'vue-router';
@@ -25,9 +29,7 @@ const isLoggedIn = computed(() => authStore.token !== null);
 const userProfile = computed(() => authStore.userProfile);
 
 const profileImageUrl = computed(() => {
-  return userProfile.value.image
-    ? `${import.meta.env.VITE_API_BASE_URL}${userProfile.value.image}`
-    : '';
+  return apiImage(userProfile.value.image);
 });
 
 const isOpen = ref(false);
@@ -81,6 +83,7 @@ const isLocationsRoute = computed(() => {
 
 <template>
   <nav v-if="isLoggedIn" class="header-mobile bottom-nav d-none">
+    <DemoBanner />
     <ExplorationBar />
     <div class="bottom-nav__tabs">
     <button class="bottom-nav__tab" :class="{ on: tab === 'map' }" @click="openMap">
@@ -112,7 +115,7 @@ const isLocationsRoute = computed(() => {
           <p class="header-mobile__user-entry header-mobile__add-entry" @click="handleAddLocation">
             <font-awesome-icon :icon="['fa', 'plus']" /> Add a location
           </p>
-          <router-link class="header-mobile__user-entry header-mobile__settings" to="/edit-profile" @click="toggleOpen">
+          <router-link v-if="!demo" class="header-mobile__user-entry header-mobile__settings" to="/edit-profile" @click="toggleOpen">
             <font-awesome-icon :icon="['fa', 'gear']" />Account settings
           </router-link>
           <router-link class="header-mobile__user-entry" to="/Locations" @click="toggleOpen">

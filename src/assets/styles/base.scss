@@ -65,8 +65,7 @@ body {
 
     @media (max-width: $md) {
       overflow-x: hidden;
-      padding-bottom: calc(#{$bottomHeaderHeight} + env(safe-area-inset-bottom, 0px));
-      body.exploring & { padding-bottom: calc(#{$bottomHeaderHeight + $explorationBarHeight} + env(safe-area-inset-bottom, 0px)); }
+      padding-bottom: calc(#{$bottomHeaderHeight} + var(--nav-extra) + env(safe-area-inset-bottom, 0px));
     }
   }
 
@@ -177,3 +176,9 @@ body.on-home::after { display: none; }
 @media (max-width: $md), (pointer: coarse) {
   body::after { display: none; }
 }
+
+// Hauteur ajoutée au-dessus des onglets mobiles (barre démo, barre exploration)
+body { --nav-extra: 0px; }
+body.exploring { --nav-extra: #{$explorationBarHeight}; }
+body.is-demo { --nav-extra: #{$demoBarHeight}; }
+body.is-demo.exploring { --nav-extra: #{$demoBarHeight + $explorationBarHeight}; }

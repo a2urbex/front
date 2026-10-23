@@ -1,4 +1,6 @@
 <script setup>
+import { isDemo } from '@/demo/session';
+const demo = isDemo();
 import { ref, onMounted } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { toast } from 'vue3-toastify';
@@ -151,6 +153,7 @@ const handleClose = () => {
 <template>
     <transition name="slide-up" mode="out-in" appear>
     <div class="location-add">
+      <p v-if="demo" class="location-add__demo">You are in demo mode: you can fill in the form, but nothing will be saved.</p>
       <button type="button" class="location-add__close" @click="handleClose">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -184,7 +187,8 @@ const handleClose = () => {
             </div>
 
             <!-- Step 3: Image -->
-            <div v-if="currentStep === 3" class="st-form-group">
+            <p v-if="currentStep === 3 && demo" class="location-add__demo">Image upload is disabled in demo mode.</p>
+            <div v-else-if="currentStep === 3" class="st-form-group">
             <input placeholder=" " type="file" id="image" @change="handleFileChange" accept="image/*" />
             <label for="image">Image:</label>
             <div class="input-line"></div>

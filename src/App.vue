@@ -7,6 +7,7 @@ import NotifyPrompt from '@/components/NotifyPrompt.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useExplorationStore } from '@/stores/exploration';
 import { usePositionStore } from '@/stores/position';
+import { isDemo } from '@/demo/session';
 import { ref, watch, onMounted } from 'vue';
 import { useVersionStore } from '@/stores/version';
 import { useUIStore } from '@/stores/ui';
@@ -18,9 +19,17 @@ const versionStore = useVersionStore();
 const uiStore = useUIStore();
 const router = useRouter();
 const authStore = useAuthStore();
+const demo = isDemo();
 const explorationStore = useExplorationStore();
 
 const positionStore = usePositionStore();
+if (isDemo()) {
+  document.body.classList.add('is-demo');
+  const robots = document.createElement('meta');
+  robots.name = 'robots';
+  robots.content = 'noindex, nofollow';
+  document.head.appendChild(robots);
+}
 watch(() => explorationStore.active, (a) => {
   document.body.classList.toggle('exploring', !!a);
   if (a) positionStore.start();
@@ -84,8 +93,8 @@ const goToUpdate = () => {
   <!-- Map -->
   <MapComponent />
 
-  <PwaGate />
-  <NotifyPrompt v-if="authStore.token" />
+  <PwaGate v-if="!demo" />
+  <NotifyPrompt v-if="authStore.token && !demo" />
 
   <!-- Add Location -->
   <AddLocationComponent v-if="showAddLocation" @close="showAddLocation = false" />

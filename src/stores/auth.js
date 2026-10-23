@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { stopDemo } from '@/demo/session';
 import { request } from '@/services/api';
 import { toast } from 'vue3-toastify';
 import router from '../router';
@@ -26,6 +27,7 @@ export const useAuthStore = defineStore('auth', {
                     }, 3000);
                     return;
                 }else{
+                    stopDemo();
                     this.token = data.token;
                     localStorage.setItem('authToken', data.token);
                     toast.success('Login successful!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
@@ -70,6 +72,7 @@ export const useAuthStore = defineStore('auth', {
         },
 
         async logout() {
+            stopDemo();
             this.token = null;
             this.userProfile = {};
             toast.warning('Logout successful!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });

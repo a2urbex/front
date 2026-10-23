@@ -4,6 +4,7 @@ import router from './router'
 import { createPinia } from 'pinia';
 // PWA 
 import { registerSW } from 'virtual:pwa-register';
+import { startDemo } from './demo/session';
 // Styling
 import './assets/styles/base.scss'
 import 'vue3-toastify/dist/index.css';
@@ -51,5 +52,11 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-createApp(App).component('font-awesome-icon', FontAwesomeIcon).use(router).use(createPinia()).mount('#app')
+// Accès direct /demo : session démo activée avant tout rendu, puis ouverture de l'app (aucun passage par l'accueil)
+if (window.location.pathname.replace(/\/+$/, '') === '/demo') {
+    startDemo();
+    window.location.replace('/locations');
+} else {
+    createApp(App).component('font-awesome-icon', FontAwesomeIcon).use(router).use(createPinia()).mount('#app')
+}
 

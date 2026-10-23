@@ -1,4 +1,6 @@
 <script setup>
+import { isDemo } from '@/demo/session';
+const demo = isDemo();
 import { computed, ref } from 'vue';
 import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
@@ -86,10 +88,11 @@ const contributor = computed(() => {
                             </p>
                             <div class="location-card-display__bottom-actions">
                                 <FavoritesModal :fids="location.fids" :id="location.id" />
-                                <LocationEdit v-if="userId && (isAdmin || location.userId === userId)" :location="location" @close="$emit('close')" />
+                                <LocationEdit v-if="!demo && userId && (isAdmin || location.userId === userId)" :location="location" @close="$emit('close')" />
                             </div>
                         </div>
 
+                        <p class="location-card-display__fake" v-if="location.fake">Fake data · this place does not exist</p>
                         <h2>{{ location.name }}</h2>
                         <p v-if="position.pos" class="location-card-display__distance">{{ position.labelTo(location) }} from you</p>
                         <FieldStatus v-if="userId" :key="location.id" :item="location" @updated="onStatusUpdated" />

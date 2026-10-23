@@ -47,6 +47,18 @@ const router = createRouter({
       component: HomeView
     },
     {
+      // Démo publique : session 100 % navigateur, données fictives, aucun appel à l'API
+      path: '/demo',
+      component: HomeView,
+      // Rechargement complet : bannière, noindex, mur PWA… sont décidés au démarrage de l'app
+      beforeEnter: async () => {
+        const { startDemo } = await import('@/demo/session')
+        startDemo()
+        window.location.replace('/locations')
+        return false
+      },
+    },
+    {
       path: '/location/add',
       component : LocationAdd,
       meta: { requiresAuth: true }
@@ -137,6 +149,12 @@ router.beforeEach(async (to, from, next) => {
       try { await authStore.fetchUserProfile() } catch (_) {}
     }
     if (!authStore.userProfile?.isAdmin) return next({ path: '/' })
+  }
+
+  // Démo : aucune page de formulaire de compte (avatar, bannière, mot de passe)
+  if (to.path === '/edit-profile') {
+    const { isDemo } = await import('@/demo/session')
+    if (isDemo()) return next({ path: '/locations' })
   }
 
   // Connecté : jamais l'accueil (login + animation). Un token expiré est déconnecté au 1er 401 de l'API.

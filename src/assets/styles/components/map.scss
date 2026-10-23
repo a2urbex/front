@@ -952,8 +952,7 @@
 // Exploration active : la nav mobile grandit de la hauteur de la barre
 // Mobile : carte calée entre le header List/Map (7rem) et la nav du bas, fiche incluse
 @media (max-width: $md) {
-  body.has-bottom-nav #map { top: 7rem !important; bottom: calc(#{$bottomHeaderHeight} + env(safe-area-inset-bottom, 0px)) !important; height: auto !important; }
-  body.exploring.has-bottom-nav #map { bottom: calc(#{$bottomHeaderHeight + $explorationBarHeight} + env(safe-area-inset-bottom, 0px)) !important; }
+  body.has-bottom-nav #map { top: 7rem !important; bottom: calc(#{$bottomHeaderHeight} + var(--nav-extra) + env(safe-area-inset-bottom, 0px)) !important; height: auto !important; }
 }
 
 #map .leaflet-control-attribution {
@@ -1055,3 +1054,5 @@
 }
 #map .map-overlay-title { white-space: normal; overflow: visible; text-overflow: clip; word-break: break-word; padding: 0 16px; }
 #map .map-overlay .field-status__grid .fs-opt small { white-space: normal; text-align: center; line-height: 1.2; }
+
+#map .map-overlay-fake { margin: 8px 16px 0; display: inline-block; padding: 3px 8px; background: repeating-linear-gradient(-45deg, #1a1408 0 6px, #141005 6px 12px); border: 1px solid rgba(255, 138, 31, 0.5); color: #ffb26b; font: 500 10px 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }

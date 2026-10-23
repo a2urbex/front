@@ -139,6 +139,9 @@ router.beforeEach(async (to, from, next) => {
     if (!authStore.userProfile?.isAdmin) return next({ path: '/' })
   }
 
+  // Connecté : jamais l'accueil (login + animation). Un token expiré est déconnecté au 1er 401 de l'API.
+  if (to.path === '/' && authStore.token) return next({ path: '/locations' })
+
   if (to.path === '/locations' && authStore.token) {
     const { useExplorationStore } = await import('@/stores/exploration')
     const active = useExplorationStore().active

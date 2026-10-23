@@ -78,14 +78,14 @@ export const useAuthStore = defineStore('auth', {
             router.push('/');
         },
 
+        // 401 => request() déconnecte déjà. Une erreur réseau (hors-ligne, API lente) ne doit pas déconnecter.
         async validateToken() {
             try {
                 await request('GET', `${import.meta.env.VITE_ACCOUNT_ENDPOINT}`);
-                return true;
             } catch (error) {
-                this.logout();
-                return false;
+                // on garde la session
             }
+            return !!this.token;
         },
 
         async fetchUserProfile() {

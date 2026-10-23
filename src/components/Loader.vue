@@ -74,7 +74,7 @@
   animation: flicker 3.5s infinite;
 
   &__mark {
-    color: #ffaa55;
+    color: #ff8a1f;
     text-shadow: 0 0 18px rgba(255, 170, 85, 0.7);
   }
 }
@@ -95,7 +95,7 @@
   height: 100%;
   width: 40%;
   border-radius: 3px;
-  background: linear-gradient(90deg, transparent, #ffaa55 50%, #fff 70%, transparent);
+  background: linear-gradient(90deg, transparent, #ff8a1f 50%, #fff 70%, transparent);
   box-shadow: 0 0 12px rgba(255, 170, 85, 0.6);
   animation: slide 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
@@ -114,7 +114,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #ffaa55;
+  background: #ff8a1f;
   box-shadow: 0 0 8px rgba(255, 170, 85, 0.8);
   animation: pulse-dot 1.2s ease-in-out infinite;
 }

@@ -4,7 +4,7 @@
 @forward './components/forms.scss';
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: $font-body;
   line-height: 1.5;
   font-weight: 400;
 
@@ -52,7 +52,9 @@ body {
 
   .content {
     height: 100vh;
-    max-height: calc(100vh);
+    height: 100dvh;
+    max-height: 100dvh;
+
     overflow-y: auto;
     position: relative;
     box-sizing: border-box;
@@ -64,6 +66,7 @@ body {
     @media (max-width: $md) {
       overflow-x: hidden;
       padding-bottom: $bottomHeaderHeight;
+      body.exploring & { padding-bottom: $bottomHeaderHeight + $explorationBarHeight; }
     }
   }
 
@@ -139,4 +142,38 @@ a {
   background-color: rgb(114 2 2 / 87%);
   border: 1px solid red;
   border-radius: 0.2rem;
+}
+
+// --- Typo : titres condensés, métadonnées en mono ---
+h1, h2, h3, .title-container h1, .title-container h2 {
+  font-family: $font-display;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.mono, time, code { font-family: $font-mono; }
+
+// Grain photo, très léger
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+body:has(.home)::after { display: none; }
+
+// Mobile : barres opaques + marges exactes. Pas de conteneur fixed scrollable :
+// iOS Safari y rogne les enfants position:fixed (titre, recherche, List/Map).
+@media (max-width: $md) {
+  #app .content:has(.map-header.small-header) { padding-top: $titleHeight + $mapHeaderHeight; }
+}
+
+// Grain désactivé sur mobile : un calque fixed plein écran gêne le défilement tactile iOS
+@media (max-width: $md), (pointer: coarse) {
+  body::after { display: none; }
 }

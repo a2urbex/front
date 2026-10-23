@@ -94,7 +94,7 @@
 
   @media screen and (min-width: 769px) {
     padding-left: 1.5rem;
-    border-left: 2px solid rgba(206, 152, 104, 0.4);
+    border-left: 2px solid rgba(255, 138, 31, 0.4);
   }
 
   &.is-auth-active {
@@ -121,8 +121,8 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #ce9868;
-  box-shadow: 0 0 6px rgba(206, 152, 104, 0.5);
+  background: #ff8a1f;
+  box-shadow: 0 0 6px rgba(255, 138, 31, 0.5);
   animation: heroPulse 2.6s ease-in-out infinite;
 }
 
@@ -138,7 +138,7 @@
 }
 
 .hero__title-accent {
-  color: #d29c69;
+  color: #ff8a1f;
   text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
 }
 
@@ -159,7 +159,7 @@
 }
 
 .hero__count {
-  color: #d29c69;
+  color: #ff8a1f;
   font-weight: 700;
   font-size: 1.02rem;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
@@ -188,7 +188,7 @@
   transition: color 0.25s ease, text-shadow 0.25s ease;
 
   &:hover {
-    color: #d29c69;
+    color: #ff8a1f;
     text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
   }
 }
@@ -225,7 +225,7 @@
 .glitch-text {
   font-size: clamp(3rem, 10vw, 6rem);
   font-weight: 900;
-  color: #ffaa55;
+  color: #ff8a1f;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin: 0;
@@ -268,7 +268,7 @@
   transition: all 0.5s ease-out;
 
   .count-value {
-    color: #ffaa55;
+    color: #ff8a1f;
     font-weight: 700;
     font-size: 1rem;
     text-shadow: 0 0 12px rgba(255, 170, 85, 0.6);
@@ -298,7 +298,7 @@
     align-items: center;
     gap: 0.3rem;
     margin-left: 0.35rem;
-    color: #ffaa55;
+    color: #ff8a1f;
     text-decoration: none;
     font-weight: 600;
     transition: all 0.25s ease;
@@ -331,7 +331,7 @@
   align-items: center;
   gap: 0.55rem;
   padding: 0.72rem 1.4rem;
-  background: #cf9a63;
+  background: #ff8a1f;
   border: none;
   border-radius: 9px;
   color: #1a130a;
@@ -347,7 +347,7 @@
   }
 
   &:hover {
-    background: #dca971;
+    background: #ff9d40;
     transform: translateY(-1px);
 
     .connect-arrow {
@@ -391,10 +391,10 @@
 
 .auth-container {
   position: relative;
-  background: rgba(16, 17, 19, 0.94);
-  backdrop-filter: blur(14px);
+  background: #101113;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+  border-top: 3px solid $primary;
+  border-radius: 0;
   padding: 2rem;
   width: 100%;
   max-width: 400px;
@@ -418,7 +418,7 @@
   }
 
   .st-btn {
-    background: #cf9a63;
+    background: #ff8a1f;
     text-transform: none;
     letter-spacing: 0.01em;
     font-weight: 600;
@@ -427,7 +427,7 @@
     box-shadow: none;
 
     &:hover {
-      background: #dca971;
+      background: #ff9d40;
       box-shadow: none;
       transform: none;
     }
@@ -438,19 +438,19 @@
   }
 
   .st-form-group .input-line {
-    background: #cf9a63;
+    background: #ff8a1f;
   }
 
   .st-form-group input:focus {
-    border-bottom-color: #cf9a63;
+    border-bottom-color: #ff8a1f;
 
     ~label {
-      color: #cf9a63;
+      color: #ff8a1f;
     }
   }
 
   .st-form-group input:not(:placeholder-shown) ~ label {
-    color: #cf9a63;
+    color: #ff8a1f;
   }
 }
 
@@ -471,7 +471,7 @@
   z-index: 10;
 
   &:hover {
-    color: #ffaa55;
+    color: #ff8a1f;
     background: rgba(255, 170, 85, 0.1);
     transform: rotate(90deg);
   }
@@ -505,7 +505,7 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: #cf9a63;
+    background: #ff8a1f;
     transform: scaleX(0);
     transition: transform 0.3s ease;
   }
@@ -550,7 +550,7 @@
   transition: color 0.3s ease;
 
   &:hover {
-    color: #ffaa55;
+    color: #ff8a1f;
   }
 }
 
@@ -594,7 +594,7 @@
   }
 
   &:hover {
-    color: #ffaa55;
+    color: #ff8a1f;
     background: rgba(255, 170, 85, 0.1);
 
     svg {
@@ -711,4 +711,103 @@
   .auth-container {
     padding: 1.5rem;
   }
+}
+
+// --- Refonte : titre condensé, CTA franc, points clés asymétriques, vignette ---
+.home::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 45%, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+
+.hero {
+  @media screen and (min-width: 769px) { border-left-color: $primary; }
+}
+
+.hero__title {
+  font-family: $font-display;
+  font-size: clamp(3.2rem, 11vw, 7.5rem);
+  font-weight: 700;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+}
+
+.hero__title-accent { color: $primary; }
+
+.hero__tagline {
+  font-family: $font-display;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+}
+
+.hero__meta, .hero__count { font-family: $font-mono; font-size: 0.8rem; }
+.hero__count { color: $primary; }
+
+.connect-btn {
+  padding: 0.95rem 1.8rem;
+  border-radius: 0;
+  background: $primary;
+  color: #120a02;
+  font-family: $font-display;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: none;
+  &:hover { background: #ff9d40; }
+}
+
+.request-link {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba(232, 228, 220, 0.4);
+  color: #e8e4dc;
+  font: 500 0.85rem $font-mono;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
+  &:hover { border-bottom-color: $primary; color: $primary; }
+}
+
+.home-points {
+  position: absolute;
+  right: clamp(1.5rem, 5vw, 4.5rem);
+  bottom: clamp(2rem, 6vh, 4rem);
+  z-index: 2;
+  width: min(330px, 34vw);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #cfc9bd;
+  transition: opacity 0.4s ease;
+
+  li {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr;
+    padding: 0.7rem 0;
+    border-top: 1px solid rgba(232, 228, 220, 0.14);
+    font-size: 0.88rem;
+    line-height: 1.4;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
+  }
+  span { font: 500 0.72rem $font-mono; color: $primary; padding-top: 0.15rem; }
+  p { margin: 0; }
+  b { color: #f2eee6; font-weight: 500; }
+
+  &.is-hidden { opacity: 0; pointer-events: none; }
+
+  @media screen and (max-width: 768px) { display: none; }
+}
+
+@media screen and (max-width: 768px) {
+  .hero { max-width: 100%; }
+  .hero__meta { white-space: normal; }
+  .hero__actions { gap: 1rem 1.2rem; }
 }

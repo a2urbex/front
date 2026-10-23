@@ -17,7 +17,7 @@
 // Glass Container
 .st-glass-panel {
     background: rgba(20, 20, 20, 0.85);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(0);
     border: 1px solid rgba($primary, 0.2);
     border-radius: 1rem;
     padding: 1.5rem; // Reduced from 2rem
@@ -84,7 +84,7 @@
         left: 0;
         height: 2px;
         width: 100%;
-        background: linear-gradient(90deg, $primary, #ff5555);
+        background: $primary;
         transform: scaleX(0);
         transition: transform 0.3s ease;
     }
@@ -95,7 +95,7 @@
     position: relative;
     width: 100%;
     padding: 0.8rem; // Reduced from 1rem
-    background: linear-gradient(135deg, $primary, $primary-dark);
+    background: $primary;
     border: none;
     border-radius: 0.5rem;
     color: #000;

@@ -1,0 +1,35 @@
+// Charte globale : bords francs, pas de verre dépoli, rond réservé aux avatars / pins / pastilles.
+// Chargé en dernier (main.js) pour primer sur les styles de composants.
+@use './variables.scss' as *;
+
+*:not(img):not(svg):not(.map-dot):not(.leaflet-marker-icon):not(.leaflet-marker-icon *):not([class*='avatar']):not([class*='user-image']):not([class*='-image']):not([class*='dot']):not([class*='pulse']):not([class*='ring']):not([class*='radar']):not([class*='blip']):not([class*='sweep']):not([class*='core']):not([class*='spinner']):not([class*='badge']):not(.switch):not(.slider):not([type='radio']) {
+  border-radius: 2px !important;
+}
+
+// Verre dépoli retiré à la source (blur(0) conservé : il crée le bloc conteneur dont dépendent certains panneaux)
+
+button, .st-btn, input, select, textarea {
+  font-family: inherit;
+}
+
+// Icônes de nav monochromes : l'accent signale l'état actif uniquement
+.header-desktop__nav-link svg { color: #8a857c !important; }
+.header-desktop__nav-link.router-link-active svg, .header-desktop__nav-link.router-link-exact-active svg { color: $primary !important; }
+
+.header-desktop__nav-link.router-link-active,
+.header-desktop__nav-link.router-link-exact-active {
+  background: #151515 !important;
+  border-color: transparent !important;
+  border-left: 3px solid $primary !important;
+  box-shadow: none !important;
+}
+
+.header-desktop__logo-link, .title-container h1, .title-container h2, .title h1 {
+  font-family: $font-display !important;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+input:focus, select:focus, textarea:focus { outline: 1px solid $primary; outline-offset: 0; }
+
+::selection { background: $primary; color: #111; }

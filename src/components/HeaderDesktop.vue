@@ -1,4 +1,5 @@
 <script setup>
+import ExplorationBar from '@/components/ExplorationBar.vue';
 import { computed, ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useVersionStore } from '@/stores/version';
@@ -112,6 +113,8 @@ const clearCache = async () => {
           <span>Admin</span>
         </router-link>
       </div>
+
+      <ExplorationBar />
 
       <div class="header-desktop__section header-desktop__section--user">
         <div class="header-desktop__profile" @click="toggleUserSection">

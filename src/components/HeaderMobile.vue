@@ -1,5 +1,9 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { forceAppUpdate } from '@/utilities/appUpdate';
+import { computed, ref, nextTick } from 'vue';
+import { useMapStore } from '@/stores/map';
+import { useExplorationStore } from '@/stores/exploration';
+import ExplorationBar from '@/components/ExplorationBar.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useVersionStore } from '@/stores/version';
 import { useRouter } from 'vue-router';
@@ -27,6 +31,7 @@ const profileImageUrl = computed(() => {
 });
 
 const isOpen = ref(false);
+const avatarBroken = ref(false);
 
 const toggleOpen = () => {
   isOpen.value = !isOpen.value;
@@ -41,22 +46,28 @@ const logout = async () => {
   authStore.logout();
 };
 
-const clearCache = async () => {
-  if ('serviceWorker' in navigator) {
-    const registrations = await navigator.serviceWorker.getRegistrations();
-    for (let registration of registrations) {
-      registration.unregister();
-    }
+const clearCache = forceAppUpdate;
+
+const mapStore = useMapStore();
+const route = computed(() => router.currentRoute.value);
+const tab = computed(() => {
+  if (isOpen.value) return 'profile';
+  if (mapStore.open || route.value.path === '/locations') return 'map';
+  if (route.value.path.startsWith('/favorites')) return route.value.query.view === 'outings' ? 'outings' : 'lists';
+  return '';
+});
+
+const exploration = useExplorationStore();
+
+// En exploration, l'onglet Map ouvre la carte de la liste active
+const openMap = async () => {
+  isOpen.value = false;
+  const target = exploration.active ? `/favorites/${exploration.active.favoriteId}` : '/locations';
+  if (route.value.path !== target && !(!exploration.active && route.value.path.startsWith('/favorites/'))) {
+    await router.push(target);
+    await nextTick();
   }
-  if ('caches' in window) {
-    const cacheNames = await caches.keys();
-    console.log('Caches cleared:' + cacheNames);
-    for (let cacheName of cacheNames) {
-      console.log('Caches cleared:' + cacheName);
-      caches.delete(cacheName); 
-    }
-  }
-  window.location.reload();
+  mapStore.open = true;
 };
 
 const isLocationsRoute = computed(() => {
@@ -65,23 +76,24 @@ const isLocationsRoute = computed(() => {
 </script>
 
 <template>
-  <div v-if="isLoggedIn" class="header-mobile d-none">
-    <router-link class="header-mobile__home" to="/locations">
-      <font-awesome-icon :icon="['fa', 'house']" />
+  <nav v-if="isLoggedIn" class="header-mobile bottom-nav d-none">
+    <ExplorationBar />
+    <div class="bottom-nav__tabs">
+    <button class="bottom-nav__tab" :class="{ on: tab === 'map' }" @click="openMap">
+      <font-awesome-icon :icon="['fas', 'map-location-dot']" /><span>Map</span>
+    </button>
+    <router-link class="bottom-nav__tab" :class="{ on: tab === 'lists' }" to="/favorites" @click="isOpen = false; mapStore.open = false">
+      <font-awesome-icon :icon="['fas', 'list-ul']" /><span>Lists</span>
     </router-link>
-    <router-link class="header-mobile__favorites" to="/friends"  @click="isOpen = false">
-      <font-awesome-icon :icon="['fa', 'users']" />
+    <router-link class="bottom-nav__tab" :class="{ on: tab === 'outings' }" :to="{ path: '/favorites', query: { view: 'outings' } }" @click="isOpen = false; mapStore.open = false">
+      <font-awesome-icon :icon="['fas', 'calendar-days']" /><span>Outings</span>
     </router-link>
-    <p class="header-mobile__add" @click="() => { handleAddLocation(); isOpen = false }">
-      <font-awesome-icon :icon="['fa', 'plus']" />
-    </p>
-    <router-link class="header-mobile__favorites" to="/favorites" @click="isOpen = false">
-      <font-awesome-icon :icon="['fa', 'heart']" />
-    </router-link>
-    <img :src="profileImageUrl" class="header-mobile__user-image" @click="toggleOpen" />
-
-    <!-- USER MENU -->
-  </div>
+    <button class="bottom-nav__tab" :class="{ on: tab === 'profile' }" @click="toggleOpen">
+      <img v-if="profileImageUrl && !avatarBroken" :src="profileImageUrl" class="bottom-nav__avatar" alt="" @error="avatarBroken = true" />
+      <font-awesome-icon v-else :icon="['fas', 'user']" /><span>Profile</span>
+    </button>
+    </div>
+  </nav>
 
   <div :class="{ 'header-mobile__user-info': true, 'open': isOpen }">
       <Title @click="toggleOpen" title="Menu" :hasPageWidth="false" :goHistory="false" />
@@ -93,6 +105,9 @@ const isLocationsRoute = computed(() => {
           <Filters idPrefix="mobile-" :hideSearch="true" />
         </div>
         <div class="header-mobile__user-entries">
+          <p class="header-mobile__user-entry header-mobile__add-entry" @click="handleAddLocation">
+            <font-awesome-icon :icon="['fa', 'plus']" /> Add a location
+          </p>
           <router-link class="header-mobile__user-entry header-mobile__settings" to="/edit-profile" @click="toggleOpen">
             <font-awesome-icon :icon="['fa', 'gear']" />Account settings
           </router-link>

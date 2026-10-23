@@ -15,7 +15,7 @@
 
         <h1 class="hero__title">A2<span class="hero__title-accent">URBEX</span></h1>
 
-        <p class="hero__tagline">Your exploration co-pilot.</p>
+        <p class="hero__tagline">The map of places left behind.</p>
 
         <p class="hero__meta" v-if="locationCount !== null">
           <span class="hero__count">{{ locationCount }}</span> spots mapped — shared only with trusted people.
@@ -27,12 +27,14 @@
             class="connect-btn"
             @click="handleConnectClick"
           >
-            <span>Connect</span>
+            <span>Log in</span>
             <svg class="connect-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="4" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
           </button>
+
+          <button v-if="!showAuth && !authStore.token" class="request-link" @click="requestAccess">Request access</button>
 
           <a href="https://www.instagram.com/a2urbex" target="_blank" rel="noopener" class="insta-link">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -44,6 +46,13 @@
           </a>
         </div>
       </div>
+
+      <ol class="home-points" :class="{ 'is-hidden': showAuth }">
+        <li><span>01</span><p><b class="mono">{{ locationCount !== null ? locationCount : '200k+' }}</b> spots, fed by scrapers day and night.</p></li>
+        <li><span>02</span><p>Draw a zone, build the weekend list, go.</p></li>
+        <li><span>03</span><p>Field mode: one tap to mark a spot alive, walled or gone.</p></li>
+        <li><span>04</span><p>Invite only. Nothing here is public.</p></li>
+      </ol>
 
       <transition name="fade">
         <div class="auth-overlay" v-if="showAuth && !authStore.token">
@@ -247,6 +256,11 @@ const handleConnectClick = () => {
   }
 };
 
+const requestAccess = () => {
+  activeTab.value = 'register';
+  handleConnectClick();
+};
+
 const closeAuth = () => {
   showAuth.value = false;
   if (threeBackground.value) {
@@ -272,17 +286,24 @@ const performTransition = async () => {
   isTransitioning.value = true;
   uiStore.setTransitioning(true); // Hide header and remove margin
   showAuth.value = false; // Hide auth modal if open
-  
-  if (threeBackground.value) {
-    const fallPromise = threeBackground.value.fall();
-    await new Promise(resolve => setTimeout(resolve, 600));
-    await threeBackground.value.fadeOut();
-    await fallPromise;
+
+  try {
+    if (threeBackground.value) {
+      const scene = threeBackground.value;
+      const animation = (async () => {
+        const fallPromise = scene.fall();
+        await new Promise(resolve => setTimeout(resolve, 600));
+        await scene.fadeOut();
+        await fallPromise;
+      })();
+      // Garde-fou : si l'animation ne se termine pas (onglet en arrière-plan, démontage), on continue quand même
+      await Promise.race([animation, new Promise(resolve => setTimeout(resolve, 4000))]);
+    }
+    await router.push('/locations');
+  } finally {
+    // Toujours rendre la main à l'UI, sinon nav cachée + scroll cassé jusqu'au redémarrage
+    uiStore.setTransitioning(false);
   }
-  
-  await router.push('/locations');
-  // Reset UI state after navigation is complete
-  uiStore.setTransitioning(false);
 };
 
 const handleLogin = async () => {

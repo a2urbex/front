@@ -2,6 +2,11 @@
 import HeaderComponent from '@/components/Header.vue';
 import MapComponent from '@/components/Map.vue';
 import AddLocationComponent from '@/components/LocationAdd.vue';
+import PwaGate from '@/components/PwaGate.vue';
+import NotifyPrompt from '@/components/NotifyPrompt.vue';
+import { useAuthStore } from '@/stores/auth';
+import { useExplorationStore } from '@/stores/exploration';
+import { usePositionStore } from '@/stores/position';
 import { ref, watch, onMounted } from 'vue';
 import { useVersionStore } from '@/stores/version';
 import { useUIStore } from '@/stores/ui';
@@ -12,6 +17,23 @@ const showUpdatePopup = ref(false);
 const versionStore = useVersionStore();
 const uiStore = useUIStore();
 const router = useRouter();
+const authStore = useAuthStore();
+const explorationStore = useExplorationStore();
+
+const positionStore = usePositionStore();
+watch(() => explorationStore.active, (a) => {
+  document.body.classList.toggle('exploring', !!a);
+  if (a) positionStore.start();
+  else positionStore.stop();
+}, { immediate: true });
+
+watch(() => authStore.token, (token) => {
+  if (token) explorationStore.fetch().then(() => {
+    const a = explorationStore.active;
+    if (a && router.currentRoute.value.path === '/locations') router.replace(`/favorites/${a.favoriteId}`);
+  });
+  else explorationStore.active = null;
+}, { immediate: true });
 
 const toggleAddLocation = () => {
   showAddLocation.value = !showAddLocation.value;
@@ -57,6 +79,9 @@ const goToUpdate = () => {
   <!-- Map -->
   <MapComponent />
 
+  <PwaGate />
+  <NotifyPrompt v-if="authStore.token" />
+
   <!-- Add Location -->
   <AddLocationComponent v-if="showAddLocation" @close="showAddLocation = false" />
 
@@ -91,7 +116,7 @@ const goToUpdate = () => {
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(0);
   z-index: 9999;
   display: flex;
   justify-content: center;

@@ -675,14 +675,27 @@ const onResize = () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 };
 
+// Pause du rendu quand l'onglet est caché ; reprise sans saut d'horloge
+const onVisibility = () => {
+  if (document.hidden) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  } else if (animationId === null && renderer) {
+    clock.getDelta();
+    animate();
+  }
+};
+
 onMounted(() => {
   init();
+  document.addEventListener('visibilitychange', onVisibility);
   window.addEventListener('mousemove', onPointerMove);
   window.addEventListener('touchmove', onTouchMove, { passive: true });
   window.addEventListener('resize', onResize);
 });
 
 onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', onVisibility);
   window.removeEventListener('mousemove', onPointerMove);
   window.removeEventListener('touchmove', onTouchMove);
   window.removeEventListener('resize', onResize);

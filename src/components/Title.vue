@@ -28,14 +28,23 @@ const props = defineProps({
   },
 });
 
-const showBackButton = computed(() => {
-  return router.currentRoute.value.path !== '/';
-});
+// Retour prévisible : les onglets racine n'ont pas de retour, les sous-pages remontent à leur parent
+// (l'historique navigateur saute à cause des redirections, ex. exploration)
+const ROOTS = ['/', '/locations', '/favorites'];
+const parentOf = (path) => {
+  if (path.startsWith('/favorites/')) return '/favorites';
+  if (path.startsWith('/admin/')) return '/admin';
+  return null;
+};
+
+const showBackButton = computed(() => !props.goHistory || !ROOTS.includes(router.currentRoute.value.path));
 
 const goBack = () => {
-  if (props.goHistory) {
-    router.back();
-  }
+  if (!props.goHistory) return;
+  const parent = parentOf(router.currentRoute.value.path);
+  if (parent) router.push(parent);
+  else if (window.history.state?.back) router.back();
+  else router.push('/locations');
 };
 </script>
 

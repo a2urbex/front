@@ -437,7 +437,7 @@ onMounted(load)
     align-items: center;
     padding: .8rem 1rem;
     background: rgba(17,17,17,.9);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(0);
     border: 1px solid rgba($primary, 0.3);
     border-radius: .8rem;
     box-shadow: 0 8px 30px rgba(0,0,0,.4);

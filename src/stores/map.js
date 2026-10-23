@@ -38,7 +38,8 @@ export const useMapStore = defineStore('Map', {
       const location = useLocationStore();
       const filters = toRaw(location.selectedFilters)
       const filtersSnapshot = { ...JSON.parse(JSON.stringify(filters)), showInvalid: this.showInvalid, zone: this.zone, dateFrom: this.dateFrom, dateTo: this.dateTo }
-      const isSamePage = !force && this.type === this.loaded.type && this.typeId === this.loaded.typeId;
+      // Cache seulement s'il y a réellement des points en mémoire (la liste est vidée à chaque changement de page)
+      const isSamePage = !force && this.locations?.length > 0 && this.type === this.loaded.type && this.typeId === this.loaded.typeId;
 
       this.loading = true;
       try {

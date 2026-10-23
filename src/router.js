@@ -37,6 +37,7 @@ import AdminDedupView from '@/views/AdminDedup.vue'
 import AdminSourcesView from '@/views/AdminSources.vue'
 import AdminPinterestView from '@/views/AdminPinterest.vue'
 import AdminNotifyView from '@/views/AdminNotify.vue'
+import AdminImportersView from '@/views/AdminImporters.vue'
 
 
 const router = createRouter({
@@ -105,6 +106,7 @@ const router = createRouter({
     { path: '/admin/sources', component: AdminSourcesView, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/admin/pinterest', component: AdminPinterestView, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/admin/notify', component: AdminNotifyView, meta: { requiresAuth: true, requiresAdmin: true } },
+    { path: '/admin/importers', component: AdminImportersView, meta: { requiresAuth: true, requiresAdmin: true } },
     {
       path: '/edit-profile',
       component: EditProfile,

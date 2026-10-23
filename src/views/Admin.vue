@@ -46,6 +46,19 @@ onMounted(async () => {
         </div>
       </router-link>
 
+      <router-link to="/admin/importers" class="admin-hub__card">
+        <div class="admin-hub__card-icon">
+          <font-awesome-icon :icon="['fas', 'file-import']" />
+        </div>
+        <div class="admin-hub__card-content">
+          <h3>Importers</h3>
+          <p>Wikimedia Commons, Wikidata and Flickr: dry run, import with a limit, live log.</p>
+        </div>
+        <div class="admin-hub__card-arrow">
+          <font-awesome-icon :icon="['fas', 'arrow-right']" class="arrow-icon" />
+        </div>
+      </router-link>
+
       <router-link to="/admin/notify" class="admin-hub__card">
         <div class="admin-hub__card-icon">
           <font-awesome-icon :icon="['fas', 'bell']" />

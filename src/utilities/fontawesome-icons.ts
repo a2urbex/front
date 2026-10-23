@@ -6,6 +6,7 @@ import { faWaze, faTiktok, faInstagram, faYoutube, faPinterest } from '@fortawes
 import {
   faEllipsisVertical,
   faLocationCrosshairs,
+  faFileImport,
   faCompass,
   faLocationArrow,
   faSliders,
@@ -77,6 +78,7 @@ import {
 
 library.add(
   faLocationCrosshairs,
+  faFileImport,
   faCompass,
   faLocationArrow,
   faSliders,

@@ -1,4 +1,4 @@
-import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { precacheAndRoute, cleanupOutdatedCaches, matchPrecache } from 'workbox-precaching';
 import { clientsClaim } from 'workbox-core';
 import { registerRoute } from 'workbox-routing';
 import { NetworkFirst, CacheFirst } from 'workbox-strategies';
@@ -8,6 +8,19 @@ import { ExpirationPlugin } from 'workbox-expiration';
 self.skipWaiting();
 clientsClaim();
 cleanupOutdatedCaches();
+
+// Navigations : réseau d'abord, AVANT le precache. Sinon le precache sert l'ancien index.html sur "/"
+// (start_url de la PWA) et la 1re ouverture après un déploiement affiche l'ancienne version.
+registerRoute(
+  ({ request }) => request.mode === 'navigate',
+  new NetworkFirst({
+    cacheName: 'a2urbex',
+    networkTimeoutSeconds: 4,
+    // hors-ligne et page jamais visitée : on retombe sur l'index.html précaché
+    plugins: [okOnly, { handlerDidError: async () => (await matchPrecache('/index.html')) || Response.error() }],
+  })
+);
+
 precacheAndRoute(self.__WB_MANIFEST);
 
 const IMAGES = 'a2-images';
@@ -30,10 +43,6 @@ self.addEventListener("message", (event) => {
   }
 });
 
-registerRoute(
-  ({ request }) => request.mode === 'navigate',
-  new NetworkFirst({ cacheName: 'a2urbex', plugins: [okOnly] })
-);
 
 // Liste active + fiches : réseau d'abord, cache si hors-ligne
 registerRoute(

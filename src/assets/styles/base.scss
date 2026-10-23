@@ -65,8 +65,8 @@ body {
 
     @media (max-width: $md) {
       overflow-x: hidden;
-      padding-bottom: $bottomHeaderHeight;
-      body.exploring & { padding-bottom: $bottomHeaderHeight + $explorationBarHeight; }
+      padding-bottom: calc(#{$bottomHeaderHeight} + env(safe-area-inset-bottom, 0px));
+      body.exploring & { padding-bottom: calc(#{$bottomHeaderHeight + $explorationBarHeight} + env(safe-area-inset-bottom, 0px)); }
     }
   }
 

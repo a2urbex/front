@@ -233,12 +233,12 @@
 }
 .location-card__distance {
   position: absolute;
-  left: 10px;
-  bottom: 44px;
+  right: 10px;
+  top: 46px;
   z-index: 2;
   padding: 3px 6px;
   background: #0c0c0c;
-  border-left: 2px solid $primary;
+  border-right: 2px solid $primary;
   color: #f2eee6;
   font: 500 11px $font-mono;
 }

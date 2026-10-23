@@ -1,11 +1,11 @@
-// "Refresh App" : force la nouvelle version. Les suppressions sont attendues avant de recharger
-// (sinon iOS recharge parfois l'ancienne version depuis le cache).
+// "Refresh App" : force la nouvelle version SANS désinscrire le service worker
+// (le désinscrire supprime l'abonnement push de l'appareil : plus aucune notification).
 export const forceAppUpdate = async () => {
   try {
     if ('serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(regs.map((r) => r.update().catch(() => {})));
-      await Promise.all(regs.map((r) => r.unregister()));
+      regs.forEach((r) => r.waiting?.postMessage({ type: 'SKIP_WAITING' }));
     }
     if ('caches' in window) {
       const names = await caches.keys();

@@ -33,3 +33,20 @@ button, .st-btn, input, select, textarea {
 input:focus, select:focus, textarea:focus { outline: 1px solid $primary; outline-offset: 0; }
 
 ::selection { background: $primary; color: #111; }
+
+// iPhone en app installée : la page peut passer sous la barre d'état (encoche / Dynamic Island).
+// Chaque décalage du haut intègre la zone de sécurité ; vaut 0 partout ailleurs (Android, desktop, onglet).
+$sat: env(safe-area-inset-top, 0px);
+@media (max-width: $md) {
+  .title-container {
+    padding-top: $sat !important;
+    height: calc(#{$titleHeight} + #{$sat}) !important;
+  }
+  #app .content:has(.title-container) { padding-top: calc(#{$titleHeight} + #{$sat}) !important; }
+  #app .content:has(.map-header.small-header) { padding-top: calc(#{$titleHeight + $mapHeaderHeight} + #{$sat}) !important; }
+  .map-header.small-header { top: calc(#{$titleHeight} + #{$sat}) !important; }
+  .map-header:not(.small-header) { top: calc(4rem + #{$sat}) !important; }
+  .filter__container { padding-top: $sat !important; }
+  .locations-container { margin-top: calc(7rem + #{$sat}) !important; }
+  body:has(.bottom-nav) #map { top: calc(7rem + #{$sat}) !important; }
+}

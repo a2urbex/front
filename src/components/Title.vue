@@ -1,5 +1,5 @@
 <template>
-  <div class="title-container">
+  <div class="title-container" ref="root">
     <button v-if="showBackButton" class="back-button" @click="goBack">
       <font-awesome-icon :icon="['fas', 'angle-left']" />
     </button>
@@ -8,8 +8,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
+import { addBodyClass, removeBodyClass } from '@/utilities/bodyClass';
 
 const router = useRouter();
 
@@ -38,6 +39,15 @@ const parentOf = (path) => {
 };
 
 const showBackButton = computed(() => !props.goHistory || !ROOTS.includes(router.currentRoute.value.path));
+
+// Seul le titre de page (dans .content) décale le contenu ; pas celui du menu mobile
+const root = ref(null);
+let counted = false;
+onMounted(() => {
+  counted = !!root.value?.closest('.content');
+  if (counted) addBodyClass('has-title');
+});
+onBeforeUnmount(() => { if (counted) removeBodyClass('has-title'); });
 
 const goBack = () => {
   if (!props.goHistory) return;

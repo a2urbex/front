@@ -1,6 +1,6 @@
 <script setup>
 import { forceAppUpdate } from '@/utilities/appUpdate';
-import { computed, ref, nextTick } from 'vue';
+import { computed, ref, nextTick, watch } from 'vue';
 import { useMapStore } from '@/stores/map';
 import { useExplorationStore } from '@/stores/exploration';
 import ExplorationBar from '@/components/ExplorationBar.vue';
@@ -31,6 +31,7 @@ const profileImageUrl = computed(() => {
 });
 
 const isOpen = ref(false);
+watch(isLoggedIn, (v) => document.body.classList.toggle('has-bottom-nav', v), { immediate: true });
 const avatarBroken = ref(false);
 
 const toggleOpen = () => {

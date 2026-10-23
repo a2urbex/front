@@ -222,7 +222,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUIStore } from '@/stores/ui';
@@ -354,6 +354,9 @@ const fetchLocationCount = async () => {
     console.error('Failed to fetch location count:', error);
   }
 };
+
+onMounted(() => document.body.classList.add('on-home'));
+onBeforeUnmount(() => document.body.classList.remove('on-home'));
 
 onMounted(async () => {
   fetchLocationCount();

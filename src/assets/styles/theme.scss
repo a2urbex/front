@@ -42,11 +42,11 @@ $sat: env(safe-area-inset-top, 0px);
     padding-top: $sat !important;
     height: calc(#{$titleHeight} + #{$sat}) !important;
   }
-  #app .content:has(.title-container) { padding-top: calc(#{$titleHeight} + #{$sat}) !important; }
-  #app .content:has(.map-header.small-header) { padding-top: calc(#{$titleHeight + $mapHeaderHeight} + #{$sat}) !important; }
+  body.has-title #app .content { padding-top: calc(#{$titleHeight} + #{$sat}) !important; }
+  body.has-title.has-subheader #app .content { padding-top: calc(#{$titleHeight + $mapHeaderHeight} + #{$sat}) !important; }
   .map-header.small-header { top: calc(#{$titleHeight} + #{$sat}) !important; }
   .map-header:not(.small-header) { top: calc(4rem + #{$sat}) !important; }
   .filter__container { padding-top: $sat !important; }
   .locations-container { margin-top: calc(7rem + #{$sat}) !important; }
-  body:has(.bottom-nav) #map { top: calc(7rem + #{$sat}) !important; }
+  body.has-bottom-nav #map { top: calc(7rem + #{$sat}) !important; }
 }

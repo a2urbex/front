@@ -18,12 +18,12 @@
 .st-glass-panel {
     background: rgba(20, 20, 20, 0.85);
     backdrop-filter: blur(0);
-    border: 1px solid rgba($primary, 0.2);
+    border: 1px solid color-mix(in srgb, var(--tint) 20%, transparent);
     border-radius: 1rem;
     padding: 1.5rem; // Reduced from 2rem
     box-shadow:
         0 0 20px rgba(0, 0, 0, 0.5),
-        0 0 40px rgba($primary, 0.1),
+        0 0 40px color-mix(in srgb, var(--tint) 10%, transparent),
         inset 0 0 60px rgba(0, 0, 0, 0.3);
 }
 
@@ -39,7 +39,7 @@
         padding: 0.6rem 0; // Reduced from 0.75rem
         background: transparent;
         border: none;
-        border-bottom: 2px solid rgba($primary, 0.3);
+        border-bottom: 2px solid color-mix(in srgb, var(--tint) 30%, transparent);
         color: #fff;
         font-size: 0.95rem; // Slightly smaller
         transition: all 0.3s ease;
@@ -106,7 +106,7 @@
     cursor: pointer;
     overflow: hidden;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba($primary, 0.3);
+    box-shadow: 0 4px 15px color-mix(in srgb, var(--tint) 30%, transparent);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -130,7 +130,7 @@
     }
 
     &:hover {
-        box-shadow: 0 6px 20px rgba($primary, 0.5);
+        box-shadow: 0 6px 20px color-mix(in srgb, var(--tint) 50%, transparent);
 
         .btn-glow {
             width: 300px;
@@ -140,14 +140,14 @@
 
     &.st-btn-outline {
         background: transparent;
-        border: 2px solid rgba($primary, 0.5);
+        border: 2px solid color-mix(in srgb, var(--tint) 50%, transparent);
         color: $primary;
         box-shadow: none;
 
         &:hover {
             border-color: $primary;
-            background: rgba($primary, 0.1);
-            box-shadow: 0 0 15px rgba($primary, 0.2);
+            background: color-mix(in srgb, var(--tint) 10%, transparent);
+            box-shadow: 0 0 15px color-mix(in srgb, var(--tint) 20%, transparent);
         }
     }
 }

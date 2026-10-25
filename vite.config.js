@@ -22,8 +22,8 @@ export default defineConfig({
         'short_name': 'a2urbex',
         'start_url': '/',
         'display': 'standalone',
-        'background_color': '#161616',
-        'theme_color': '#161616',
+        'background_color': '#000000',
+        'theme_color': '#000000',
         'icons': [
           {
             'src': './logox192.png',

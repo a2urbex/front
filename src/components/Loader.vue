@@ -47,7 +47,7 @@
   width: 60vmax;
   height: 60vmax;
   transform: translateX(-50%);
-  background: radial-gradient(circle, rgba(255, 190, 120, 0.16) 0%, rgba(255, 170, 85, 0.05) 35%, transparent 65%);
+  background: radial-gradient(circle, rgba(255, 190, 120, 0.16) 0%, color-mix(in srgb, var(--tint) 5%, transparent) 35%, transparent 65%);
   filter: blur(8px);
   animation: sweep 4.5s ease-in-out infinite;
   pointer-events: none;
@@ -70,12 +70,12 @@
   letter-spacing: 0.35em;
   color: #e8e2d6;
   text-transform: uppercase;
-  text-shadow: 0 0 24px rgba(255, 170, 85, 0.35);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--tint) 35%, transparent);
   animation: flicker 3.5s infinite;
 
   &__mark {
-    color: #ff8a1f;
-    text-shadow: 0 0 18px rgba(255, 170, 85, 0.7);
+    color: var(--tint);
+    text-shadow: 0 0 18px color-mix(in srgb, var(--tint) 70%, transparent);
   }
 }
 
@@ -95,8 +95,8 @@
   height: 100%;
   width: 40%;
   border-radius: 3px;
-  background: linear-gradient(90deg, transparent, #ff8a1f 50%, #fff 70%, transparent);
-  box-shadow: 0 0 12px rgba(255, 170, 85, 0.6);
+  background: linear-gradient(90deg, transparent, var(--tint) 50%, #fff 70%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--tint) 60%, transparent);
   animation: slide 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
@@ -114,8 +114,8 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #ff8a1f;
-  box-shadow: 0 0 8px rgba(255, 170, 85, 0.8);
+  background: var(--tint);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--tint) 80%, transparent);
   animation: pulse-dot 1.2s ease-in-out infinite;
 }
 

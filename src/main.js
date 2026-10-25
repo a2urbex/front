@@ -5,6 +5,9 @@ import { createPinia } from 'pinia';
 // PWA 
 import { registerSW } from 'virtual:pwa-register';
 import { startDemo } from './demo/session';
+import { applyAccent } from './utilities/accent';
+applyAccent();
+
 // Styling
 import './assets/styles/base.scss'
 import 'vue3-toastify/dist/index.css';
@@ -12,6 +15,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import './assets/styles/theme.scss';
+import './assets/styles/pages.scss';
 import FontAwesomeIcon from './utilities/fontawesome-icons';
 import './utilities/pwa';
 

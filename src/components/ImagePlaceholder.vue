@@ -29,7 +29,7 @@ defineProps({
   justify-content: center;
   gap: 0.7rem;
   background:
-    radial-gradient(110% 90% at 50% 38%, rgba($primary, 0.10) 0%, rgba(0, 0, 0, 0) 62%),
+    radial-gradient(110% 90% at 50% 38%, color-mix(in srgb, var(--tint) 10%, transparent) 0%, rgba(0, 0, 0, 0) 62%),
     linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(15, 15, 15, 0.96) 100%);
 
   &__icon {
@@ -40,11 +40,11 @@ defineProps({
     height: 56px;
     border-radius: 50%;
     color: $primary;
-    background: rgba($primary, 0.08);
-    border: 1px solid rgba($primary, 0.28);
+    background: color-mix(in srgb, var(--tint) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tint) 28%, transparent);
     box-shadow:
       0 6px 18px rgba(0, 0, 0, 0.45),
-      inset 0 0 18px rgba($primary, 0.12);
+      inset 0 0 18px color-mix(in srgb, var(--tint) 12%, transparent);
     font-size: 1.4rem;
     animation: image-placeholder-pulse 2.6s ease-in-out infinite;
   }
@@ -63,11 +63,11 @@ defineProps({
 @keyframes image-placeholder-pulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), inset 0 0 18px rgba($primary, 0.12);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), inset 0 0 18px color-mix(in srgb, var(--tint) 12%, transparent);
   }
   50% {
     transform: scale(1.06);
-    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5), inset 0 0 26px rgba($primary, 0.22);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5), inset 0 0 26px color-mix(in srgb, var(--tint) 22%, transparent);
   }
 }
 </style>

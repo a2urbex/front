@@ -1,0 +1,215 @@
+// Kit des pages secondaires (admin, amis, compte) : mêmes briques que le reste de l'app.
+// Chargé après theme.scss ; les pages ont des styles « scoped », d'où les !important.
+@use './variables.scss' as *;
+
+$pages: '.admin-page, .sources-page, .admin-pinterest, .admin-dedup, .imports-page, .importers, .admin-notify, .edit-profile, .friends';
+
+input[type='checkbox'], input[type='radio'] { accent-color: $primary; }
+
+:is(#{$pages}) {
+  font-family: $font-body;
+  color: $label;
+
+  // titres : couleur du texte, police système, pas de capitales forcées
+  h1, h2, h3, h4 { color: $label !important; font-family: $font-display !important; text-transform: none !important; letter-spacing: -0.01em !important; }
+  h1, h2 { font-size: 22px !important; line-height: 28px !important; font-weight: 700 !important; }
+  h3, h4 { font-size: 17px !important; line-height: 22px !important; font-weight: 600 !important; }
+  p { color: $label-2; }
+
+  // libellés et petits titres de section
+  :is([class*='label'], [class*='eyebrow'], dt, legend) {
+    font-family: $font-body !important; font-size: 13px !important; font-weight: 400 !important;
+    color: $label-2 !important; text-transform: none !important; letter-spacing: 0 !important;
+  }
+
+  // panneaux : surface grise, coins arrondis, sans bordure
+  :is([class*='card'], [class*='panel'], [class*='stat']:not([class*='status']):not([class*='stat-'])) {
+    background: $bg-2 !important; border: 0 !important; border-radius: $radius !important; box-shadow: none !important;
+  }
+
+  // pastilles
+  :is([class*='badge'], [class*='pill'], [class*='chip'], [class*='tag']:not(textarea)) {
+    border: 0 !important; border-radius: 8px !important; background: $fill !important; color: $label-2 !important;
+    font: 600 12px $font-body !important; text-transform: none !important; letter-spacing: 0 !important;
+  }
+
+  // boutons : neutres par défaut, orange pour l'action principale, rouge pour détruire, vert pour approuver
+  :where(button, .btn, [class*='btn']):where(:not(.ios-row):not(.ios-action-sheet__btn):not([class*='tab']):not(.list-row__more):not([class*='item-image'])) {
+    min-height: 36px; padding: 0 14px !important; border: 0 !important; border-radius: $radius !important;
+    background: $bg-3 !important; color: $label !important; box-shadow: none !important;
+    font: 600 15px $font-body !important; text-transform: none !important; letter-spacing: 0 !important;
+    &:disabled { opacity: 0.4; }
+  }
+  :is(.btn--primary, [class*='primary-btn'], .btn-main, [class*='--run'], [class*='upload-btn'], [class*='save']):is(button, .btn, [class*='btn']) {
+    background: $primary !important; color: var(--on-tint) !important;
+  }
+  :is(.btn--danger, [class*='delete'], [class*='reject'], [class*='decline'], [class*='remove']):is(button, .btn, [class*='btn']) {
+    background: rgba($red, 0.16) !important; color: $red !important;
+  }
+  :is([class*='approve'], [class*='accept']):is(button, .btn, [class*='btn']) {
+    background: rgba($green, 0.16) !important; color: $green !important;
+  }
+
+  // textes d'accent orange hérités : couleur normale
+  [class*='title'], [class*='heading'] { color: $label !important; }
+  // nombres des compteurs
+  [class*='stat'] :is(strong, b, [class*='value'], [class*='number']) { font-family: $font-body !important; font-variant-numeric: tabular-nums; color: $label !important; }
+  // journaux / sorties techniques : mono discret
+  pre, code, [class*='log'] { font-family: $font-mono !important; color: $label-2 !important; background: $bg !important; border: 0 !important; border-radius: 10px !important; }
+}
+
+// Boutons « fantômes » (Cancel, Clear) : texte seul
+:is(#{$pages}) :is(.btn--ghost, button.ghost) { background: transparent !important; color: $link !important; }
+// Amis : lignes simples, avatars ronds
+.friends .friends__item { background: none !important; }
+.friends .friends__item-image, .friends .friends__item-image img { width: 36px; height: 36px; border-radius: 50% !important; object-fit: cover; }
+
+// Compte : bannière + avatar comme un vrai en-tête de profil
+.edit-profile .image-uploads { position: relative !important; display: block !important; height: 210px; margin-bottom: 8px; padding: 0 !important; background: none !important; }
+.edit-profile .upload-section { position: static !important; padding: 0 !important; background: none !important; border: 0 !important;
+  > label, > svg { display: none !important; } }
+.edit-profile .upload-section .preview {
+  position: relative; display: grid !important; place-items: center; overflow: hidden;
+  background-color: $bg-3 !important; background-size: cover !important; background-position: center !important;
+  border: 0 !important; box-shadow: none !important;
+  input[type='file'] { position: absolute !important; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; min-height: 0; padding: 0 !important; }
+  span { font: 400 13px $font-body !important; color: $label-2 !important; text-transform: none !important; letter-spacing: 0 !important; pointer-events: none; }
+}
+.edit-profile .banner-image .preview { width: 100% !important; height: 150px !important; border-radius: 14px !important; }
+.edit-profile .profile-image { position: absolute !important; left: 16px; top: 104px; }
+.edit-profile .profile-image .preview { width: 96px !important; height: 96px !important; border-radius: 50% !important; border: 4px solid $bg !important; }
+.edit-profile .profile-image .preview span { font-size: 11px !important; text-align: center; padding: 0 8px; }
+
+// ===== Accueil (non connecté) : la scène 3D reste, l'interface suit l'app =====
+.home {
+  .hero__title { font: 800 clamp(44px, 9vw, 76px)/0.95 $font-display !important; letter-spacing: -0.03em !important; text-transform: none !important; }
+  .hero__title-accent { color: $label !important; opacity: 0.55; }
+  .hero__tagline { font: 600 clamp(19px, 2.6vw, 24px)/1.25 $font-display !important; text-transform: none !important; letter-spacing: -0.01em !important; color: $label !important; }
+  .hero__meta, .hero__count { font: 400 15px/20px $font-body !important; color: $label-2 !important; }
+  .hero__count { color: $label !important; font-weight: 600 !important; font-variant-numeric: tabular-nums; }
+  .hero { border-left: 0 !important; padding-left: 0 !important; }
+  .connect-btn {
+    height: 40px; min-height: 0 !important; padding: 0 18px !important; gap: 6px; border-radius: 20px !important; background: $primary !important; color: var(--on-tint) !important;
+    font: 600 15px $font-body !important; text-transform: none !important; letter-spacing: 0 !important; box-shadow: none !important;
+  }
+  .request-link, .insta-link {
+    border: 0 !important; color: $label !important; font: 500 15px $font-body !important; letter-spacing: 0 !important; text-decoration: none !important; opacity: 0.85;
+    &:hover { color: $label !important; opacity: 1; }
+  }
+  .home-points {
+    font-family: $font-body !important;
+    li { border-top: 0.5px solid rgba(255, 255, 255, 0.14) !important; font-size: 15px !important; }
+    span { font: 600 13px $font-body !important; color: $label-2 !important; }
+    b { color: $label !important; font-family: $font-body !important; font-weight: 600 !important; }
+  }
+  .copyright { font: 400 12px $font-body !important; letter-spacing: 0 !important; text-transform: none !important; color: $label-3 !important; }
+  // formulaire de connexion : feuille sombre arrondie
+  .auth-container {
+    padding: 14px 20px 24px !important; border: 0 !important; border-radius: 16px !important; background: $bg-2 !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+  }
+  // croix : bouton rond dans sa propre ligne, au-dessus des onglets (ne chevauche plus « Sign up »)
+  .auth-container .close-btn {
+    position: static !important; display: grid; place-items: center; width: 30px; height: 30px; margin: 0 -6px 12px auto; padding: 0 !important;
+    border-radius: 50% !important; background: $fill !important; color: $label-2 !important;
+    svg { width: 16px; height: 16px; }
+  }
+  .auth-tabs { margin-bottom: 20px !important; }
+  .st-btn { height: 50px; font-size: 17px !important; border-radius: 12px !important; }
+}
+
+// Chargement d'entrée : nom + indicateur, sans effet machine à écrire
+.loader-container { background: $bg !important; }
+.loader-container .torch-beam, .loader-container .loader-vignette, .loader-container .progress-bar { display: none !important; }
+.loader-container .loader-brand { font: 800 34px $font-display !important; letter-spacing: -0.03em !important; color: $label !important; text-shadow: none !important; }
+.loader-container .loader-brand__mark { color: $label !important; opacity: 0.55; text-shadow: none !important; }
+.loader-container .status-text { display: flex; align-items: center; justify-content: center; gap: 8px; font: 400 15px $font-body !important; letter-spacing: 0 !important; text-transform: none !important; color: $label-2 !important; }
+.loader-container .status-dot {
+  width: 16px !important; height: 16px !important; border-radius: 50% !important; background: none !important; box-shadow: none !important;
+  border: 2px solid rgba(255, 255, 255, 0.2); border-top-color: $label; animation: ios-spin 0.8s linear infinite !important;
+}
+
+// ===== Pages admin : plus compactes, sans titre en double (il est déjà dans la barre du haut) =====
+:is(.admin-pinterest__header, .sources-page__header, .imports-page__header-intro, .admin-dedup__header) h2 { display: none !important; }
+:is(.admin-pinterest__header, .sources-page__header, .imports-page__header-intro, .admin-dedup__header) p { margin: 0 !important; font-size: 15px !important; line-height: 20px !important; color: $label-2 !important; }
+:is(.admin-pinterest, .sources-page, .imports-page, .admin-dedup, .importers, .admin-notify, .admin-page) { padding-inline: 16px !important; padding-top: 16px !important; max-width: 760px; margin-inline: auto !important; }
+
+// Pinterest : compteurs en grille 3 colonnes, petits
+:is(.admin-pinterest__stats, .admin-dedup__stats) {
+  display: grid !important; grid-template-columns: repeat(3, 1fr) !important; margin: 0 !important; gap: 1px !important; overflow: hidden; border-radius: $radius;
+  background: $separator;
+  .stat { display: grid !important; align-content: start; padding: 10px 12px !important; border-radius: 0 !important; gap: 2px !important; min-height: 0 !important; }
+  dd { margin: 0 !important; }
+  dt { font-size: 12px !important; }
+  strong { font: 600 20px $font-body !important; }
+}
+:is(.admin-pinterest__panel, .admin-dedup__panel) { padding: 16px !important; display: grid; gap: 14px; }
+.admin-pinterest__terminal { min-height: 0 !important; max-height: 220px; }
+
+// Sources : liste groupée, une ligne par source
+.sources-page__list { display: block !important; gap: 0 !important; overflow: hidden; border-radius: $radius; background: $bg-2; }
+.sources-page__row {
+  // nom sur toute la largeur, nombre de points dessous
+  display: grid !important; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: 'check name del' 'check count del';
+  align-items: center; column-gap: 12px !important; row-gap: 0 !important; min-height: 56px; margin: 0 !important; padding: 6px 8px 6px 16px !important;
+  background: none !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+  & + .sources-page__row { box-shadow: inset 0 0.5px 0 $separator !important; }
+}
+.sources-page__check { grid-area: check; display: flex; }
+.sources-page__name { grid-area: name; min-width: 0; display: flex !important; align-items: center; gap: 4px; }
+.sources-page__name-text { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 400 16px $font-body; color: $label; }
+.sources-page__count { grid-area: count; justify-self: start; padding: 0 !important; border: 0 !important; background: none !important; color: $label-2 !important; font: 400 13px $font-body !important; font-variant-numeric: tabular-nums; }
+.sources-page__row button.icon {
+  flex: none; display: grid; place-items: center; width: 36px; min-height: 36px !important; height: 36px; padding: 0 !important;
+  background: none !important; color: $label-3 !important; font-size: 14px !important;
+  &.danger { grid-area: del; color: $red !important; &:disabled { color: $label-3 !important; opacity: 0.35; } }
+}
+
+// ===== Une seule grammaire pour toutes les pages admin =====
+$admin: '.admin-page, .sources-page, .admin-pinterest, .admin-dedup, .imports-page, .importers, .admin-notify';
+:is(#{$admin}) {
+  // textes d'introduction
+  :is([class*='__header'] p, [class*='__intro'], [class*='header-intro'] p, [class*='section-hint']) { font: 400 15px/20px $font-body !important; color: $label-2 !important; margin: 0 !important; }
+  // libellés de champ : petits, gris, sans capitales ni police mono
+  :is(label > span:first-child, [class*='__field'] > span, [class*='__field'] > label, dt, legend, .progress-label) {
+    font: 400 13px/18px $font-body !important; color: $label-2 !important; text-transform: none !important; letter-spacing: 0 !important;
+  }
+  // panneaux : même surface, même marge intérieure, pas de bordure ni liseré
+  :is([class*='__panel'], [class*='__settings'], [class*='__history']:not([class*='__history-']), .importer, .importers__schedule, .imports-page__dropzone, .admin-notify) {
+    background: $bg-2 !important; border: 0 !important; border-radius: $radius !important; box-shadow: none !important; padding: 16px !important;
+  }
+  // titres de panneau
+  :is([class*='__panel'], [class*='__settings'], [class*='__history'], .importer, .importers__schedule) :is(h3, h4, [class*='-title']:not([class*='terminal']), [class*='__head'] > b) {
+    font: 600 17px/22px $font-body !important; color: $label !important; text-transform: none !important; letter-spacing: 0 !important; margin: 0 !important;
+  }
+  // tableaux d'historique et textes techniques : police normale
+  .muted-mono, .cell-date, [class*='history-table'] { font-family: $font-body !important; font-size: 13px !important; }
+  // barres de progression
+  .progress-track { height: 6px !important; border-radius: 3px !important; background: $fill !important; border: 0 !important; }
+  .progress-fill { border-radius: 3px !important; background: $primary !important; }
+}
+// Notifications admin : champs empilés dans un panneau
+.admin-notify { display: grid !important; gap: 14px !important; label { display: grid; gap: 6px; } }
+// Importers : chaque source est un panneau, sans liseré
+.importer { display: grid !important; gap: 12px !important; margin: 0 !important; }
+.importers { display: grid !important; gap: 16px !important; }
+.importers__schedule { gap: 6px; display: grid; }
+// Utilisateurs : lignes neutres (plus de cadre orange), avatar neutre
+.admin-page__users { display: grid !important; grid-template-columns: minmax(0, 1fr); padding: 0 !important; gap: 0 !important; overflow: hidden; border-radius: $radius; background: $bg-2; }
+.admin-page__user {
+  margin: 0 !important; padding: 10px 12px 10px 16px !important; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none !important;
+  & + .admin-page__user { box-shadow: inset 0 0.5px 0 $separator !important; }
+}
+.admin-page__user-image, .admin-page__user-image-placeholder { width: 40px !important; height: 40px !important; border-radius: 50% !important; border: 0 !important; overflow: hidden; }
+.admin-page__user-image-placeholder { background: $bg-3 !important; color: $label-2 !important; }
+.admin-page__user-info-username { font: 600 16px $font-body !important; color: $label !important; }
+.admin-page__user-info-email { font: 400 13px $font-body !important; color: $label-2 !important; }
+:is(.admin-page__action, .admin-page__user-actions-button) { width: 36px !important; min-width: 36px !important; height: 36px !important; padding: 0 !important; border-radius: 50% !important; display: inline-grid !important; place-items: center; }
+.admin-page__section { display: grid; gap: 10px; }
+.admin-page__section-header { display: flex; align-items: center; gap: 8px; margin: 0 !important; }
+
+.admin-page__user { display: flex !important; align-items: center; gap: 12px !important; min-width: 0; box-sizing: border-box !important; }
+.admin-page__user-info { flex: 1; min-width: 0; overflow: hidden; > * { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; } }
+.admin-page__user-actions { flex: none; display: flex !important; gap: 6px !important; margin: 0 !important; }
+// photo cassée : pas de texte alternatif visible, juste le fond neutre
+img:is(.admin-page__user-image, .ld-avatar, .ios-avatar, .me-hero__avatar), .admin-page__user-image img { font-size: 0; color: transparent; background: $bg-3; }

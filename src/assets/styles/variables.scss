@@ -1,30 +1,44 @@
-// Colors Dark mode
-$background: #0a0a0a;
-$dark-background: #050505;
-$contrast: white;
-$contrast-5: #e1e1e1;
-$contrast-4: #808080;
-$contrast-3: #7a7a7a;
-$contrast-2: #494949;
-$contrast-1: #252525;
-$contrast-0: #0c0c0c;
+// iOS dark system palette (true black: OLED pixels off, nothing bright in the dark)
+$background: #000000;
+$dark-background: #000000;
+$contrast: #ffffff;
+$contrast-5: rgba(235, 235, 245, 0.86);
+$contrast-4: #8e8e93;
+$contrast-3: #8e8e93;
+$contrast-2: #48484a;
+$contrast-1: #2c2c2e;
+$contrast-0: #1c1c1e;
 
-// Sodium-vapour orange: the only accent
-$primary: #ff8a1f;
-$primary-dark: #e06a00;
+$bg: #000000;          // systemBackground
+$bg-2: #1c1c1e;        // secondary / grouped cell
+$bg-3: #2c2c2e;        // tertiary / control
+$label: #ffffff;
+$label-2: rgba(235, 235, 245, 0.6);
+$label-3: rgba(235, 235, 245, 0.3);
+$separator: rgba(84, 84, 88, 0.6);
+$fill: rgba(118, 118, 128, 0.24);
+$green: #30d158;
+$red: #ff453a;
+$link: #0a84ff;
+$radius: 12px;
 
-$font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif-condensed, sans-serif;
-$font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
-$font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+// One tint, for the primary action and the selected tab only
+$primary: var(--tint);
+$primary-dark: var(--tint);
+
+// System font (SF Pro on Apple devices, Roboto / Segoe elsewhere)
+$font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 $blue: $primary; // Keeping alias for backward compatibility during refactor
 $darker-blue: $primary-dark;
 
-$bottomHeaderHeight: 80px;
+$bottomHeaderHeight: 56px; // iOS tab bar (49 pt) + label room; home indicator added via safe-area
 $explorationBarHeight: 44px;
 $demoBarHeight: 26px;
 $mapHeaderHeight: 42px;
 $sideHeaderWidth: 260px;
-$titleHeight: 70px;
+$titleHeight: 52px; // iOS navigation bar
 
 // Colors Light mode
 // $background : rgb(233, 233, 233);

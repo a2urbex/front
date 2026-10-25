@@ -5,8 +5,9 @@ export const RATINGS = [
   { key: 'empty', emoji: '🙁', label: 'Empty' },
 ]
 
+// Motifs proposés. « Bullshit » masque le point pour tout le monde, tout de suite.
 export const REASONS = [
-  { key: 'walled', emoji: '🧱', label: 'Walled' },
+  { key: 'bullshit', emoji: '💩', label: 'Bullshit' },
   { key: 'no_access', emoji: '🚧', label: 'No access' },
   { key: 'demolished', emoji: '💥', label: 'Demolished' },
   { key: 'guarded', emoji: '👮', label: 'Guarded' },
@@ -14,9 +15,13 @@ export const REASONS = [
   { key: 'not_found', emoji: '❓', label: 'Not found' },
 ]
 
+// Anciens motifs, encore affichés sur les points déjà marqués
+const LEGACY_REASONS = [{ key: 'walled', emoji: '🧱', label: 'Walled' }]
+export const reasonOf = (key) => REASONS.find((r) => r.key === key) || LEGACY_REASONS.find((r) => r.key === key)
+
 export const statusEmoji = (item) => {
   if (item?.status === 'valid') return RATINGS.find((r) => r.key === item.rating)?.emoji || '✅'
-  if (item?.status === 'invalid') return REASONS.find((r) => r.key === item.invalidReason)?.emoji || '❌'
+  if (item?.status === 'invalid') return reasonOf(item.invalidReason)?.emoji || '❌'
   return ''
 }
 

@@ -105,6 +105,11 @@ const routes = [
     l.invalidReason = b.status === 'invalid' ? b.reason || 'not_found' : null;
     l.danger = b.danger ? 1 : 0;
     l.visitedAt = new Date().toISOString();
+    // « Bullshit » : le point disparaît, comme sur le vrai serveur
+    if (l.invalidReason === 'bullshit') {
+      db.locations = db.locations.filter((x) => x !== l);
+      return { removed: true };
+    }
     return publicLoc(l);
   }],
 

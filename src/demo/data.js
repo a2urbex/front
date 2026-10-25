@@ -70,7 +70,7 @@ const weightedCountry = () => {
 };
 
 const RATINGS = ['amazing', 'nice', 'meh', 'empty'];
-const REASONS = ['walled', 'no_access', 'demolished', 'guarded', 'reused', 'not_found'];
+const REASONS = ['no_access', 'demolished', 'guarded', 'reused', 'not_found'];
 
 export const generate = () => {
   const DAY = 86400000;

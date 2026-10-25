@@ -9,6 +9,13 @@ self.skipWaiting();
 clientsClaim();
 cleanupOutdatedCaches();
 
+// Déclarés avant toute route : utilisés au niveau racine, un accès avant leur `const` fait planter
+// l'évaluation du SW (ReferenceError) → il ne s'installe jamais et serviceWorker.ready ne résout pas.
+const IMAGES = 'a2-images';
+const okOnly = { cacheWillUpdate: async ({ response }) => (response && response.status === 200 ? response : null) };
+// <img> cross-origin = réponse opaque (status 0)
+const okOrOpaque = { cacheWillUpdate: async ({ response }) => (response && (response.status === 200 || response.type === 'opaque') ? response : null) };
+
 // Navigations : réseau d'abord, AVANT le precache. Sinon le precache sert l'ancien index.html sur "/"
 // (start_url de la PWA) et la 1re ouverture après un déploiement affiche l'ancienne version.
 registerRoute(
@@ -22,11 +29,6 @@ registerRoute(
 );
 
 precacheAndRoute(self.__WB_MANIFEST);
-
-const IMAGES = 'a2-images';
-const okOnly = { cacheWillUpdate: async ({ response }) => (response && response.status === 200 ? response : null) };
-// <img> cross-origin = réponse opaque (status 0)
-const okOrOpaque = { cacheWillUpdate: async ({ response }) => (response && (response.status === 200 || response.type === 'opaque') ? response : null) };
 
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") {

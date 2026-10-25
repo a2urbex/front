@@ -235,7 +235,7 @@ onUnmounted(closeStream)
 </script>
 
 <template>
-  <Title title="Pinterest Manager" />
+  <Title title="Pinterest" />
 
   <div class="admin-pinterest page-width">
     <header class="admin-pinterest__header">
@@ -440,7 +440,7 @@ onUnmounted(closeStream)
     color: #aaa;
     border: 1px solid rgba(255, 255, 255, 0.08);
 
-    &[data-state='running']  { background: rgba($primary, 0.12); color: $primary; border-color: rgba($primary, 0.3); }
+    &[data-state='running']  { background: color-mix(in srgb, var(--tint) 12%, transparent); color: $primary; border-color: color-mix(in srgb, var(--tint) 30%, transparent); }
     &[data-state='finished'] { background: rgba(52, 211, 153, 0.12); color: #34d399; border-color: rgba(52, 211, 153, 0.3); }
     &[data-state='stopped']  { background: rgba(248, 113, 113, 0.12); color: #f87171; border-color: rgba(248, 113, 113, 0.3); }
     &[data-state='error']    { background: rgba(248, 113, 113, 0.2);  color: #fca5a5; border-color: rgba(248, 113, 113, 0.5); }
@@ -499,7 +499,7 @@ onUnmounted(closeStream)
       color: #fff;
       padding: 0.6rem 0.8rem;
       font-size: 0.95rem;
-      &:focus { outline: none; border-color: rgba($primary, 0.5); }
+      &:focus { outline: none; border-color: color-mix(in srgb, var(--tint) 50%, transparent); }
     }
 
     .toggle {
@@ -739,7 +739,7 @@ onUnmounted(closeStream)
   }
 
   .state-badge {
-    &[data-state='running']  { background: rgba($primary, 0.15); color: $primary; }
+    &[data-state='running']  { background: color-mix(in srgb, var(--tint) 15%, transparent); color: $primary; }
     &[data-state='finished'] { background: rgba(52, 211, 153, 0.12); color: #34d399; }
     &[data-state='stopped']  { background: rgba(248, 113, 113, 0.12); color: #f87171; }
     &[data-state='error']    { background: rgba(248, 113, 113, 0.2);  color: #fca5a5; }

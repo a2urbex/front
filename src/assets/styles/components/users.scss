@@ -87,11 +87,11 @@
         }
 
         &::-webkit-scrollbar-thumb {
-            background: rgba($primary, 0.3);
+            background: color-mix(in srgb, var(--tint) 30%, transparent);
             border-radius: 3px;
 
             &:hover {
-                background: rgba($primary, 0.5);
+                background: color-mix(in srgb, var(--tint) 50%, transparent);
             }
         }
     }

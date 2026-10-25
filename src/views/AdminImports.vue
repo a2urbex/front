@@ -228,7 +228,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Title title="Import Management" />
+  <Title title="KML imports" />
 
   <div class="imports-page page-width">
     <!-- Header visual description -->
@@ -526,14 +526,14 @@ onMounted(async () => {
       left: 0;
       right: 0;
       bottom: 0;
-      background: radial-gradient(circle at center, rgba($primary, 0.02) 0%, transparent 70%);
+      background: radial-gradient(circle at center, color-mix(in srgb, var(--tint) 2%, transparent) 0%, transparent 70%);
       pointer-events: none;
       transition: opacity 0.3s ease;
       opacity: 0.5;
     }
 
     &:hover {
-      border-color: rgba($primary, 0.45);
+      border-color: color-mix(in srgb, var(--tint) 45%, transparent);
       background: rgba(255, 255, 255, 0.03);
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 
@@ -544,8 +544,8 @@ onMounted(async () => {
       .imports-page__dropzone-icon {
         color: $primary;
         transform: translateY(-5px);
-        background: rgba($primary, 0.12);
-        box-shadow: 0 0 15px rgba($primary, 0.15);
+        background: color-mix(in srgb, var(--tint) 12%, transparent);
+        box-shadow: 0 0 15px color-mix(in srgb, var(--tint) 15%, transparent);
       }
     }
 
@@ -555,8 +555,8 @@ onMounted(async () => {
 
     &.is-dragging {
       border-color: $primary;
-      background: rgba($primary, 0.05);
-      box-shadow: 0 0 20px rgba($primary, 0.1);
+      background: color-mix(in srgb, var(--tint) 5%, transparent);
+      box-shadow: 0 0 20px color-mix(in srgb, var(--tint) 10%, transparent);
       transform: scale(1.02);
 
       .imports-page__dropzone-icon {
@@ -868,8 +868,8 @@ onMounted(async () => {
     }
 
     &:focus {
-      border-color: rgba($primary, 0.4);
-      box-shadow: 0 0 10px rgba($primary, 0.05);
+      border-color: color-mix(in srgb, var(--tint) 40%, transparent);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--tint) 5%, transparent);
     }
 
     option {
@@ -961,18 +961,18 @@ onMounted(async () => {
   }
 
   input:checked + .slider {
-    background-color: rgba($primary, 0.15);
-    border-color: rgba($primary, 0.45);
+    background-color: color-mix(in srgb, var(--tint) 15%, transparent);
+    border-color: color-mix(in srgb, var(--tint) 45%, transparent);
   }
 
   input:focus + .slider {
-    box-shadow: 0 0 1px rgba($primary, 0.3);
+    box-shadow: 0 0 1px color-mix(in srgb, var(--tint) 30%, transparent);
   }
 
   input:checked + .slider::before {
     transform: translate(1.25rem, -50%);
     background-color: $primary;
-    box-shadow: 0 0 8px rgba($primary, 0.5);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--tint) 50%, transparent);
   }
 
   // History Section
@@ -1059,9 +1059,9 @@ onMounted(async () => {
       color: rgba(255, 255, 255, 0.5);
 
       &.is-success {
-        color: rgba($primary, 0.8);
-        background: rgba($primary, 0.05);
-        border-color: rgba($primary, 0.15);
+        color: color-mix(in srgb, var(--tint) 80%, transparent);
+        background: color-mix(in srgb, var(--tint) 5%, transparent);
+        border-color: color-mix(in srgb, var(--tint) 15%, transparent);
       }
 
       &.is-failed {
@@ -1151,7 +1151,7 @@ onMounted(async () => {
       }
 
       .count {
-        color: rgba($primary, 0.7);
+        color: color-mix(in srgb, var(--tint) 70%, transparent);
       }
 
       .error-detail {

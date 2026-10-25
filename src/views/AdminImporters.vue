@@ -166,10 +166,10 @@ onBeforeUnmount(() => Object.values(streams).forEach((s) => s.close()))
     ul { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 8px 0 6px; padding: 0; list-style: none; }
     li { display: flex; gap: 8px; align-items: baseline; font-size: 13px; }
     b { color: #e8e4dc; font-weight: 600; }
-    time { font: 12px $font-mono; color: $primary; }
-    small { font: 11px $font-mono; color: #777; } }
-  &__schedule-title { font: 500 10px $font-mono; text-transform: uppercase; letter-spacing: .08em; color: #777; }
-  &__schedule-off, &__schedule-note { margin: 4px 0 0; font: 12px $font-mono; color: #777; }
+    time { font: 600 13px $font-body; color: $primary; }
+    small { font: 400 12px $font-body; color: $label-2; } }
+  &__schedule-title { font: 400 13px $font-body; color: $label-2; }
+  &__schedule-off, &__schedule-note { margin: 4px 0 0; font: 400 13px $font-body; color: $label-2; }
   &__intro { color: #9a958c; font-size: 14px; line-height: 1.5; margin: 0 0 20px; b { color: #e8e4dc; } }
 }
 .importer {
@@ -181,14 +181,14 @@ onBeforeUnmount(() => Object.values(streams).forEach((s) => s.close()))
   &.is-running { border-left-color: $primary; }
   &__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap;
     h3 { margin: 0; font-size: 22px; } }
-  &__state { font: 500 11px $font-mono; text-transform: uppercase; letter-spacing: .06em; color: #888;
+  &__state { font: 600 13px $font-body; color: $label-2;
     time { margin-left: 8px; color: #666; }
     &.is-running { color: $primary; } &.is-finished { color: #7fb069; } &.is-error { color: #e0766b; } }
   &__desc { margin: 6px 0 14px; color: #9a958c; font-size: 14px; }
   &__warn { margin: 0; padding: 10px 12px; background: #1d1311; border-left: 2px solid #e0766b; color: #e0a49b; font: 12px $font-mono; }
   &__options { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 12px;
     label { display: flex; flex-direction: column; gap: 4px; }
-    span { font: 500 10px $font-mono; text-transform: uppercase; letter-spacing: .08em; color: #777; }
+    span { font: 400 13px $font-body; color: $label-2; }
     input { padding: 9px 10px; background: #1a1a1a; border: 1px solid #2e2e2e; color: #eee; font: inherit; } }
   &__limit { max-width: 140px; }
   &__actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap;

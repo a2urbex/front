@@ -1,5 +1,6 @@
 <script setup>
 import Title from '@/components/Title.vue';
+import { apiImage } from '@/utilities/apiImage';
 import { ref, onMounted } from 'vue';
 import { useEditProfileStore } from '@/stores/editProfile';
 import { useProfileStore } from '@/stores/profile';
@@ -27,6 +28,7 @@ const passwordData = ref({
 });
 
 const imagePreview = ref(null);
+const username = ref('');
 const bannerPreview = ref(null);
 
 onMounted(async () => {
@@ -43,8 +45,9 @@ onMounted(async () => {
         image: null,
         banner: null
     };
-    if (profile.image) imagePreview.value = profile.image;
-    if (profile.banner) bannerPreview.value = profile.banner;
+    if (profile.image) imagePreview.value = apiImage(profile.image);
+    if (profile.banner) bannerPreview.value = apiImage(profile.banner);
+    username.value = profile.username || user.username || '';
 });
 
 const handleImageChange = (event, type) => {
@@ -116,6 +119,7 @@ const handleSubmit = async () => {
         }
 
         await authStore.fetchUserProfile();
+        toast.success('Saved', { position: toast.POSITION.TOP_CENTER, autoClose: 1200, theme: 'dark' });
     } catch (error) {
         console.error('Error updating profile:', error);
     }
@@ -123,100 +127,61 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-    <Title title="Account Settings" />
+    <Title title="Account settings" />
 
-    <div class="edit-profile page-width">
-        <form @submit.prevent="handleSubmit" class="edit-profile-form">
-            <div class="image-uploads">
-                <div class="upload-section banner-image">
-                    <label>Banner Image</label>
-                    <font-awesome-icon :icon="['fas', 'pen-to-square']" />
-                    <div class="preview banner" :style="{ backgroundImage: bannerPreview ? `url(${bannerPreview})` : 'none' }">
-                        <input type="file" @change="(e) => handleImageChange(e, 'banner')" accept="image/*">
-                        <span v-if="!bannerPreview">Click to upload</span>
-                    </div>
-                </div>
-                <div class="upload-section profile-image">
-                    <label>Profile Image</label>
-                    <font-awesome-icon :icon="['fas', 'pen-to-square']" />
-                    <div class="preview" :style="{ backgroundImage: imagePreview ? `url(${imagePreview})` : 'none' }">
-                        <input type="file" @change="(e) => handleImageChange(e, 'profile')" accept="image/*">
-                        <span v-if="!imagePreview">Click to upload</span>
-                    </div>
-                </div>
+    <form class="ios-page account-page" @submit.prevent="handleSubmit">
+        <!-- En-tête : couverture + photo, chacune remplaçable d'un tap -->
+        <div class="account-hero">
+            <label class="account-hero__cover" :style="{ backgroundImage: bannerPreview ? `url(${bannerPreview})` : 'none' }">
+                <input type="file" accept="image/*" @change="(e) => handleImageChange(e, 'banner')" aria-label="Change cover image" />
+                <span class="account-hero__edit"><font-awesome-icon :icon="['fas', 'pencil']" />Cover</span>
+            </label>
+            <label class="account-hero__avatar" :style="{ backgroundImage: imagePreview ? `url(${imagePreview})` : 'none' }">
+                <input type="file" accept="image/*" @change="(e) => handleImageChange(e, 'profile')" aria-label="Change profile photo" />
+                <span v-if="!imagePreview" class="account-hero__initials">{{ (username || '?').slice(0, 2).toUpperCase() }}</span>
+                <span class="account-hero__badge"><font-awesome-icon :icon="['fas', 'pencil']" /></span>
+            </label>
+            <p class="account-hero__name">{{ username }}</p>
+        </div>
+
+        <section class="ios-section">
+            <h3 class="ios-header">About</h3>
+            <div class="ios-group">
+                <textarea id="about" v-model="formData.about" class="ios-field__area" rows="4" placeholder="A few words about you"></textarea>
             </div>
+        </section>
 
-            <div class="st-form-group">
-                <textarea v-model="formData.about" rows="4" placeholder=" " id="about"></textarea>
-                <label for="about">About</label>
-                <div class="input-line"></div>
+        <section class="ios-section">
+            <h3 class="ios-header">Social</h3>
+            <div class="ios-group">
+                <label class="ios-row ios-field" for="youtube"><span class="ios-field__label">YouTube</span><input id="youtube" v-model="formData.youtube" type="text" placeholder="Channel link" autocomplete="off" /></label>
+                <label class="ios-row ios-field" for="tiktok"><span class="ios-field__label">TikTok</span><input id="tiktok" v-model="formData.tiktok" type="text" placeholder="@username" autocomplete="off" /></label>
+                <label class="ios-row ios-field" for="instagram"><span class="ios-field__label">Instagram</span><input id="instagram" v-model="formData.instagram" type="text" placeholder="@username" autocomplete="off" /></label>
             </div>
+        </section>
 
-            <div class="social-links">
-                <div class="st-form-group">
-                    <input type="text" v-model="formData.youtube" placeholder=" " id="youtube">
-                    <label for="youtube">YouTube</label>
-                    <div class="input-line"></div>
-                    <font-awesome-icon :icon="['fas', 'globe']" class="input-icon" />
-                </div>
-
-                <div class="st-form-group">
-                    <input type="text" v-model="formData.tiktok" placeholder=" " id="tiktok">
-                    <label for="tiktok">TikTok</label>
-                    <div class="input-line"></div>
-                    <font-awesome-icon :icon="['fas', 'at']" class="input-icon" />
-                </div>
-
-                <div class="st-form-group">
-                    <input type="text" v-model="formData.instagram" placeholder=" " id="instagram">
-                    <label for="instagram">Instagram</label>
-                    <div class="input-line"></div>
-                    <font-awesome-icon :icon="['fas', 'at']" class="input-icon" />
-                </div>
+        <section class="ios-section">
+            <h3 class="ios-header">Privacy</h3>
+            <div class="ios-group">
+                <button type="button" class="ios-row" role="switch" :aria-checked="!!formData.isPrivate" @click="formData.isPrivate = !formData.isPrivate">
+                    <span class="ios-icon"><font-awesome-icon :icon="['fas', 'lock']" /></span>
+                    <span class="ios-row__label">Private profile</span>
+                    <span class="ios-switch" :class="{ on: formData.isPrivate }"></span>
+                </button>
             </div>
+            <p class="ios-footer">Only your friends can see a private profile.</p>
+        </section>
 
-            <div class="password-section">
-                <h3>Change Password</h3>
-                <div class="st-form-group">
-                    <input type="password" v-model="passwordData.password" placeholder=" " id="current-password">
-                    <label for="current-password">Current Password</label>
-                    <div class="input-line"></div>
-                    <font-awesome-icon :icon="['fas', 'lock']" class="input-icon" />
-                </div>
-
-                <div class="st-form-group">
-                    <input type="password" v-model="passwordData.newPassword" placeholder=" " id="new-password">
-                    <label for="new-password">New Password</label>
-                    <div class="input-line"></div>
-                    <font-awesome-icon :icon="['fas', 'lock']" class="input-icon" />
-                </div>
-
-                <div class="st-form-group">
-                    <input type="password" v-model="passwordData.confirmPassword" placeholder=" " id="confirm-password">
-                    <label for="confirm-password">Confirm New Password</label>
-                    <div class="input-line"></div>
-                    <font-awesome-icon :icon="['fas', 'lock']" class="input-icon" />
-                </div>
+        <section class="ios-section">
+            <h3 class="ios-header">Change password</h3>
+            <div class="ios-group">
+                <label class="ios-row ios-field" for="current-password"><span class="ios-field__label">Current</span><input id="current-password" v-model="passwordData.password" type="password" placeholder="Required" autocomplete="current-password" /></label>
+                <label class="ios-row ios-field" for="new-password"><span class="ios-field__label">New</span><input id="new-password" v-model="passwordData.newPassword" type="password" placeholder="New password" autocomplete="new-password" /></label>
+                <label class="ios-row ios-field" for="confirm-password"><span class="ios-field__label">Confirm</span><input id="confirm-password" v-model="passwordData.confirmPassword" type="password" placeholder="Repeat it" autocomplete="new-password" /></label>
             </div>
+            <p class="ios-footer">Leave empty to keep your current password.</p>
+        </section>
 
-            <div class="form-group privacy-setting">
-                <label class="checkbox-label">
-                    <span>Private Profile</span>
-                    <div class="toggle-switch">
-                        <input type="checkbox" v-model="formData.isPrivate" :checked="formData.isPrivate">
-                        <span class="slider"></span>
-                    </div>
-                </label>
-            </div>
-
-            <button type="submit" class="st-btn" :disabled="editProfileStore.loading">
-                <span>{{ editProfileStore.loading ? 'Saving...' : 'Save Changes' }}</span>
-                <div class="btn-glow"></div>
-            </button>
-        </form>
-    </div>
+        <button type="submit" class="ios-primary" :disabled="editProfileStore.loading">{{ editProfileStore.loading ? 'Saving…' : 'Save changes' }}</button>
+    </form>
 </template>
-
-<style lang="scss" scoped>
-    @use '@/assets/styles/components/editProfile.scss' as *;
-</style>

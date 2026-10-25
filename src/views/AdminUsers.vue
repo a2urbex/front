@@ -57,7 +57,7 @@ onMounted(async () => {
 })
 </script>
 <template>
-   <Title title="Account Management" />
+   <Title title="Access &amp; users" />
 
    <div class="admin-page page-width">
     <div v-if="usersStore.loading" class="loading">

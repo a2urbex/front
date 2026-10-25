@@ -161,7 +161,7 @@ onUnmounted(closeStream)
 </script>
 
 <template>
-  <Title title="Geospatial Deduplication" />
+  <Title title="Deduplication" />
 
   <div class="admin-dedup page-width">
     <header class="admin-dedup__header">
@@ -342,7 +342,7 @@ onUnmounted(closeStream)
     color: #aaa;
     border: 1px solid rgba(255, 255, 255, 0.08);
 
-    &[data-state='running']  { background: rgba($primary, 0.12); color: $primary; border-color: rgba($primary, 0.3); }
+    &[data-state='running']  { background: color-mix(in srgb, var(--tint) 12%, transparent); color: $primary; border-color: color-mix(in srgb, var(--tint) 30%, transparent); }
     &[data-state='finished'] { background: rgba(52, 211, 153, 0.12); color: #34d399; border-color: rgba(52, 211, 153, 0.3); }
     &[data-state='stopped']  { background: rgba(248, 113, 113, 0.12); color: #f87171; border-color: rgba(248, 113, 113, 0.3); }
     &[data-state='error']    { background: rgba(248, 113, 113, 0.2);  color: #fca5a5; border-color: rgba(248, 113, 113, 0.5); }
@@ -386,7 +386,7 @@ onUnmounted(closeStream)
       font-size: 0.95rem;
       &:focus {
         outline: none;
-        border-color: rgba($primary, 0.5);
+        border-color: color-mix(in srgb, var(--tint) 50%, transparent);
       }
       &:disabled { opacity: 0.5; cursor: not-allowed; }
     }
@@ -410,7 +410,7 @@ onUnmounted(closeStream)
     }
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, $primary, color.adjust($primary, $lightness: 15%));
+      background: var(--tint);
       transition: width 0.2s ease;
     }
     .progress-label {
@@ -579,7 +579,7 @@ onUnmounted(closeStream)
     background: rgba(255, 255, 255, 0.06);
     color: #aaa;
 
-    &[data-state='running']  { background: rgba($primary, 0.15); color: $primary; }
+    &[data-state='running']  { background: color-mix(in srgb, var(--tint) 15%, transparent); color: $primary; }
     &[data-state='finished'] { background: rgba(52, 211, 153, 0.12); color: #34d399; }
     &[data-state='stopped']  { background: rgba(248, 113, 113, 0.12); color: #f87171; }
     &[data-state='error']    { background: rgba(248, 113, 113, 0.2);  color: #fca5a5; }

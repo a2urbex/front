@@ -1,199 +1,169 @@
 <script setup>
 import { apiImage } from '@/utilities/apiImage';
-import { onMounted, computed, ref } from 'vue';
+import { onMounted, computed, ref, reactive } from 'vue';
 import { useProfileStore } from '@/stores/profile';
-import PreLoader from '../components/PreLoader.vue';
-import UserSearch from '../components/UserSearch.vue';
+import { useUsersStore } from '@/stores/users';
+import { useAuthStore } from '@/stores/auth';
 import { toast } from 'vue3-toastify';
 import Title from '@/components/Title.vue';
 
+// Amis : une recherche de personnes, trois onglets (amis, demandes reçues, envoyées), actions en feuille
 const profileStore = useProfileStore();
-const friendsList = computed(() => profileStore.friendsList);
-const isLoading = computed(() => profileStore.loading);
-const activeTab = ref('friends');
+const usersStore = useUsersStore();
+const authStore = useAuthStore();
+const TOAST = { position: toast.POSITION.TOP_CENTER, autoClose: 1200, theme: 'dark' };
 
-const getFriendImageUrl = (friend) => {
-  return apiImage(friend.image);
+const lists = computed(() => profileStore.friendsList || {});
+const friends = computed(() => lists.value.friends || []);
+const received = computed(() => lists.value.waiting || []);
+const sent = computed(() => lists.value.pending || []);
+const tab = ref('friends');
+const query = ref('');
+const sheetFor = ref(null);
+const confirmRemove = ref(false);
+const busy = ref(null);
+const broken = reactive({}); // photos qui ne chargent pas → initiales
+
+const people = computed(() => {
+  const q = query.value.trim().toLowerCase();
+  if (!q) return [];
+  return (usersStore.users || []).filter((u) => u.id !== authStore.userProfile?.id && (u.username || '').toLowerCase().includes(q)).slice(0, 30);
+});
+
+const avatar = (u) => apiImage(u.image);
+const initials = (u) => (u.username || '?').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+const relation = (u) => {
+  if (friends.value.some((f) => f.id === u.id)) return 'Friend';
+  if (sent.value.some((f) => f.id === u.id)) return 'Request sent';
+  if (received.value.some((f) => f.id === u.id)) return 'Wants to be friends';
+  return '';
 };
 
-const removeFriend = async (friendId) => {
-  if (confirm('Are you sure you want to remove this friend?')) {
-    try {
-      await profileStore.removeFriend(friendId);
-      await profileStore.getFriends();
-      toast.success('Friend removed successfully', { 
-        position: toast.POSITION.TOP_CENTER, 
-        autoClose: 1000, 
-        pauseOnHover: true, 
-        theme: 'dark' 
-      });
-    } catch (error) {
-      toast.error('Failed to remove friend', { 
-        position: toast.POSITION.TOP_CENTER, 
-        autoClose: 1000, 
-        pauseOnHover: true, 
-        theme: 'dark' 
-      });
-    }
-  }
-};
-
-const cancelFriendRequest = async (friendId) => {
-  if (confirm('Are you sure you want to cancel this friend request?')) {
-    try {
-      await profileStore.cancelFriendRequest(friendId);
-      await profileStore.getFriends();
-      toast.success('Friend request cancelled successfully', { 
-        position: toast.POSITION.TOP_CENTER, 
-        autoClose: 1000, 
-        pauseOnHover: true, 
-        theme: 'dark' 
-      });
-    } catch (error) {
-      toast.error('Failed to cancel friend request', { 
-        position: toast.POSITION.TOP_CENTER, 
-        autoClose: 1000, 
-        pauseOnHover: true, 
-        theme: 'dark' 
-      });
-    }
-  }
-};
-
-const acceptFriendRequest = async (friendId) => {
+const run = async (id, action, done) => {
+  busy.value = id;
   try {
-    await profileStore.acceptFriendRequest(friendId);
+    await action(id);
     await profileStore.getFriends();
-    toast.success('Friend request accepted successfully', { 
-      position: toast.POSITION.TOP_CENTER, 
-      autoClose: 1000, 
-      pauseOnHover: true, 
-      theme: 'dark' 
-    });
-  } catch (error) {
-    toast.error('Failed to accept friend request', { 
-      position: toast.POSITION.TOP_CENTER, 
-      autoClose: 1000, 
-      pauseOnHover: true, 
-      theme: 'dark' 
-    });
+    toast.success(done, TOAST);
+  } catch {
+    toast.error('That did not work. Try again.', TOAST);
+  } finally {
+    busy.value = null;
   }
 };
+const accept = (u) => run(u.id, profileStore.acceptFriendRequest, `${u.username} is now your friend`);
+const decline = (u) => run(u.id, profileStore.rejectFriendRequest, 'Request declined');
 
-const rejectFriendRequest = async (friendId) => {
-  if (confirm('Are you sure you want to reject this friend request?')) {
-    try {
-      await profileStore.rejectFriendRequest(friendId);
-      await profileStore.getFriends();
-      toast.success('Friend request rejected successfully', { 
-        position: toast.POSITION.TOP_CENTER, 
-        autoClose: 1000, 
-        pauseOnHover: true, 
-        theme: 'dark' 
-      });
-    } catch (error) {
-      toast.error('Failed to reject friend request', { 
-        position: toast.POSITION.TOP_CENTER, 
-        autoClose: 1000, 
-        pauseOnHover: true, 
-        theme: 'dark' 
-      });
-    }
-  }
+const openSheet = (u) => { sheetFor.value = u; confirmRemove.value = false; };
+const closeSheet = () => { sheetFor.value = null; };
+const removeOrCancel = async () => {
+  const u = sheetFor.value;
+  if (tab.value === 'friends' && !confirmRemove.value) { confirmRemove.value = true; return; }
+  closeSheet();
+  if (tab.value === 'friends') await run(u.id, profileStore.removeFriend, 'Friend removed');
+  else await run(u.id, profileStore.cancelFriendRequest, 'Request cancelled');
 };
 
-onMounted(async () => {
-  try {
-    await profileStore.getFriends();
-  } catch (error) {
-  }
+onMounted(() => {
+  profileStore.getFriends().catch(() => {});
+  usersStore.getAll().catch(() => {});
 });
 </script>
 
 <template>
   <Title title="Friends" />
-  <transition name="fade" mode="out-in">
-    <PreLoader msg="Profile" v-if="isLoading" key="preloader" />
-  </transition>
-  <div class="friends page-width">
-  <UserSearch/>
-    <!-- Tab Navigation -->
-    <div class="friends__tabs">
-      <button
-        class="friends__tab"
-        :class="{ active: activeTab === 'friends' }"
-        @click="activeTab = 'friends'"
-      >
-        Friends
-      </button>
-      <button
-        class="friends__tab"
-        :class="{ active: activeTab === 'waiting' }"
-        @click="activeTab = 'waiting'"
-      >
-        Waiting
-      </button>
-      <button
-        class="friends__tab"
-        :class="{ active: activeTab === 'pending' }"
-        @click="activeTab = 'pending'"
-      >
-        Pending
-      </button>
-    </div>
+  <div class="ios-page friends-page">
+    <label class="ios-search" for="friends-search">
+      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+      <input id="friends-search" v-model="query" type="search" placeholder="Search people" autocomplete="off" />
+    </label>
 
-    <!-- Tab Content -->
-    <!-- Friends Tab -->
-    <div v-if="activeTab === 'friends'" class="friends__list">
-      <div v-if="friendsList?.friends?.length" v-for="(friend, index) in friendsList.friends" :key="index" class="friends__item">
-        <router-link :to="'/profile/' + friend.id">
-          <div class="friends__item-image-wrapper">
-            <img v-if="friend.image" class="friends__item-image" :src="getFriendImageUrl(friend)" :alt="friend.firstname">
-          </div>
-          <div class="friends__item-text">{{ friend.username }}</div>
+    <!-- Résultats de recherche -->
+    <section v-if="query.trim()" class="ios-section">
+      <h3 class="ios-header">People</h3>
+      <div class="ios-group" v-if="people.length">
+        <router-link v-for="u in people" :key="u.id" class="ios-row" :to="'/profile/' + u.id">
+          <img v-if="avatar(u) && !broken[u.id]" class="ios-avatar" :src="avatar(u)" alt="" @error="broken[u.id] = true" />
+          <span v-else class="ios-avatar">{{ initials(u) }}</span>
+          <span class="ios-row__label">{{ u.username }}</span>
+          <span class="ios-row__value">{{ relation(u) }}</span>
+          <svg class="ios-chev" viewBox="0 0 8 13" aria-hidden="true"><path d="M1.4 0 0 1.4 5.1 6.5 0 11.6 1.4 13l6.5-6.5Z" /></svg>
         </router-link>
-        <div class="friends__item-action">
-          <button @click="removeFriend(friend.id)">Remove</button>
-        </div>
       </div>
-      <p v-else class="friends__no-result">No friends found</p>
-    </div>
+      <p v-else class="ios-footer">Nobody matches "{{ query }}".</p>
+    </section>
 
-    <!-- Pending Tab -->
-    <div v-if="activeTab === 'pending'" class="friends__list">
-      <div v-if="friendsList?.pending?.length" v-for="(friend, index) in friendsList.pending" :key="index" class="friends__item">
-        <router-link :to="'/profile/' + friend.id">
-          <div class="friends__item-image-wrapper">
-            <img v-if="friend.image" class="friends__item-image" :src="getFriendImageUrl(friend)" :alt="friend.firstname">
-          </div>
-          <div class="friends__item-text">{{ friend.username }}</div>
-        </router-link>
-        <div class="friends__item-action">
-          <button @click="cancelFriendRequest(friend.id)">Cancel</button>
-        </div>
+    <template v-else>
+      <div class="ios-segmented" role="tablist">
+        <button role="tab" :aria-selected="tab === 'friends'" :class="{ on: tab === 'friends' }" @click="tab = 'friends'">Friends</button>
+        <button role="tab" :aria-selected="tab === 'received'" :class="{ on: tab === 'received' }" @click="tab = 'received'">
+          Requests<span v-if="received.length" class="ios-badge">{{ received.length }}</span>
+        </button>
+        <button role="tab" :aria-selected="tab === 'sent'" :class="{ on: tab === 'sent' }" @click="tab = 'sent'">Sent</button>
       </div>
-      <p v-else class="friends__no-result">No pending requests</p>
-    </div>
 
-    <!-- Waiting Tab -->
-    <div v-if="activeTab === 'waiting'" class="friends__list">
-      <div v-if="friendsList?.waiting?.length" v-for="(friend, index) in friendsList.waiting" :key="index" class="friends__item">
-        <router-link :to="'/profile/' + friend.id">
-          <div class="friends__item-image-wrapper">
-            <img v-if="friend.image" class="friends__item-image" :src="getFriendImageUrl(friend)" :alt="friend.firstname">
+      <section class="ios-section" v-if="tab === 'friends'">
+        <div class="ios-group" v-if="friends.length">
+          <div v-for="u in friends" :key="u.id" class="ios-row friends-row">
+            <router-link class="friends-row__main" :to="'/profile/' + u.id">
+              <img v-if="avatar(u) && !broken[u.id]" class="ios-avatar" :src="avatar(u)" alt="" @error="broken[u.id] = true" />
+              <span v-else class="ios-avatar">{{ initials(u) }}</span>
+              <span class="ios-row__label">{{ u.username }}</span>
+            </router-link>
+            <button class="list-row__more" :aria-label="`Actions for ${u.username}`" @click="openSheet(u)"><font-awesome-icon :icon="['fas', 'ellipsis']" /></button>
           </div>
-          <div class="friends__item-text">{{ friend.username }}</div>
-        </router-link>
-        <div class="friends__item-action">
-          <button @click="rejectFriendRequest(friend.id)">Reject</button>
-          <button @click="acceptFriendRequest(friend.id)">Accept</button>
         </div>
-      </div>
-      <p v-else class="friends__no-result">No waiting requests</p>
-    </div>
+        <p v-else class="ios-footer">No friends yet. Search for someone above to send a request.</p>
+      </section>
+
+      <section class="ios-section" v-if="tab === 'received'">
+        <div class="ios-group" v-if="received.length">
+          <div v-for="u in received" :key="u.id" class="ios-row friends-row">
+            <router-link class="friends-row__main" :to="'/profile/' + u.id">
+              <img v-if="avatar(u) && !broken[u.id]" class="ios-avatar" :src="avatar(u)" alt="" @error="broken[u.id] = true" />
+              <span v-else class="ios-avatar">{{ initials(u) }}</span>
+              <span class="ios-row__label">{{ u.username }}</span>
+            </router-link>
+            <span class="friends-row__actions">
+              <button class="ios-pill" :disabled="busy === u.id" @click="decline(u)">Decline</button>
+              <button class="ios-pill ios-pill--tint" :disabled="busy === u.id" @click="accept(u)">Accept</button>
+            </span>
+          </div>
+        </div>
+        <p v-else class="ios-footer">No friend request right now.</p>
+      </section>
+
+      <section class="ios-section" v-if="tab === 'sent'">
+        <div class="ios-group" v-if="sent.length">
+          <div v-for="u in sent" :key="u.id" class="ios-row friends-row">
+            <router-link class="friends-row__main" :to="'/profile/' + u.id">
+              <img v-if="avatar(u) && !broken[u.id]" class="ios-avatar" :src="avatar(u)" alt="" @error="broken[u.id] = true" />
+              <span v-else class="ios-avatar">{{ initials(u) }}</span>
+              <span class="ios-row__label">{{ u.username }}</span>
+              <span class="ios-row__value">Waiting</span>
+            </router-link>
+            <button class="list-row__more" :aria-label="`Actions for ${u.username}`" @click="openSheet(u)"><font-awesome-icon :icon="['fas', 'ellipsis']" /></button>
+          </div>
+        </div>
+        <p v-else class="ios-footer">You have no request waiting for an answer.</p>
+      </section>
+    </template>
   </div>
-</template>
 
-<style lang="scss" scoped>
-@use '@/assets/styles/components/friends.scss' as *;
-</style>
+  <Teleport to="body">
+    <div v-if="sheetFor" class="ios-sheet-backdrop" @click.self="closeSheet">
+      <div class="ios-action-sheet" role="dialog" :aria-label="`${sheetFor.username} actions`">
+        <div class="ios-action-sheet__group">
+          <p class="ios-action-sheet__title">{{ sheetFor.username }}</p>
+          <router-link class="ios-action-sheet__btn" :to="'/profile/' + sheetFor.id" @click="closeSheet"><font-awesome-icon :icon="['fas', 'circle-user']" />View profile</router-link>
+          <button class="ios-action-sheet__btn is-danger" @click="removeOrCancel">
+            <font-awesome-icon :icon="['fas', tab === 'friends' ? 'trash' : 'xmark']" />
+            <template v-if="tab === 'friends'">{{ confirmRemove ? 'Tap again to remove' : 'Remove friend' }}</template>
+            <template v-else>Cancel request</template>
+          </button>
+        </div>
+        <button class="ios-action-sheet__btn ios-action-sheet__cancel" @click="closeSheet">Cancel</button>
+      </div>
+    </div>
+  </Teleport>
+</template>

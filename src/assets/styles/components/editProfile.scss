@@ -23,7 +23,7 @@
     border: 1px solid rgba(255, 255, 255, 0.06);
     box-shadow:
         0 24px 60px rgba(0, 0, 0, 0.55),
-        0 0 0 1px rgba($primary, 0.05),
+        0 0 0 1px color-mix(in srgb, var(--tint) 5%, transparent),
         inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
     @media (max-width: $md) {
@@ -76,11 +76,11 @@
         width: 9rem;
         height: 9rem;
         border-radius: 50%;
-        border: 3px solid rgba($primary, 0.7);
+        border: 3px solid color-mix(in srgb, var(--tint) 70%, transparent);
         box-shadow:
             0 0 0 4px rgba(10, 10, 10, 0.95),
             0 12px 28px rgba(0, 0, 0, 0.55),
-            0 0 24px rgba($primary, 0.35);
+            0 0 24px color-mix(in srgb, var(--tint) 35%, transparent);
         background-color: #000;
 
         @media (max-width: $md) {
@@ -117,8 +117,8 @@
     }
 
     &:hover {
-        border-color: rgba($primary, 0.55);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px rgba($primary, 0.18);
+        border-color: color-mix(in srgb, var(--tint) 55%, transparent);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px color-mix(in srgb, var(--tint) 18%, transparent);
         transform: translateY(-2px);
 
         &::before { opacity: 1; }
@@ -170,7 +170,7 @@
             top: 0.5rem;
             color: $primary;
             opacity: 0.7;
-            filter: drop-shadow(0 0 5px rgba($primary, 0.5));
+            filter: drop-shadow(0 0 5px color-mix(in srgb, var(--tint) 50%, transparent));
         }
     }
 }
@@ -180,7 +180,7 @@
     padding: 1.5rem 1.5rem 1rem;
     background: linear-gradient(160deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.15) 100%);
     border-radius: 0.85rem;
-    border: 1px solid rgba($primary, 0.12);
+    border: 1px solid color-mix(in srgb, var(--tint) 12%, transparent);
     position: relative;
 
     &::before {
@@ -190,7 +190,7 @@
         left: 1.5rem;
         right: 1.5rem;
         height: 1px;
-        background: linear-gradient(90deg, transparent, rgba($primary, 0.4), transparent);
+        background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--tint) 40%, transparent), transparent);
     }
 
     h3 {
@@ -211,7 +211,7 @@
             height: 0.45rem;
             background: $primary;
             border-radius: 50%;
-            box-shadow: 0 0 8px rgba($primary, 0.6);
+            box-shadow: 0 0 8px color-mix(in srgb, var(--tint) 60%, transparent);
         }
     }
 
@@ -224,7 +224,7 @@
             top: 0.5rem;
             color: $primary;
             opacity: 0.7;
-            filter: drop-shadow(0 0 5px rgba($primary, 0.5));
+            filter: drop-shadow(0 0 5px color-mix(in srgb, var(--tint) 50%, transparent));
         }
     }
 }
@@ -238,7 +238,7 @@
     transition: border-color 0.2s ease, background 0.2s ease;
 
     &:hover {
-        border-color: rgba($primary, 0.2);
+        border-color: color-mix(in srgb, var(--tint) 20%, transparent);
         background: rgba(255, 255, 255, 0.045);
     }
 
@@ -260,7 +260,7 @@
 
             &:checked + .slider {
                 background-color: $primary;
-                box-shadow: 0 0 15px rgba($primary, 0.45);
+                box-shadow: 0 0 15px color-mix(in srgb, var(--tint) 45%, transparent);
             }
 
             &:checked + .slider:before {

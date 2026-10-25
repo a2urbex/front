@@ -47,9 +47,9 @@
   }
 
   &__badge {
-    background: rgba($primary, 0.15);
+    background: color-mix(in srgb, var(--tint) 15%, transparent);
     color: $primary;
-    border: 1px solid rgba($primary, 0.4);
+    border: 1px solid color-mix(in srgb, var(--tint) 40%, transparent);
     padding: 0.15rem 0.6rem;
     border-radius: 1rem;
     font-size: 0.75rem;
@@ -88,7 +88,7 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background: rgba($primary, 0.3);
+      background: color-mix(in srgb, var(--tint) 30%, transparent);
       border-radius: 2px;
     }
   }
@@ -110,7 +110,7 @@
 
     &:hover {
       background: rgba(255, 255, 255, 0.05);
-      border-color: rgba($primary, 0.3);
+      border-color: color-mix(in srgb, var(--tint) 30%, transparent);
       transform: translateX(5px);
     }
 
@@ -125,7 +125,7 @@
       align-items: center;
       justify-content: center;
       background-color: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba($primary, 0.2);
+      border: 1px solid color-mix(in srgb, var(--tint) 20%, transparent);
       color: $primary;
     }
 
@@ -188,14 +188,14 @@
       &:hover,
       &.active {
         color: $primary;
-        background: rgba($primary, 0.1);
+        background: color-mix(in srgb, var(--tint) 10%, transparent);
         transform: rotate(90deg);
       }
     }
 
     &--pending {
-      border-color: rgba($primary, 0.35);
-      background: rgba($primary, 0.04);
+      border-color: color-mix(in srgb, var(--tint) 35%, transparent);
+      background: color-mix(in srgb, var(--tint) 4%, transparent);
     }
   }
 

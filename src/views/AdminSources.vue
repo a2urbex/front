@@ -123,7 +123,7 @@ onMounted(load)
 </script>
 
 <template>
-  <Title title="Source Manager" />
+  <Title title="Sources" />
 
   <div class="sources-page page-width">
     <div class="sources-page__header">
@@ -238,15 +238,15 @@ onMounted(load)
   }
 
   &__primary-btn {
-    background: rgba($primary, 0.15);
-    border: 1px solid rgba($primary, 0.4);
+    background: color-mix(in srgb, var(--tint) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tint) 40%, transparent);
     color: $primary;
     padding: .55rem 1rem;
     border-radius: .6rem;
     cursor: pointer;
     display: inline-flex; gap: .4rem; align-items: center;
 
-    &:hover { background: rgba($primary, 0.25); }
+    &:hover { background: color-mix(in srgb, var(--tint) 25%, transparent); }
   }
 
   &__create-row {
@@ -264,8 +264,8 @@ onMounted(load)
     }
 
     button {
-      background: rgba($primary, 0.15);
-      border: 1px solid rgba($primary, 0.4);
+      background: color-mix(in srgb, var(--tint) 15%, transparent);
+      border: 1px solid color-mix(in srgb, var(--tint) 40%, transparent);
       color: $primary;
       padding: .55rem 1rem;
       border-radius: .5rem;
@@ -347,8 +347,8 @@ onMounted(load)
     }
 
     button {
-      background: rgba($primary, 0.15);
-      border: 1px solid rgba($primary, 0.4);
+      background: color-mix(in srgb, var(--tint) 15%, transparent);
+      border: 1px solid color-mix(in srgb, var(--tint) 40%, transparent);
       color: $primary;
       padding: .3rem .6rem;
       border-radius: .4rem;
@@ -438,7 +438,7 @@ onMounted(load)
     padding: .8rem 1rem;
     background: rgba(17,17,17,.9);
     backdrop-filter: blur(0);
-    border: 1px solid rgba($primary, 0.3);
+    border: 1px solid color-mix(in srgb, var(--tint) 30%, transparent);
     border-radius: .8rem;
     box-shadow: 0 8px 30px rgba(0,0,0,.4);
 
@@ -451,8 +451,8 @@ onMounted(load)
     }
 
     button {
-      background: rgba($primary, 0.2);
-      border: 1px solid rgba($primary, 0.5);
+      background: color-mix(in srgb, var(--tint) 20%, transparent);
+      border: 1px solid color-mix(in srgb, var(--tint) 50%, transparent);
       color: $primary;
       padding: .45rem .9rem;
       border-radius: .4rem;

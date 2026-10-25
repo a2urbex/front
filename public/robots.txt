@@ -1,0 +1,4 @@
+# Seule la page d'accueil est publique : tout le reste est privé (compte requis)
+User-agent: *
+Allow: /$
+Disallow: /

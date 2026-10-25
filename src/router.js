@@ -177,6 +177,18 @@ router.beforeEach(async (to, from, next) => {
   next()
 })
 
+// Indexation : uniquement la page d'accueil. Toutes les autres routes (privées, démo) sont en noindex,
+// en plus du robots.txt (Google exécute le JS et lit cette balise).
+router.afterEach((to) => {
+  let meta = document.querySelector('meta[name="robots"]')
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.name = 'robots'
+    document.head.appendChild(meta)
+  }
+  meta.content = to.path === '/' ? 'index, follow' : 'noindex, nofollow'
+})
+
 // Chaque page repart du haut : sur iPhone, le défilement (parfois encore en élan) d'une longue page
 // restait appliqué à la suivante, plus courte, et n'affichait que du noir sous la barre de titre
 router.afterEach((to, from) => {

@@ -2,8 +2,12 @@ import { defineStore } from 'pinia';
 
 // '2.0.10' > '2.0.9' : comparaison numérique, segment par segment
 const isNewer = (a, b) => {
-  const pa = String(a || '').split('.').map(Number);
-  const pb = String(b || '').split('.').map(Number);
+  const pa = String(a || '')
+    .split('.')
+    .map(Number);
+  const pb = String(b || '')
+    .split('.')
+    .map(Number);
   for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
     const d = (pa[i] || 0) - (pb[i] || 0);
     if (d) return d > 0;
@@ -13,7 +17,7 @@ const isNewer = (a, b) => {
 
 export const useVersionStore = defineStore('version', {
   state: () => ({
-    code_version: '2.1.3', // Use for dev only
+    code_version: '2.1.4', // Use for dev only
     latest_version: '',
   }),
   actions: {

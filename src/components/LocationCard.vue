@@ -59,6 +59,7 @@ const openLocationCardDisplay = () => {
             <span v-if="statusEmoji(location)" class="spot-card__chip" :class="{ 'is-invalid': location.status === 'invalid' }">{{ statusEmoji(location) }}{{ location.danger ? '⚠️' : '' }}</span>
             <span v-if="isFavorite" class="spot-card__fav" aria-label="Saved"><font-awesome-icon :icon="['fas', 'heart']" /></span>
             <span v-if="distance" class="spot-card__dist">{{ distance }}</span>
+            <span v-else-if="location.fake" class="spot-card__demo">Demo</span>
         </div>
         <div class="spot-card__text">
             <b>{{ location.name || 'Unnamed spot' }}</b>

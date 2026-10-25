@@ -413,29 +413,52 @@ body.has-large-title #app .content { padding-top: calc(60px + env(safe-area-inse
 
 // ===== Barre latérale desktop (style barre latérale macOS) =====
 .header-desktop {
-  background: #0d0d0f !important;
-  border-right: 0 !important;
-  box-shadow: inset -0.5px 0 0 $separator !important;
+  background: rgba(22, 22, 24, 0.96) !important; border-right: 0 !important; box-shadow: inset -0.5px 0 0 $separator !important;
   font-family: $font-body !important;
 }
-.header-desktop__logo-link { font: 800 22px $font-display !important; letter-spacing: -0.02em !important; color: $label !important; }
-.header-desktop__section { border: 0 !important; box-shadow: none !important; }
-.header-desktop__section + .header-desktop__section { border-top: 0.5px solid $separator !important; }
-.header-desktop__section-label { font: 600 12px $font-body !important; color: $label-2 !important; text-transform: none !important; letter-spacing: 0 !important; }
+.header-desktop__logo { padding: 18px 20px 6px !important; letter-spacing: 0 !important; }
+.header-desktop__logo-link { font: 800 20px $font-display !important; letter-spacing: -0.02em !important; color: $label !important; }
+.header-desktop__content { padding: 10px 12px 14px !important; gap: 22px !important; mask-image: none !important; -webkit-mask-image: none !important; }
+// sections : pas de traits, juste de l'air et un petit en-tête gris comme dans le Finder
+.header-desktop__section { gap: 2px !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; }
+.header-desktop__section + .header-desktop__section { border-top: 0 !important; }
+.header-desktop__section--user { margin-top: auto; }
+.header-desktop__section-label { margin: 0 0 4px !important; padding: 0 10px !important; font: 600 11px $font-body !important; color: $label-3 !important; text-transform: uppercase !important; letter-spacing: 0.04em !important; }
 .header-desktop__nav-link, .header-desktop__add {
-  min-height: 34px; padding: 6px 10px !important; border: 0 !important; border-radius: 8px !important;
-  background: none !important; box-shadow: none !important;
-  color: $label !important; font: 400 15px $font-body !important; text-transform: none !important; letter-spacing: 0 !important;
-  svg { width: 18px; color: $primary !important; }
-  &:hover { background: rgba(255, 255, 255, 0.05) !important; }
+  display: flex !important; align-items: center; gap: 10px !important; min-height: 32px; padding: 0 10px !important; border: 0 !important; border-radius: 7px !important;
+  background: none !important; box-shadow: none !important; transform: none !important;
+  color: $label !important; font: 400 14px $font-body !important; text-transform: none !important; letter-spacing: 0 !important;
+  svg { width: 16px; font-size: 14px; color: $label-2 !important; }
+  &:hover { background: rgba(255, 255, 255, 0.06) !important; }
 }
-.header-desktop__nav-link.router-link-active, .header-desktop__nav-link.router-link-exact-active { background: $bg-3 !important; font-weight: 500 !important; }
-.header-desktop__add { color: $primary !important; }
-.header-desktop__profile { border: 0 !important; border-radius: $radius !important; background: $bg-2 !important; box-shadow: none !important; }
-.header-desktop__profile-name { font: 600 15px $font-body !important; }
-.header-desktop__profile-handle { font: 400 13px $font-body !important; color: $label-2 !important; }
-.header-desktop__profile-avatar { border: 0 !important; }
-.header-desktop__logout { color: $red !important; font: 400 15px $font-body !important; text-transform: none !important; border: 0 !important; background: none !important; }
+.header-desktop__nav-link.router-link-active, .header-desktop__nav-link.router-link-exact-active {
+  background: rgba(255, 255, 255, 0.1) !important; font-weight: 500 !important;
+  svg { color: $primary !important; }
+}
+.header-desktop__add { width: 100%; color: $primary !important; cursor: pointer; svg { color: $primary !important; } }
+// recherche + filtres : champ compact, filtres en petit groupe
+.header-desktop__section--filters { gap: 6px !important; }
+.header-desktop__filters-inline :is(.filter__container, .filter__wrapper) { position: static !important; width: auto !important; height: auto !important; padding: 0 !important; border: 0 !important; background: none !important; box-shadow: none !important; transform: none !important; }
+.header-desktop .filter__search { padding: 0 !important; background: none !important; box-shadow: none !important; }
+.header-desktop .filter__search .ios-search { height: 32px !important; padding: 0 10px !important; border-radius: 8px !important; font-size: 14px; }
+.header-desktop .filter__search .ios-search input { font-size: 14px !important; }
+.header-desktop .filter__filters { padding: 8px 0 0 !important; }
+.header-desktop .filter-section { background: none !important; border-radius: 0 !important; }
+.header-desktop .filter__group { border-radius: 8px; }
+.header-desktop .filter__item-content-title { min-height: 34px !important; padding: 0 10px !important; font-size: 14px !important; }
+.header-desktop .filter__item-content-title .filter__value { font-size: 13px; }
+.header-desktop .filter__item:checked + label > .filter__item-content { max-height: 260px !important; overflow-y: auto !important; }
+.header-desktop .filter__item-input label { min-height: 32px !important; padding-left: 22px !important; font-size: 14px !important; box-shadow: inset 22px 0 0 $bg-2, inset 0 0.5px 0 $separator !important; }
+.header-desktop .filter__results { padding: 6px 10px 8px !important; font-size: 12px !important; }
+.header-desktop .filter__clear { height: 32px !important; margin: 0 !important; border-radius: 8px !important; font-size: 14px !important; }
+.header-desktop__map-toggle { height: 30px; }
+.header-desktop__map-toggle > * { min-height: 0 !important; font-size: 13px !important; }
+// profil en bas
+.header-desktop__profile { padding: 8px 10px !important; border: 0 !important; border-radius: 10px !important; background: rgba(255, 255, 255, 0.05) !important; box-shadow: none !important; }
+.header-desktop__profile-avatar { width: 32px !important; height: 32px !important; border-radius: 50% !important; border: 0 !important; font-size: 0; background: $bg-3; }
+.header-desktop__profile-name { font: 600 14px $font-body !important; }
+.header-desktop__profile-handle { font: 400 12px $font-body !important; color: $label-2 !important; }
+.header-desktop__logout { color: $red !important; font: 400 14px $font-body !important; text-transform: none !important; border: 0 !important; background: none !important; }
 
 // ===== En-tête d'une liste : statut + exploration =====
 .list-planning { align-items: center !important; gap: 10px !important; margin: 12px auto 4px !important; padding: 0 16px !important; }
@@ -597,3 +620,18 @@ body.has-large-title #app .content { padding-top: calc(60px + env(safe-area-inse
   .Toastify__toast[class*='-enter--'], .Toastify__toast[class*='-exit--'] { animation-name: a2-toast-fade !important; }
 }
 @keyframes a2-toast-fade { from { opacity: 0; } }
+
+// Ordinateur : Listes et Amis en grille de cartes qui occupe la largeur (au lieu d'une colonne collée à gauche)
+@media (min-width: $md) {
+  :is(.lists-page, .friends-page) { max-width: 1400px; }
+  :is(.lists-page, .friends-page) > :is(.ios-search, .ios-segmented) { max-width: 560px; }
+  :is(.lists-page, .friends-page) .ios-group {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;
+    background: none; border-radius: 0; overflow: visible;
+  }
+  :is(.lists-page, .friends-page) .ios-group > .ios-row {
+    min-height: 64px; border-radius: 12px; background: $bg-2;
+    &::before { display: none !important; }
+    &:hover { background: $bg-3; }
+  }
+}

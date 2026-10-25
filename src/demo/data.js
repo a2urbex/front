@@ -51,7 +51,8 @@ const fakeImage = (hue) => {
     const win = Array.from({ length: int(2, 8) }, () => `<rect x="${x + int(6, bw - 16)}" y="${h - bh + int(10, bh - 30)}" width="8" height="12" fill="hsl(${hue},30%,8%)"/>`).join('');
     return `<rect x="${x}" y="${h - bh}" width="${bw}" height="${bh}" fill="hsl(${hue},12%,${int(14, 24)}%)"/>${win}`;
   }).join('');
-  return svg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="hsl(${hue},25%,${int(22, 34)}%)"/><stop offset="1" stop-color="hsl(${hue},20%,6%)"/></linearGradient><filter id="b"><feGaussianBlur stdDeviation="${rand(1.5, 4).toFixed(1)}"/></filter></defs><rect width="${w}" height="${h}" fill="url(#g)"/><g filter="url(#b)">${bars}</g><rect x="${w / 2 - 44}" y="${h / 2 - 10}" width="88" height="20" fill="rgba(0,0,0,.4)"/><text x="${w / 2}" y="${h / 2 + 4}" text-anchor="middle" font-family="monospace" font-weight="700" font-size="12" letter-spacing="1.5" fill="rgba(255,190,120,.75)">FAKE DATA</text></svg>`);
+  // pastille « Demo image » centrée en bas (visible même rognée en carte haute), typo système (plus de gros FAKE DATA au milieu)
+  return svg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="hsl(${hue},14%,${int(24, 32)}%)"/><stop offset="1" stop-color="hsl(${hue},10%,7%)"/></linearGradient><filter id="b"><feGaussianBlur stdDeviation="${rand(2.5, 5).toFixed(1)}"/></filter></defs><rect width="${w}" height="${h}" fill="url(#g)"/><g filter="url(#b)" opacity=".85">${bars}</g></svg>`);
 };
 
 const avatar = (name, hue) =>

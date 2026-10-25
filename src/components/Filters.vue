@@ -78,6 +78,7 @@ const cancelSourcePress = (event) => {
       </div>
 
       <div class="filter__filters" v-show="filterUIStore.showContent || hideSearch">
+        <div class="filter__group">
         <div v-for="(filterItems, filterKey) in filteredFilters" :key="filterKey" class="filter-section">
           <input class="filter__item" type="checkbox" :id="`${idPrefix}${filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}`" />
           <label :for="`${idPrefix}${filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}`">
@@ -115,6 +116,7 @@ const cancelSourcePress = (event) => {
               </div>
             </div>
           </label>
+        </div>
         </div>
         <div class="filter__results d-none" v-if="locationStore.totalLocations !== null">
           {{ Number(locationStore.totalLocations).toLocaleString('en-US') }} spot{{ locationStore.totalLocations !== 1 ? 's' : '' }} match

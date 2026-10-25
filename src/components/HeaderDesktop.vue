@@ -74,11 +74,12 @@ const clearCache = forceAppUpdate;
         </router-link>
         <button class="header-desktop__add" @click="handleAddLocation">
           <font-awesome-icon :icon="['fa', 'plus']" />
-          <span>Add Location</span>
+          <span>Add a location</span>
         </button>
       </nav>
 
       <div v-if="isLocationsRoute" class="header-desktop__section header-desktop__section--filters">
+        <p class="header-desktop__section-label">Search</p>
         <div class="header-desktop__filters-inline">
           <Filters idPrefix="desktop-" />
         </div>
@@ -93,10 +94,11 @@ const clearCache = forceAppUpdate;
       </div>
 
       <div class="header-desktop__section header-desktop__section--secondary">
+        <p class="header-desktop__section-label">Account</p>
         <router-link class="header-desktop__nav-link" to="/me">
           <font-awesome-icon v-if="status === 'up-to-date'" :icon="['fa', 'wrench']" />
           <font-awesome-icon v-else-if="status === 'outdated'" :icon="['fa', 'triangle-exclamation']" />
-          <span>Settings</span>
+          <span>Profile</span>
         </router-link>
         <router-link v-if="userProfile.isAdmin" class="header-desktop__nav-link" to="/admin">
           <font-awesome-icon :icon="['fa', 'gear']" />

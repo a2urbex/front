@@ -1,27 +1,17 @@
 <script setup>
 import { useMapStore } from '@/stores/map';
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { addBodyClass, removeBodyClass } from '@/utilities/bodyClass';
+import { useFilterUIStore } from '@/stores/filterUI';
 
-// Sous-header List/Map sous un titre de page : décale le contenu d'autant
-const root = ref(null);
-let counted = false;
-onMounted(() => {
-  counted = !!root.value?.classList.contains('small-header');
-  if (counted) addBodyClass('has-subheader');
-});
-onBeforeUnmount(() => { if (counted) removeBodyClass('has-subheader'); });
-
+// Bascule Carte / Liste (mobile) : une pilule flottante au-dessus de la barre d'onglets, la même sur les deux vues
 const mapStore = useMapStore();
+const filterUI = useFilterUIStore();
 </script>
 
 <template>
-    <div class="map-header page-width d-none" ref="root">
-        <div class="map-header-item map-header__list" @click="mapStore.open = false" :class="{ active: !mapStore.open }">List</div>
-        <div class="map-header-item map-header__map" @click="mapStore.open = true" :class="{ active: mapStore.open }">Map</div>
-    </div>
+    <Teleport to="body">
+        <button v-if="!filterUI.showContent" class="view-toggle d-none" @click="mapStore.open = !mapStore.open" :aria-label="mapStore.open ? 'Show as list' : 'Show on map'">
+            <font-awesome-icon :icon="['fas', mapStore.open ? 'list-ul' : 'map-location-dot']" />
+            {{ mapStore.open ? 'List' : 'Map' }}
+        </button>
+    </Teleport>
 </template>
-
-<style lang="scss">
-@use '../assets/styles/components/mapHeader.scss' as *;
-</style>

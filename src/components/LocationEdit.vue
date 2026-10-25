@@ -33,6 +33,7 @@ const confirmDelete = async () => {
 
 const cancelDelete = () => {
     showDeleteConfirm.value = false;
+    showContainer.value = false;
 };
 
 const handleEdit = () => {
@@ -41,42 +42,40 @@ const handleEdit = () => {
 
 const handleClose = () => {
     showEditPopup.value = false;
+    showContainer.value = false;
 };
 </script>
 
 <template>
-    <button class="location-edit-trigger" @click="toggleContainer">
+    <button class="location-edit-trigger" @click="toggleContainer" aria-label="More actions">
         <font-awesome-icon :icon="['fas', 'ellipsis-vertical']" />
     </button>
-    <div class="location-edit-container" :class="{ active: showContainer }">
-        <button class="location-edit-close" @click="toggleContainer">
-            <font-awesome-icon :icon="['fas', 'times']" />
-        </button>
-        <button class="location-edit-button icon-edit" @click="handleEdit">
-            <font-awesome-icon :icon="['fas', 'pencil']" /> Edit
-        </button>
-        <button class="location-edit-button icon-delete" @click="handleDelete">
-            <font-awesome-icon :icon="['fas', 'trash']" /> Delete
-        </button>
-    
-        <div v-if="showDeleteConfirm" class="delete-confirm-overlay">
-            <div class="delete-confirm-dialog">
-                <h3>Confirm Delete</h3>
-                <p>Are you sure you want to delete this location?</p>
-                <div class="delete-confirm-actions">
-                    <button class="btn-cancel" @click="cancelDelete">Cancel</button>
-                    <button class="btn-delete" @click="confirmDelete">Delete</button>
+    <!-- Menu monté dans <body> : jamais coincé dans le défilement de la fiche -->
+    <Teleport to="body">
+        <div v-if="showContainer && !showDeleteConfirm && !showEditPopup" class="ios-sheet-backdrop" @click.self="toggleContainer">
+            <div class="ios-action-sheet" role="dialog" aria-label="Spot actions">
+                <div class="ios-action-sheet__group">
+                    <p class="ios-action-sheet__title">{{ location.name || 'This spot' }}</p>
+                    <button class="ios-action-sheet__btn" @click="handleEdit"><font-awesome-icon :icon="['fas', 'pencil']" />Edit spot</button>
+                    <button class="ios-action-sheet__btn is-danger" @click="handleDelete"><font-awesome-icon :icon="['fas', 'trash']" />Delete spot</button>
+                </div>
+                <button class="ios-action-sheet__btn ios-action-sheet__cancel" @click="toggleContainer">Cancel</button>
+            </div>
+        </div>
+
+        <div v-if="showDeleteConfirm" class="ui-dialog-backdrop" @click.self="cancelDelete">
+            <div class="ui-dialog" role="alertdialog" aria-labelledby="del-title">
+                <h3 id="del-title">Delete this spot?</h3>
+                <p>"{{ location.name || 'This spot' }}" will be removed for everyone. This can't be undone.</p>
+                <div class="ui-dialog__actions">
+                    <button class="ui-dialog__btn" @click="cancelDelete">Cancel</button>
+                    <button class="ui-dialog__btn is-danger" @click="confirmDelete">Delete</button>
                 </div>
             </div>
         </div>
 
-        <LocationAdd 
-            v-if="showEditPopup" 
-            :isEdit="true"
-            :editData="location"
-            @close="handleClose" 
-        />
-    </div>
+        <LocationAdd v-if="showEditPopup" :isEdit="true" :editData="location" @close="handleClose" />
+    </Teleport>
 </template>
 
 <style lang="scss">

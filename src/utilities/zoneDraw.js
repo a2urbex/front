@@ -1,6 +1,8 @@
 import L from 'leaflet'
 
-const STYLE = { color: '#ff8a1f', weight: 2, fillOpacity: 0.08, dashArray: '6 4', interactive: false }
+// Couleur d'accent courante (réglage Profil)
+const tint = () => getComputedStyle(document.documentElement).getPropertyValue('--tint').trim() || '#ff9f0a'
+const BASE = { weight: 2, fillOpacity: 0.08, dashArray: '6 4', interactive: false }
 
 // Dessin tactile : cercle = tap centre puis tap bord ; polygone = taps successifs puis "Terminer"
 export const createZoneDraw = (map, onChange, onPoint = () => {}) => {
@@ -21,17 +23,17 @@ export const createZoneDraw = (map, onChange, onPoint = () => {}) => {
     if (mode === 'circle') {
       if (!center) {
         center = p
-        preview = L.circleMarker(p, { ...STYLE, radius: 4, fillOpacity: 1 }).addTo(map)
+        preview = L.circleMarker(p, { ...BASE, color: tint(), radius: 4, fillOpacity: 1 }).addTo(map)
         return
       }
       const radius = map.distance(center, p)
       clearLayers()
-      layer = L.circle(center, { ...STYLE, radius }).addTo(map)
+      layer = L.circle(center, { ...BASE, color: tint(), radius }).addTo(map)
       finish({ type: 'circle', lat: center[0], lon: center[1], radius })
     } else if (mode === 'polygon') {
       points.push(p)
       if (preview) map.removeLayer(preview)
-      preview = L.polyline(points, STYLE).addTo(map)
+      preview = L.polyline(points, { ...BASE, color: tint() }).addTo(map)
       onPoint(points.length)
     }
   }
@@ -40,7 +42,7 @@ export const createZoneDraw = (map, onChange, onPoint = () => {}) => {
     if (mode !== 'circle' || !center) return
     const radius = map.distance(center, e.latlng)
     if (layer) layer.setRadius(radius)
-    else layer = L.circle(center, { ...STYLE, radius }).addTo(map)
+    else layer = L.circle(center, { ...BASE, color: tint(), radius }).addTo(map)
   }
 
   const finish = (zone) => {
@@ -69,7 +71,7 @@ export const createZoneDraw = (map, onChange, onPoint = () => {}) => {
     close() {
       if (mode !== 'polygon' || points.length < 3) return false
       clearLayers()
-      layer = L.polygon(points, STYLE).addTo(map)
+      layer = L.polygon(points, { ...BASE, color: tint() }).addTo(map)
       finish({ type: 'polygon', points })
       return true
     },

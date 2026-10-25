@@ -12,6 +12,8 @@ import DateSlider from './DateSlider.vue';
 import Filters from './Filters.vue';
 import { createZoneDraw } from '@/utilities/zoneDraw';
 import { useFavoritesStore } from '@/stores/favorites';
+import { useFilterStore } from '@/stores/filter';
+import { useFilterUIStore } from '@/stores/filterUI';
 import { request } from '@/services/api';
 import { toast } from 'vue3-toastify';
 import { statusEmoji, formatDistance } from '@/utilities/field';
@@ -54,25 +56,26 @@ const glyph = (name) => {
   return glyphCache.get(key)
 }
 // Palette maison : même saturation / luminosité pour tous les types (les couleurs DB sont trop hétérogènes)
+// Couleurs pleines sourdes (icône blanche dessus, style Apple Plans) : lisibles sans éclairer l'écran
 const TYPE_COLORS = {
-  'fa-chess-rook': '#9cc271',
-  'fa-hotel': '#c49a78',
-  'fa-film': '#e0766b',
-  'fa-train': '#7fa2d6',
-  'fa-hospital': '#6cc4bd',
-  'fa-house': '#9fb3d4',
-  'fa-industry': '#d4c26a',
-  'fa-building': '#c983a8',
-  'fa-utensils': '#b3aba0',
-  'fa-jet-fighter-up': '#a3b487',
+  'fa-chess-rook': '#5f8a4c',
+  'fa-hotel': '#8a6a52',
+  'fa-film': '#a9483f',
+  'fa-train': '#4b6ea3',
+  'fa-hospital': '#3d8783',
+  'fa-house': '#5e7796',
+  'fa-industry': '#93802f',
+  'fa-building': '#87507a',
+  'fa-utensils': '#8c6b3a',
+  'fa-jet-fighter-up': '#5c6a4c',
 }
-const FALLBACK = ['#9cc271', '#7fa2d6', '#e0766b', '#d4c26a', '#c983a8', '#6cc4bd']
+const FALLBACK = ['#5f8a4c', '#4b6ea3', '#a9483f', '#93802f', '#87507a', '#3d8783']
 const typeColor = (item) => {
   const k = item.categoryIcon || ''
   if (TYPE_COLORS[k]) return TYPE_COLORS[k]
   let h = 0
   for (const ch of k) h = (h * 31 + ch.charCodeAt(0)) | 0
-  return k ? FALLBACK[Math.abs(h) % FALLBACK.length] : '#a8a39a'
+  return k ? FALLBACK[Math.abs(h) % FALLBACK.length] : '#636366'
 }
 
 const buildIcon = (item) => L.divIcon({
@@ -207,6 +210,15 @@ const onStatusUpdated = (updated) => {
 
 // --- Zone dessinée + frise des imports (carte globale uniquement) ---
 const favoritesStore = useFavoritesStore()
+const filterStore = useFilterStore()
+const filterUIStore = useFilterUIStore()
+const activeFilterCount = computed(() => Object.values(filterStore.selectedFilters || {}).reduce((n, v) => n + (Array.isArray(v) ? v.length : 0), 0))
+// La recherche ouvre le panneau plein écran du composant Filters de la page
+const openSearch = async () => {
+  filterUIStore.setShowContent(true)
+  await nextTick()
+  document.querySelector('.content .filter__search input')?.focus()
+}
 const isGlobal = computed(() => mapStore.type === 'location')
 const drawMode = ref(null)
 const polyPoints = ref(0)
@@ -293,15 +305,27 @@ const destroyMap = () => {
     map.remove()
     map = null
   }
+  // markercluster ajoute les points par lots (chunkedLoading) : un lot en attente planterait sur la carte supprimée
+  if (cluster) {
+    const noop = () => {}
+    cluster._addLayer = noop
+    cluster._refreshClustersIcons = noop
+    cluster._topClusterLevel = { _recalculateBounds: noop, _recursivelyAddChildrenToMap: noop }
+  }
   cluster = null
   markersById = new Map()
 }
 
-watch(() => route.fullPath, async () => {
-  mapStore.open = false
+// Changement de page : l'onglet Carte (/locations) s'ouvre toujours sur la carte, le reste sur la liste ;
+// le panneau de recherche se referme (sinon il masquait la pilule Liste au retour)
+watch(() => route.path, () => {
+  mapStore.open = route.path === '/locations'
+  filterUIStore.setShowContent(false)
   mapStore.locations = []
   mapStore.loaded = { type: null, typeId: null, filters: null }
-})
+}, { immediate: true })
+
+watch(() => mapStore.open, (open) => document.body.classList.toggle('map-mode', open), { immediate: true });
 
 watch(() => mapStore.open, async (open) => {
   if (open) {
@@ -348,31 +372,40 @@ onBeforeUnmount(destroyMap)
       <div :class="['map-container', { 'full-height': !isAuthenticated }]" id="map" v-if="mapStore.open">
         <div class="map-leaflet" ref="mapEl"></div>
 
-        <div class="map-field-ctrl">
-          <button class="map-ctrl-btn" :class="{ active: userPos }" @click="locate" title="My position">
-            <font-awesome-icon :icon="['fas', 'location-crosshairs']" />
+        <!-- Colonne de contrôles translucide (haut droite) -->
+        <div class="map-ctrls">
+          <button class="map-ctrl-btn" :class="{ active: userPos }" @click="locate" title="My position" aria-label="My position">
+            <font-awesome-icon :icon="['fas', 'location-arrow']" />
           </button>
-          <button class="map-ctrl-btn" :class="{ active: mapStore.showInvalid }" @click="toggleInvalid" title="Show invalid points">
+          <!-- Outils de zone et frise des dates : sur ordinateur seulement -->
+          <template v-if="isGlobal">
+            <button class="map-ctrl-btn map-ctrl-btn--desk" :class="{ active: drawMode === 'circle' }" @click="startDraw('circle')" title="Circle zone" aria-label="Draw a circle zone">
+              <font-awesome-icon :icon="['fas', 'circle-dot']" />
+            </button>
+            <button class="map-ctrl-btn map-ctrl-btn--desk" :class="{ active: drawMode === 'polygon' }" @click="startDraw('polygon')" title="Polygon zone" aria-label="Draw a polygon zone">
+              <font-awesome-icon :icon="['fas', 'draw-polygon']" />
+            </button>
+            <button class="map-ctrl-btn map-ctrl-btn--desk" :class="{ active: showSlider || mapStore.dateFrom || mapStore.dateTo }" @click="showSlider = !showSlider" title="Import date" aria-label="Import date">
+              <font-awesome-icon :icon="['fas', 'calendar-days']" />
+            </button>
+          </template>
+          <button class="map-ctrl-btn" :class="{ active: mapStore.showInvalid }" @click="toggleInvalid" title="Show invalid points" aria-label="Show invalid points">
             <font-awesome-icon :icon="['fas', 'ban']" />
           </button>
         </div>
 
-        <div class="map-zone-ctrl" v-if="isGlobal">
-          <button class="map-ctrl-btn" :class="{ active: drawMode === 'circle' }" @click="startDraw('circle')" title="Circle zone">
-            <font-awesome-icon :icon="['fas', 'circle-dot']" />
-          </button>
-          <button class="map-ctrl-btn" :class="{ active: drawMode === 'polygon' }" @click="startDraw('polygon')" title="Polygon zone">
-            <font-awesome-icon :icon="['fas', 'draw-polygon']" />
-          </button>
-          <button class="map-ctrl-btn" :class="{ active: showSlider || mapStore.dateFrom || mapStore.dateTo }" @click="showSlider = !showSlider" title="Import date">
-            <font-awesome-icon :icon="['fas', 'calendar-days']" />
-          </button>
-          <button class="map-ctrl-btn" :class="{ active: showFilters }" @click="showFilters = !showFilters" title="Filters">
-            <font-awesome-icon :icon="['fas', 'sliders']" />
+        <!-- Barre du haut (mobile) : recherche, qui ouvre aussi les filtres -->
+        <div v-if="isGlobal" class="map-topbar d-none">
+          <button class="map-topbar__search" @click="openSearch">
+            <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+            <span>{{ filterStore.query || 'Search & filters' }}</span>
+            <small v-if="mapStore.locations?.length">{{ mapStore.locations.length.toLocaleString('en-US') }}</small>
+            <b v-if="activeFilterCount" class="map-topbar__count" :aria-label="`${activeFilterCount} filters on`">{{ activeFilterCount }}</b>
           </button>
         </div>
 
         <div class="map-filters" v-if="isGlobal && showFilters">
+          <span class="map-card__grabber d-none"></span>
           <div class="map-filters__head">
             <span>Filters</span>
             <button @click="showFilters = false" aria-label="Close"><font-awesome-icon :icon="['fa', 'xmark']" /></button>
@@ -415,24 +448,9 @@ onBeforeUnmount(destroyMap)
         </button>
 
         <transition name="map-loader">
-          <div class="map-loader" v-if="mapStore.loading">
-            <div class="map-loader-radar">
-              <span class="ring ring-1"></span>
-              <span class="ring ring-2"></span>
-              <span class="ring ring-3"></span>
-              <span class="sweep"></span>
-              <span class="blip blip-1"></span>
-              <span class="blip blip-2"></span>
-              <span class="blip blip-3"></span>
-              <span class="blip blip-4"></span>
-              <span class="blip blip-5"></span>
-              <span class="core">
-                <font-awesome-icon :icon="['fas', 'map-pin']" />
-              </span>
-            </div>
-            <p class="map-loader-text">
-             Loading locations<span class="dots"><i>.</i><i>.</i><i>.</i></span>
-            </p>
+          <div class="map-loading" v-if="mapStore.loading" role="status">
+            <span class="ios-spinner" aria-hidden="true"></span>
+            Loading spots
           </div>
         </transition>
 

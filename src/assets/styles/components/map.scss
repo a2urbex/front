@@ -76,7 +76,7 @@
       overflow: hidden;
       box-shadow:
         0 24px 60px rgba(0, 0, 0, 0.65),
-        0 0 0 1px rgba($primary, 0.04),
+        0 0 0 1px color-mix(in srgb, var(--tint) 4%, transparent),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
 
@@ -113,7 +113,7 @@
           background: rgba(10, 10, 10, 0.6);
           backdrop-filter: blur(0);
           -webkit-backdrop-filter: blur(0);
-          border: 1px solid rgba($primary, 0.3);
+          border: 1px solid color-mix(in srgb, var(--tint) 30%, transparent);
           border-radius: 999px;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
           max-width: 100%;
@@ -156,11 +156,11 @@
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 
           &:hover {
-            background: rgba($primary, 0.18);
+            background: color-mix(in srgb, var(--tint) 18%, transparent);
             border-color: $primary;
             color: $primary;
             transform: scale(1.08);
-            box-shadow: 0 0 14px rgba($primary, 0.28);
+            box-shadow: 0 0 14px color-mix(in srgb, var(--tint) 28%, transparent);
           }
 
           &:active {
@@ -201,7 +201,7 @@
         justify-content: center;
         gap: 0.7rem;
         background:
-          radial-gradient(110% 90% at 50% 38%, rgba($primary, 0.10) 0%, rgba(0, 0, 0, 0) 62%),
+          radial-gradient(110% 90% at 50% 38%, color-mix(in srgb, var(--tint) 10%, transparent) 0%, rgba(0, 0, 0, 0) 62%),
           repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.018) 0 10px, rgba(255, 255, 255, 0) 10px 20px);
 
         &-icon {
@@ -212,11 +212,11 @@
           height: 56px;
           border-radius: 50%;
           color: $primary;
-          background: rgba($primary, 0.08);
-          border: 1px solid rgba($primary, 0.28);
+          background: color-mix(in srgb, var(--tint) 8%, transparent);
+          border: 1px solid color-mix(in srgb, var(--tint) 28%, transparent);
           box-shadow:
             0 6px 18px rgba(0, 0, 0, 0.45),
-            inset 0 0 18px rgba($primary, 0.12);
+            inset 0 0 18px color-mix(in srgb, var(--tint) 12%, transparent);
           font-size: 1.4rem;
           animation: map-empty-pulse 2.6s ease-in-out infinite;
         }
@@ -242,7 +242,7 @@
       letter-spacing: 0.03em;
       line-height: 1.3;
       text-transform: uppercase;
-      text-shadow: 0 0 14px rgba($primary, 0.22);
+      text-shadow: 0 0 14px color-mix(in srgb, var(--tint) 22%, transparent);
       text-align: left;
       display: -webkit-box;
       line-clamp: 2;
@@ -489,36 +489,36 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 0 !important;
-    background: #141414;
-    border: 2px solid var(--c);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+    width: 26px;
+    height: 26px;
+    border-radius: 50% !important;
+    background: var(--c);
+    border: 2px solid #000;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
     transition: transform 0.15s ease;
-    svg { width: 11px; height: 11px; color: var(--c); fill: currentColor; }
+    svg { width: 12px; height: 12px; color: #fff; fill: currentColor; }
   }
 
-  .map-pin--invalid .map-dot { opacity: 0.45; border-style: dashed; }
+  .map-pin--invalid .map-dot { opacity: 0.4; filter: grayscale(1); }
 
   .map-pin--selected { z-index: 1000 !important; }
   .map-pin--selected .map-dot {
-    transform: scale(1.5);
-    background: var(--c);
-    border-color: #f2eee6;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.6);
-    svg { color: #f2eee6; }
+    transform: scale(1.45);
+    border-color: #fff;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.6);
   }
 
   .map-cluster {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #141414;
-    border: 2px solid $primary;
-    color: #f2eee6;
-    font: 600 12px $font-mono;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+    border-radius: 50% !important;
+    background: $bg-3;
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    color: $label;
+    font: 600 13px $font-body;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
   }
 
   /* --- Loader "radar" pendant le chargement des points --- */
@@ -550,7 +550,7 @@
         inset: 0;
         margin: auto;
         border-radius: 50%;
-        border: 1px solid rgba($primary, 0.35);
+        border: 1px solid color-mix(in srgb, var(--tint) 35%, transparent);
         opacity: 0;
         animation: radar-pulse 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
       }
@@ -567,14 +567,14 @@
         height: 130px;
         border-radius: 50%;
         background: conic-gradient(from 0deg,
-          rgba($primary, 0) 0deg,
-          rgba($primary, 0) 270deg,
-          rgba($primary, 0.45) 350deg,
-          rgba($primary, 0.85) 360deg);
+          color-mix(in srgb, var(--tint) 0%, transparent) 0deg,
+          color-mix(in srgb, var(--tint) 0%, transparent) 270deg,
+          color-mix(in srgb, var(--tint) 45%, transparent) 350deg,
+          color-mix(in srgb, var(--tint) 85%, transparent) 360deg);
         -webkit-mask: radial-gradient(circle, transparent 24px, #000 25px);
         mask: radial-gradient(circle, transparent 24px, #000 25px);
         animation: radar-sweep 1.6s linear infinite;
-        box-shadow: 0 0 30px rgba($primary, 0.18);
+        box-shadow: 0 0 30px color-mix(in srgb, var(--tint) 18%, transparent);
       }
 
       // cibles détectées : flashent au passage du faisceau (période = 1.6s, comme le sweep)
@@ -586,7 +586,7 @@
         background: $primary;
         opacity: 0;
         z-index: 1;
-        box-shadow: 0 0 8px rgba($primary, 0.9), 0 0 16px rgba($primary, 0.5);
+        box-shadow: 0 0 8px color-mix(in srgb, var(--tint) 90%, transparent), 0 0 16px color-mix(in srgb, var(--tint) 50%, transparent);
         animation: radar-blip 1.6s ease-out infinite;
       }
 
@@ -610,9 +610,9 @@
         color: $primary;
         font-size: 1.3rem;
         background: linear-gradient(160deg, rgba(20, 20, 20, 0.95), rgba(8, 8, 8, 0.98));
-        border: 1px solid rgba($primary, 0.4);
+        border: 1px solid color-mix(in srgb, var(--tint) 40%, transparent);
         box-shadow:
-          0 0 22px rgba($primary, 0.35),
+          0 0 22px color-mix(in srgb, var(--tint) 35%, transparent),
           inset 0 1px 0 rgba(255, 255, 255, 0.08);
         animation: radar-core 1.6s ease-in-out infinite;
       }
@@ -625,7 +625,7 @@
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: rgba(255, 255, 255, 0.78);
-      text-shadow: 0 0 18px rgba($primary, 0.25);
+      text-shadow: 0 0 18px color-mix(in srgb, var(--tint) 25%, transparent);
 
       .dots i {
         display: inline-block;
@@ -660,11 +660,11 @@
 @keyframes map-empty-pulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), inset 0 0 18px rgba($primary, 0.12);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), inset 0 0 18px color-mix(in srgb, var(--tint) 12%, transparent);
   }
   50% {
     transform: scale(1.06);
-    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5), inset 0 0 26px rgba($primary, 0.22);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5), inset 0 0 26px color-mix(in srgb, var(--tint) 22%, transparent);
   }
 }
 
@@ -680,8 +680,8 @@
 }
 
 @keyframes radar-core {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 22px rgba($primary, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
-  50%      { transform: scale(1.08); box-shadow: 0 0 34px rgba($primary, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12); }
+  0%, 100% { transform: scale(1); box-shadow: 0 0 22px color-mix(in srgb, var(--tint) 35%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+  50%      { transform: scale(1.08); box-shadow: 0 0 34px color-mix(in srgb, var(--tint) 55%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.12); }
 }
 
 @keyframes radar-dots {
@@ -800,7 +800,7 @@
 // --- Zone + frise ---
 .map-drawing { cursor: crosshair; }
 
-.map-pin--new .map-dot { box-shadow: 0 0 0 3px rgba(255, 138, 31, 0.35), 0 0 10px rgba(255, 138, 31, 0.6); }
+.map-pin--new .map-dot { box-shadow: 0 0 0 3px color-mix(in srgb, var(--tint) 45%, transparent), 0 0 12px color-mix(in srgb, var(--tint) 55%, transparent); }
 
 .map-zone-ctrl {
   position: absolute;
@@ -837,7 +837,7 @@
   background: #1f1f1f;
   color: #ddd;
   cursor: pointer;
-  &--main { background: $primary; border-color: $primary; color: #111; font-weight: 600; }
+  &--main { background: $primary; border-color: $primary; color: var(--on-tint); font-weight: 600; }
   &:disabled { opacity: .4; }
 }
 
@@ -875,7 +875,7 @@
   color: #ccc;
   &__presets { display: flex; gap: 4px; margin-bottom: 6px; flex-wrap: wrap;
     button { padding: 4px 8px; border: 1px solid #333; background: none; color: #aaa; font-size: 12px; cursor: pointer;
-      &.on { color: #111; background: $primary; border-color: $primary; } } }
+      &.on { color: var(--on-tint); background: $primary; border-color: $primary; } } }
   &__row { display: flex; gap: 8px; align-items: center; }
   &__play { width: 32px; height: 32px; flex: none; border: 1px solid #333; background: #1f1f1f; color: $primary; cursor: pointer; }
   &__track { position: relative; flex: 1; height: 36px;
@@ -1055,4 +1055,173 @@
 #map .map-overlay-title { white-space: normal; overflow: visible; text-overflow: clip; word-break: break-word; padding: 0 16px; }
 #map .map-overlay .field-status__grid .fs-opt small { white-space: normal; text-align: center; line-height: 1.2; }
 
-#map .map-overlay-fake { margin: 12px 16px 12px; display: inline-block; padding: 3px 8px; background: repeating-linear-gradient(-45deg, #1a1408 0 6px, #141005 6px 12px); border: 1px solid rgba(255, 138, 31, 0.5); color: #ffb26b; font: 500 10px 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
+#map .map-overlay-fake { margin: 12px 16px 12px; display: inline-block; padding: 3px 8px; background: repeating-linear-gradient(-45deg, #1a1408 0 6px, #141005 6px 12px); border: 1px solid color-mix(in srgb, var(--tint) 50%, transparent); color: #ffb26b; font: 500 10px 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
+
+// ===== Refonte iOS : contrôles, carte du bas, mode carte plein écran =====
+$sat: env(safe-area-inset-top, 0px);
+
+// Colonne de contrôles translucide (style Plans)
+#map .map-ctrls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 8;
+  display: grid;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(28, 28, 30, 0.82);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  .map-ctrl-btn {
+    width: 44px; height: 44px; display: grid; place-items: center;
+    background: none; border: 0; border-radius: 0; color: $label; font-size: 17px; cursor: pointer;
+    &.active { color: $primary; }
+    &:active { background: rgba(255, 255, 255, 0.08); }
+  }
+  .map-ctrl-btn:not(:first-child) { box-shadow: inset 0 0.5px 0 $separator; }
+  .map-ctrl-btn:first-child svg { color: $link; }
+}
+body:not(.has-title) #map .map-ctrls { top: calc(12px + #{$sat}); }
+
+// Carte du bas (mobile)
+#map .map-card {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 9;
+  display: grid;
+  gap: 10px;
+  padding: 6px 16px 12px;
+  border-radius: 14px 14px 0 0;
+  background: rgba(28, 28, 30, 0.92);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: 0 -0.5px 0 $separator, 0 -10px 30px rgba(0, 0, 0, 0.35);
+  @media (max-width: $md) { display: grid !important; }
+}
+.map-card__grabber { justify-self: center; width: 36px; height: 5px; border-radius: 3px; background: $label-3; }
+.map-card__seg {
+  display: grid; grid-template-columns: 1fr 1fr; padding: 2px; border-radius: 9px; background: $fill;
+  button { height: 30px; border: 0; border-radius: 7px; background: none; color: $label; font: 500 13px $font-body; cursor: pointer; }
+  button.on { background: #636366; font-weight: 600; box-shadow: 0 3px 8px rgba(0,0,0,.12); }
+}
+.map-card__search {
+  display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px;
+  border: 0; border-radius: 10px; background: $fill; color: $label-2; font: 400 17px $font-body; text-align: left; cursor: pointer;
+  span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+}
+.map-card__chips { display: flex; gap: 8px; overflow-x: auto; margin-right: -16px; padding-right: 16px; scrollbar-width: none; &::-webkit-scrollbar { display: none; } }
+.map-chip {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px;
+  border: 0; border-radius: 16px; background: $fill; color: $label; font: 500 14px $font-body; white-space: nowrap; cursor: pointer;
+  svg { font-size: 13px; color: $label-2; }
+  &.on { background: color-mix(in srgb, var(--tint) 20%, transparent); color: $primary; svg { color: $primary; } }
+  &--wide { justify-content: center; }
+}
+.map-card__next {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border: 0; border-radius: 12px; background: $bg-3; color: $label; text-align: left; cursor: pointer;
+}
+.map-card__next-icon { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: color-mix(in srgb, var(--tint) 18%, transparent); color: $primary; flex: none; }
+.map-card__next-text { flex: 1; min-width: 0; display: grid; b { font: 600 15px/20px $font-body; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; } small { font-size: 12px; color: $label-2; } }
+.map-card__next-dist { font: 600 15px $font-body; color: $primary; font-variant-numeric: tabular-nums; }
+
+@media (max-width: $md) {
+  // Mode carte : la carte prend tout l'écran sous la barre d'état (ou sous le titre d'une liste)
+  body.map-mode .content .filter__container:not(.active) { display: none !important; }
+  body.map-mode .map-header { display: none !important; }
+  body.map-mode.has-bottom-nav #map { top: 0 !important; }
+  body.map-mode.has-bottom-nav.has-title #map { top: calc(#{$titleHeight} + #{$sat}) !important; }
+
+  // Plans n'a pas de boutons +/- ; l'attribution OSM (obligatoire) passe en haut à gauche
+  #map .leaflet-control-zoom { display: none; }
+  #map .leaflet-bottom.leaflet-right { top: auto; bottom: 2px; left: 4px; right: auto; }
+  body:not(.has-title) #map .leaflet-bottom.leaflet-right { top: auto; }
+  #map .leaflet-control-attribution { background: rgba(0, 0, 0, 0.45) !important; border-radius: 6px; }
+
+  // Filtres : feuille qui monte du bas, au-dessus de la carte du bas
+  #map .map-filters {
+    top: auto !important; right: 0 !important; left: 0 !important; bottom: 0 !important;
+    width: 100% !important; max-height: 78% !important; z-index: 11;
+    border: 0 !important; border-radius: 14px 14px 0 0 !important;
+    background: $bg-2 !important; padding-top: 6px;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5) !important;
+    .map-card__grabber { display: block !important; margin: 0 auto 2px; }
+  }
+  // Frise des dates en haut, à gauche de la colonne de contrôles
+  #map .map-date-slider { top: 12px; bottom: auto; left: 12px; right: 68px; }
+  body:not(.has-title) #map .map-date-slider { top: calc(12px + #{$sat}); }
+  #map .map-zone-bar { top: 12px; max-width: calc(100% - 80px); left: 12px; transform: none; border-radius: 12px; }
+  body:not(.has-title) #map .map-zone-bar { top: calc(12px + #{$sat}); }
+  #map .map-list-picker { bottom: 12px; z-index: 12; }
+}
+
+// ===== Carte compacte : barre de recherche en haut, pilules, chargement discret =====
+@mixin glass { background: rgba(28, 28, 30, 0.86); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45); }
+
+#map .map-topbar {
+  position: absolute; z-index: 8; top: calc(12px + #{$sat}); left: 12px; right: 68px;
+  display: none; gap: 8px; align-items: center;
+  @media (max-width: $md) { display: flex !important; }
+}
+.map-topbar__search {
+  @include glass;
+  flex: 1; min-width: 0; height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 14px;
+  border: 0; border-radius: 22px; color: $label-2; font: 400 16px $font-body; text-align: left; cursor: pointer;
+  span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  small { font-size: 13px; color: $label-3; font-variant-numeric: tabular-nums; }
+}
+.map-topbar__count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: $primary; color: var(--on-tint); font: 700 12px/20px $font-body; text-align: center; }
+
+// Pilule « point le plus proche » en bas de la carte
+#map .map-next {
+  @include glass;
+  position: absolute; z-index: 8; left: 50%; right: auto; bottom: 16px; transform: translateX(-50%);
+  @media (max-width: $md) { bottom: 68px; } // au-dessus de la pilule Liste
+  display: flex !important; align-items: center; gap: 8px; max-width: calc(100% - 32px); height: 40px; padding: 0 14px 0 12px;
+  border: 0 !important; border-radius: 20px; color: $label; cursor: pointer;
+  .map-next__icon { color: $primary; font-size: 13px; }
+  .map-next__name { font: 600 14px $font-body; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .map-next__dist { font: 600 14px $font-body; color: $primary; font-variant-numeric: tabular-nums; }
+}
+
+// Chargement : pastille en haut au centre, indicateur d'activité iOS
+#map .map-loading {
+  @include glass;
+  position: absolute; z-index: 9; bottom: 24px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 18px; border-radius: 20px;
+  color: $label; font: 600 15px $font-body; white-space: nowrap;
+  @media (max-width: $md) { bottom: 68px; }
+}
+// Chargement en bas, bien visible ; au-dessus de la pilule « point le plus proche » si elle est là
+#map .map-next ~ .map-loading { bottom: 68px; @media (max-width: $md) { bottom: 120px; } }
+
+// Outils de zone et frise des dates : réservés à l'ordinateur
+@media (max-width: $md) { #map .map-ctrls .map-ctrl-btn--desk, #map .map-date-slider, #map .map-zone-bar { display: none !important; } }
+.ios-spinner {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2); border-top-color: $label;
+  animation: ios-spin 0.8s linear infinite;
+}
+@keyframes ios-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .ios-spinner { animation-duration: 2.4s; } }
+
+@media (max-width: $md) {
+  // Frise des dates et barre de zone : sous la barre de recherche
+  #map .map-date-slider, body:not(.has-title) #map .map-date-slider { top: calc(64px + #{$sat}); left: 12px; right: 68px; }
+  #map .map-zone-bar, body:not(.has-title) #map .map-zone-bar { top: calc(64px + #{$sat}); }
+  body.has-title #map .map-date-slider, body.has-title #map .map-zone-bar { top: 12px; }
+  // la carte du bas n'existe plus
+  #map .map-card { display: none !important; }
+}
+
+// Pilule Carte / Liste (mobile), au-dessus de la barre d'onglets
+.view-toggle {
+  position: fixed; z-index: 9; left: 50%; transform: translateX(-50%);
+  bottom: calc(#{$bottomHeaderHeight} + var(--nav-extra, 0px) + env(safe-area-inset-bottom, 0px) + 12px);
+  display: none; align-items: center; gap: 8px; height: 44px; padding: 0 20px; border: 0; border-radius: 22px;
+  background: $label; color: #000; font: 600 15px $font-body; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  @media (max-width: $md) { display: inline-flex; }
+  &:active { transform: translateX(-50%) scale(0.96); }
+}

@@ -63,17 +63,17 @@ const cancelSourcePress = (event) => {
   <div class="filter__container" :class="{ active: filterUIStore.showContent && !hideSearch }">
     <div class="filter__wrapper" :class="{ active: filterUIStore.showContent && !hideSearch }">
       <div class="filter__search" v-if="!hideSearch">
-        <div class="filter__icon d-none">
+        <label class="ios-search filter__field" :for="`${idPrefix}filter-q`">
           <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-        </div>
-        <input type="text" placeholder="Search locations..." @focus="filterUIStore.setShowContent(true)" v-model="filterStore.query" @input="filterStore.applyFilters" />
+          <input :id="`${idPrefix}filter-q`" type="search" placeholder="Search spots" autocomplete="off" @focus="filterUIStore.setShowContent(true)" v-model="filterStore.query" @input="filterStore.applyFilters" />
+        </label>
         <button
           class="filter__search-close d-none"
           v-if="filterUIStore.showContent"
           @click="filterUIStore.setShowContent(false)"
           style="animation: fadeIn 0.1s ease-in"
         >
-          Close
+          Cancel
         </button>
       </div>
 
@@ -82,8 +82,8 @@ const cancelSourcePress = (event) => {
           <input class="filter__item" type="checkbox" :id="`${idPrefix}${filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}`" />
           <label :for="`${idPrefix}${filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}`">
             <p class="filter__item-content-title">
-              {{ filterKey.charAt(0).toUpperCase() + filterKey.slice(1) }}
-              ({{ filterStore.selectedCount(filterKey) }})
+              <span class="filter__name">{{ filterKey.charAt(0).toUpperCase() + filterKey.slice(1) }}</span>
+              <span class="filter__value">{{ filterStore.selectedCount(filterKey) ? `${filterStore.selectedCount(filterKey)} selected` : 'All' }}</span>
               <span class="close-item">
                 <font-awesome-icon :icon="['fas', 'angle-left']" />
               </span>
@@ -117,9 +117,9 @@ const cancelSourcePress = (event) => {
           </label>
         </div>
         <div class="filter__results d-none" v-if="locationStore.totalLocations !== null">
-          {{ locationStore.totalLocations }} location{{ locationStore.totalLocations !== 1 ? 's' : '' }} found
+          {{ Number(locationStore.totalLocations).toLocaleString('en-US') }} spot{{ locationStore.totalLocations !== 1 ? 's' : '' }} match
         </div>
-        <button @click="filterStore.clearFilters" class="filter__clear">Clear</button>
+        <button @click="filterStore.clearFilters" class="filter__clear">Reset filters</button>
       </div>
     </div>
   </div>

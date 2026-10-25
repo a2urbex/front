@@ -14,7 +14,7 @@
   -webkit-backdrop-filter: blur(0);
   display: block;
   box-shadow: -8px 0 32px rgba(0, 0, 0, 0.8), inset 1px 0 0 rgba(255, 255, 255, 0.05);
-  border-left: 1px solid rgba($primary, 0.15);
+  border-left: 1px solid color-mix(in srgb, var(--tint) 15%, transparent);
 
   @media (max-width: $md) {
     width: 100%;
@@ -66,11 +66,11 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 
       &:hover {
-        background: rgba($primary, 0.15);
+        background: color-mix(in srgb, var(--tint) 15%, transparent);
         border-color: $primary;
         color: $primary;
         transform: scale(1.1);
-        box-shadow: 0 0 15px rgba($primary, 0.25);
+        box-shadow: 0 0 15px color-mix(in srgb, var(--tint) 25%, transparent);
       }
 
       &:active {
@@ -114,7 +114,7 @@
       margin: 0;
       color: $primary;
       letter-spacing: 0.03em;
-      text-shadow: 0 0 15px rgba($primary, 0.25);
+      text-shadow: 0 0 15px color-mix(in srgb, var(--tint) 25%, transparent);
       line-height: 1.3;
       text-transform: uppercase;
 
@@ -276,10 +276,10 @@
     gap: 0.4rem;
     margin: 0;
     padding: 0.35rem 0.75rem;
-    background: rgba($primary, 0.08);
+    background: color-mix(in srgb, var(--tint) 8%, transparent);
     backdrop-filter: blur(0);
     -webkit-backdrop-filter: blur(0);
-    border: 1px solid rgba($primary, 0.25);
+    border: 1px solid color-mix(in srgb, var(--tint) 25%, transparent);
     border-radius: 2rem;
     text-transform: uppercase;
     font-size: 0.7rem;
@@ -287,7 +287,7 @@
     color: $primary;
     width: fit-content;
     letter-spacing: 0.05em;
-    box-shadow: 0 0 10px rgba($primary, 0.08);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--tint) 8%, transparent);
 
     svg {
       margin-right: 0;
@@ -385,11 +385,11 @@
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
     &:hover {
-      background: rgba($primary, 0.12);
-      border-color: rgba($primary, 0.4);
+      background: color-mix(in srgb, var(--tint) 12%, transparent);
+      border-color: color-mix(in srgb, var(--tint) 40%, transparent);
       color: $primary;
       transform: scale(1.08);
-      box-shadow: 0 0 15px rgba($primary, 0.2);
+      box-shadow: 0 0 15px color-mix(in srgb, var(--tint) 20%, transparent);
     }
 
     &:active {
@@ -399,8 +399,82 @@
 }
 .location-card-display__distance { margin: 8px 0 12px; font: 500 12px $font-mono; color: $primary; }
 
-.location-card-display__fake { margin: 4px 0 12px; display: inline-block; padding: 3px 8px; background: repeating-linear-gradient(-45deg, #1a1408 0 6px, #141005 6px 12px); border: 1px solid rgba(255, 138, 31, 0.5); color: #ffb26b; font: 500 10px 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
+.location-card-display__fake { margin: 4px 0 12px; display: inline-block; padding: 3px 8px; background: repeating-linear-gradient(-45deg, #1a1408 0 6px, #141005 6px 12px); border: 1px solid color-mix(in srgb, var(--tint) 50%, transparent); color: #ffb26b; font: 500 10px 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
 
 // Diaporama (photo + vue Maps) : même emprise que l'image seule
 .location-card-display__slider { width: 100%; height: 45vh; max-height: 420px; overflow: hidden;
   img { width: 100%; height: 100%; object-fit: cover; } }
+
+// ===== Fiche point iOS (.ld) : feuille qui monte du bas sur mobile, panneau à droite sur desktop =====
+.ld-backdrop { position: fixed; inset: 0; z-index: 10; background: rgba(0, 0, 0, 0.45); @media (min-width: $md) { background: transparent; pointer-events: none; } }
+.location-card-display.ld {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background: $bg-2 !important;
+  border-left: 0 !important;
+  box-shadow: -0.5px 0 0 $separator, -12px 0 40px rgba(0, 0, 0, 0.6) !important;
+  // mobile : feuille posée en bas, jamais plus haute que l'écran (l'image se réduit)
+  @media (max-width: $md) {
+    top: auto !important;
+    height: auto !important;
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 10px) !important;
+    bottom: 0;
+    touch-action: pan-y;
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6) !important;
+  }
+}
+.ld-grabber { display: none; @media (max-width: $md) { display: block; position: absolute; z-index: 3; top: 6px; left: 50%; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: rgba(255, 255, 255, 0.55); } }
+.ld-media {
+  position: relative; height: 38vh; min-height: 220px; max-height: 360px; background: $bg-3; overflow: hidden;
+  @media (max-width: $md) { height: clamp(130px, 26dvh, 240px); min-height: 0; }
+  > img, .location-card-display__slider, .location-card-display__slider img { width: 100%; height: 100%; object-fit: cover; display: block; max-height: none; }
+  .location-card-display__slider { height: 100%; }
+}
+.ld-media__buttons { position: absolute; top: 12px; right: 12px; z-index: 2; display: flex; gap: 8px; @media (max-width: $md) { top: 16px; } }
+.ld-round {
+  display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  color: #fff; font-size: 14px; cursor: pointer;
+}
+.ld-body { display: grid; gap: 14px; padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+.ld-head { display: grid; gap: 4px; h2 { margin: 0; font: 700 22px/28px $font-display; letter-spacing: -0.01em; color: $label; text-wrap: balance; } }
+.ld-sub { margin: 0; font-size: 15px; color: $label-2; }
+.ld-sub__type { text-transform: capitalize; }
+.ld-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 8px; }
+.ld-action {
+  position: relative; display: grid; justify-items: center; align-content: center; gap: 4px; height: 58px;
+  border: 0; border-radius: 12px; background: $bg-3; color: $label; text-decoration: none; cursor: pointer;
+  font: 500 12px $font-body;
+  svg { font-size: 18px; color: $primary; }
+  &--primary { background: $primary; color: var(--on-tint); svg { color: var(--on-tint); } }
+  &:active { opacity: 0.7; }
+  // Composants existants (favoris, menu ⋮) : leur bouton couvre la case, le libellé reste dessous
+  // Composants existants : seul leur bouton déclencheur est restylé (pas le contenu de leurs menus)
+  &--slot {
+    .favorite-modal, .favorite-modal > div { position: static; }
+    .favorite-modal__trigger, > .location-edit-trigger {
+      all: unset; display: grid; place-items: center; width: 100%; height: 22px; cursor: pointer;
+      color: $primary; font-size: 18px; box-shadow: none !important; background: none !important;
+      &::after { content: ''; position: absolute; inset: 0; }
+    }
+    .favorite-modal__trigger.is-favorite { color: $red; }
+  }
+}
+.ld-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex: none; }
+.ld-row-icon { display: grid; place-items: center; width: 28px; height: 28px; flex: none; color: $label-2; font-size: 17px; }
+.ld-mono { font-family: $font-mono; font-size: 15px; }
+.location-card-display.ld .location-card-display__fake { margin: 0 0 6px !important; justify-self: start; }
+
+// glisser vers le bas pour fermer : la feuille suit le doigt, puis revient ou part
+.location-card-display.ld.is-dragging { transition: none !important; }
+.location-card-display.ld.is-settling { transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important; }
+
+// Mobile : la fiche monte du bas (au lieu d'arriver de côté), le fond s'assombrit en fondu
+@media (max-width: $md) {
+  .location-card-display.ld.translate-enter-active, .location-card-display.ld.translate-leave-active { transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease !important; }
+  .location-card-display.ld.translate-enter-from, .location-card-display.ld.translate-leave-to { transform: translateY(100%) !important; opacity: 1 !important; }
+  .ld-backdrop { animation: ld-fade 0.25s ease; }
+}
+@keyframes ld-fade { from { opacity: 0; } }

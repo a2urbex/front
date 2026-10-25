@@ -7,6 +7,7 @@ import {
   faEllipsisVertical,
   faLocationCrosshairs,
   faPalette,
+  faCloudArrowDown,
   faEllipsis,
   faLocationDot,
   faDiamondTurnRight,
@@ -89,6 +90,7 @@ import {
 library.add(
   faLocationCrosshairs,
   faPalette,
+  faCloudArrowDown,
   faEllipsis,
   faLocationDot,
   faDiamondTurnRight,

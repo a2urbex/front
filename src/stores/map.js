@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 
 import { request } from '@/services/api';
 import { useLocationStore } from './location';
+import { isDemo } from '@/demo/session';
 
 export const useMapStore = defineStore('Map', {
   state: () => ({
@@ -20,7 +21,7 @@ export const useMapStore = defineStore('Map', {
     loaded: { type: null, typeId: null, filters: null },
     // Carte globale : les points ne se chargent qu'après « Load spots » (une fois par ouverture de l'app),
     // puis restent en mémoire tant que les filtres ne changent pas (navigation entre menus = pas de rechargement)
-    spotsRequested: false,
+    spotsRequested: isDemo(), // démo : points fictifs chargés tout de suite
     globalCache: { key: null, list: null },
     needsCountry: false,
   }),

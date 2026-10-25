@@ -399,7 +399,6 @@
 }
 .location-card-display__distance { margin: 8px 0 12px; font: 500 12px $font-mono; color: $primary; }
 
-.location-card-display__fake { margin: 4px 0 12px; display: inline-block; padding: 3px 8px; background: repeating-linear-gradient(-45deg, #1a1408 0 6px, #141005 6px 12px); border: 1px solid color-mix(in srgb, var(--tint) 50%, transparent); color: #ffb26b; font: 500 10px 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
 
 // Diaporama (photo + vue Maps) : même emprise que l'image seule
 .location-card-display__slider { width: 100%; height: 45vh; max-height: 420px; overflow: hidden;
@@ -465,7 +464,13 @@
 .ld-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex: none; }
 .ld-row-icon { display: grid; place-items: center; width: 28px; height: 28px; flex: none; color: $label-2; font-size: 17px; }
 .ld-mono { font-family: $font-mono; font-size: 15px; }
-.location-card-display.ld .location-card-display__fake { margin: 0 0 6px !important; justify-self: start; }
+// Démo : petite pastille discrète, dans le style des autres badges
+.location-card-display.ld .location-card-display__fake {
+  justify-self: start; display: inline-flex; align-items: center; gap: 6px; margin: 0 0 6px !important; height: 24px; padding: 0 10px;
+  border: 0; border-radius: 12px; background: rgba(#ffd60a, 0.14); color: #ffd60a;
+  font: 600 12px $font-body; letter-spacing: 0; text-transform: none;
+  &::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+}
 
 // glisser vers le bas pour fermer : la feuille suit le doigt, puis revient ou part
 .location-card-display.ld.is-dragging { transition: none !important; }

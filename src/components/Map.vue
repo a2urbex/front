@@ -453,10 +453,12 @@ onBeforeUnmount(destroyMap)
         </button>
 
         <!-- Premier passage : on ne charge les points qu'à la demande (évite de bloquer l'ouverture de l'app) -->
-        <button v-if="isGlobal && !mapStore.spotsRequested" class="map-load" @click="mapStore.requestSpots()">
-          <font-awesome-icon :icon="['fas', 'location-dot']" />
-          Load spots
-        </button>
+        <div v-if="isGlobal && !mapStore.spotsRequested" class="map-veil">
+          <button class="map-load" @click="mapStore.requestSpots()">
+            <font-awesome-icon :icon="['fas', 'map-location-dot']" />
+            Load map
+          </button>
+        </div>
 
         <transition name="map-loader">
           <div class="map-loading" v-if="mapStore.loading" role="status">

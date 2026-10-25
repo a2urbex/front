@@ -124,6 +124,8 @@ const contributor = computed(() => {
 </script>
 
 <template>
+    <!-- Monté dans <body> partout (carte et listes) : dans .content, le défilement de la page volait le geste « glisser pour fermer » -->
+    <Teleport to="body">
     <div v-if="location">
         <div class="ld-backdrop" @click="$emit('close')"></div>
         <transition name="translate" mode="out-in" appear>
@@ -144,7 +146,7 @@ const contributor = computed(() => {
 
                 <div class="ld-body">
                     <header class="ld-head">
-                        <p class="location-card-display__fake" v-if="location.fake">Fake data · this place does not exist</p>
+                        <p class="location-card-display__fake" v-if="location.fake">Demo data · this place does not exist</p>
                         <h2>{{ location.name || 'Unnamed spot' }}</h2>
                         <p class="ld-sub">
                             <span class="ld-sub__type">{{ location.categoryName ? location.categoryName : 'Unknown type' }}</span>
@@ -193,6 +195,7 @@ const contributor = computed(() => {
             </div>
         </transition>
     </div>
+    </Teleport>
 </template>
 
 <style lang="scss">

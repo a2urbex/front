@@ -148,6 +148,7 @@ let userDot = null
 let centerOnFix = false
 
 const locate = () => {
+  touched = true
   if (position.pos && map) map.setView(position.pos, Math.max(map.getZoom(), 15))
   else centerOnFix = true
   position.start()
@@ -190,6 +191,7 @@ const nextPoint = computed(() => {
 
 const goToNext = () => {
   if (!nextPoint.value || !map) return
+  touched = true
   const { item } = nextPoint.value
   map.setView([Number(item.lat), Number(item.lon)], Math.max(map.getZoom(), 16))
   displayOverlay(item)
@@ -268,9 +270,25 @@ const addZoneToList = async (fav) => {
   }
 }
 
+// Vue de départ : position ou pays de la personne (filterStore.defaultView, résolu en async après l'ouverture),
+// appliquée tant que la carte n'a pas été touchée ; France par défaut
+let touched = false
+const markTouched = () => { touched = true }
+const applyDefaultView = () => {
+  const view = filterStore.defaultView
+  if (!map || !view || touched) return
+  if (view.bounds) map.fitBounds(view.bounds)
+  else map.setView(view.center, view.zoom)
+}
+watch(() => filterStore.defaultView, applyDefaultView)
+
 const initMap = () => {
   if (map || !mapEl.value) return
   map = L.map(mapEl.value, { center, zoom })
+  touched = false
+  mapEl.value.addEventListener('pointerdown', markTouched)
+  mapEl.value.addEventListener('wheel', markTouched, { passive: true })
+  applyDefaultView()
   map.createPane('userPane').style.zIndex = 650
   zoneDraw = createZoneDraw(map, (zone) => {
     drawMode.value = null
@@ -292,7 +310,11 @@ const initMap = () => {
   })
   map.addLayer(cluster)
   // recalcule la taille après l'animation d'ouverture du conteneur
-  setTimeout(() => { if (map) map.invalidateSize() }, 250)
+  setTimeout(() => {
+    if (!map) return
+    map.invalidateSize()
+    applyDefaultView() // recadre avec la vraie taille
+  }, 250)
   renderMarkers()
 }
 

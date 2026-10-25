@@ -20,7 +20,8 @@ export const resolveDefaultCountry = async () => {
   try {
     const pos = await grantedPosition();
     const qs = pos ? `?lat=${pos.latitude}&lon=${pos.longitude}` : '';
-    return await request('GET', `${import.meta.env.VITE_ACCOUNT_ENDPOINT}/country${qs}`);
+    const res = await request('GET', `${import.meta.env.VITE_ACCOUNT_ENDPOINT}/country${qs}`);
+    return res && pos ? { ...res, position: [pos.latitude, pos.longitude] } : res;
   } catch {
     return null;
   }
@@ -35,6 +36,7 @@ export const useFilterStore = defineStore('filter', {
     isCleared: false,
     query: '',
     defaultCountry: null, // pays de la personne (réglage > détecté > France)
+    defaultView: null, // vue de départ de la carte : { center, zoom } ou { bounds } (null = France)
   }),
   actions: {
     async init() {
@@ -52,6 +54,12 @@ export const useFilterStore = defineStore('filter', {
         const selected = countryId && countries[countryId] ? countryId : fallback;
         this.defaultCountry = selected || null;
         if (selected) this.selectedFilters.countries = [selected];
+        // Carte cadrée sur le pays retenu par le filtre (sinon elle montrerait une zone sans points) :
+        // autour de la position GPS si c'est elle qui a donné le pays, sinon sur tout le pays
+        if (selected && selected === countryId) {
+          if (country.source === 'geolocation' && country.position) this.defaultView = { center: country.position, zoom: 10 };
+          else if (country.bounds) this.defaultView = { bounds: country.bounds };
+        }
 
         this.fetching = false;
         this.applyFilters();

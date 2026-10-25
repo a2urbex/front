@@ -333,6 +333,8 @@ body.has-large-title #app .content { padding-top: calc(60px + env(safe-area-inse
 .ui-dialog__btn {
   height: 44px; border: 0; border-radius: $radius; background: $bg-3; color: $label; font: 600 15px $font-body; cursor: pointer;
   &.is-danger { background: rgba($red, 0.16); color: $red; }
+  &.is-primary { background: $primary; color: var(--on-tint); }
+  &:disabled { opacity: 0.6; }
 }
 
 // Sélecteur d'amis dans la feuille d'actions d'une liste (il était masqué hors de son ancien conteneur)

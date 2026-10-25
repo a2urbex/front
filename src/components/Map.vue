@@ -1,4 +1,5 @@
 <script setup>
+import { isDeskPanel, desktopQuery } from '@/utilities/deskPanel'
 import { toRaw, watch, ref, computed, nextTick, onBeforeUnmount } from 'vue';
 import L from 'leaflet';
 import { icon as faIcon } from '@fortawesome/fontawesome-svg-core';
@@ -322,12 +323,22 @@ const destroyMap = () => {
 
 // Changement de page : l'onglet Carte (/locations) s'ouvre toujours sur la carte, le reste sur la liste ;
 // le panneau de recherche se referme (sinon il masquait la pilule Liste au retour)
+// Ordinateur (panneau à droite) : la carte reste ouverte sur toutes les pages, sans rechargement
+const syncOpen = () => { mapStore.open = route.path === '/locations' || isDeskPanel(route.path, !!authStore.token) }
 watch(() => route.path, () => {
-  mapStore.open = route.path === '/locations'
+  syncOpen()
   filterUIStore.setShowContent(false)
+  // le panneau apparaît ou disparaît : la carte change de largeur, Leaflet doit recalculer sa taille
+  nextTick(() => setTimeout(() => map?.invalidateSize(), 60))
+}, { immediate: true })
+desktopQuery.addEventListener?.('change', syncOpen)
+
+// Autre jeu de points (carte globale <-> une liste) : on vide puis on recharge si la carte est ouverte
+watch(() => [mapStore.type, mapStore.typeId], () => {
   mapStore.locations = []
   mapStore.loaded = { type: null, typeId: null, filters: null }
-}, { immediate: true })
+  if (mapStore.open && map && canLoad()) mapStore.getMapLocations()
+})
 
 watch(() => mapStore.open, (open) => document.body.classList.toggle('map-mode', open), { immediate: true });
 

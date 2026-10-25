@@ -8,7 +8,7 @@ import { isDemo } from '@/demo/session';
 export const useMapStore = defineStore('Map', {
   state: () => ({
     open: false,
-    type: null,
+    type: 'location', // carte globale par défaut (panneau ordinateur : la carte est visible sur toutes les pages)
     typeId: null,
     locations: [],
     loading: false,

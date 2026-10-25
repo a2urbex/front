@@ -1,4 +1,5 @@
 <script setup>
+import { isDeskPanel, desktopQuery } from '@/utilities/deskPanel';
 import { forceAppUpdate } from '@/utilities/appUpdate';
 import HeaderComponent from '@/components/Header.vue';
 import MapComponent from '@/components/Map.vue';
@@ -70,6 +71,11 @@ watch(
     }
   },
 );
+
+// Ordinateur : pages dans un panneau à droite, carte au centre (classe sur <body>)
+const syncDeskPanel = () => document.body.classList.toggle('desk-panel', isDeskPanel(router.currentRoute.value.path, !!authStore.token));
+watch(() => [router.currentRoute.value.path, authStore.token], syncDeskPanel, { immediate: true });
+desktopQuery.addEventListener?.('change', syncDeskPanel);
 
 onMounted(async () => {
   await versionStore.getVersion();

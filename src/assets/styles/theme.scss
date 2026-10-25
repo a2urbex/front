@@ -635,3 +635,33 @@ body.has-large-title #app .content { padding-top: calc(60px + env(safe-area-inse
     &:hover { background: $bg-3; }
   }
 }
+
+// ===== Ordinateur, mode panneau : carte au centre, pages au format mobile dans un panneau à droite =====
+$deskPanel: 420px;
+@media (min-width: $md) {
+  body.desk-panel {
+    #app .content {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 7; width: $deskPanel; height: auto; max-height: none;
+      background: $bg; box-shadow: -0.5px 0 0 $separator, -16px 0 40px rgba(0, 0, 0, 0.35);
+    }
+    #map { left: $sideHeaderWidth !important; right: $deskPanel !important; width: auto !important; top: 0 !important; height: 100% !important; }
+    .title-container { left: auto !important; right: 0 !important; width: $deskPanel !important; }
+    // fiche d'un spot : juste à gauche du panneau
+    .location-card-display.ld { right: $deskPanel !important; }
+    .header-desktop__section--map { display: none !important; }
+
+    // dans le panneau, on reprend les mises en page mobiles
+    .ios-page, .ios-page--cols { max-width: none; margin: 0 !important; padding: 20px 16px 32px !important; grid-template-columns: none; }
+    .ios-page--cols > * { grid-column: auto; }
+    :is(.lists-page, .friends-page) .ios-group { display: block; background: $bg-2; border-radius: 10px; overflow: hidden; }
+    :is(.lists-page, .friends-page) .ios-group > .ios-row { min-height: 44px; border-radius: 0; background: none; &::before { display: block !important; } }
+    :is(.lists-page, .friends-page) > :is(.ios-search, .ios-segmented) { max-width: none; }
+    .locations-container { padding: 8px 16px 32px !important; grid-template-columns: 1fr 1fr !important; }
+    .locations-container.is-staggered { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .list-head { margin: 12px 0 8px; padding: 0 16px; }
+    .list-head__go { justify-self: stretch; }
+    .title-container:not(.large) { grid-template-columns: minmax(84px, 1fr) auto minmax(84px, 1fr) !important; justify-content: stretch !important; padding-inline: 8px !important; }
+    .title-container:not(.large) h2 { text-align: center !important; font-size: 17px !important; font-weight: 600 !important; max-width: 220px !important; }
+    .title-container.large .large-title { padding-left: 8px !important; }
+  }
+}

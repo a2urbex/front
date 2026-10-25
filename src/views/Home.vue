@@ -48,6 +48,12 @@
         </div>
       </div>
 
+      <!-- Ordinateur seulement : l'app est pensée pour le téléphone -->
+      <div class="desktop-note" :class="{ 'is-hidden': showAuth }" role="note">
+        <svg class="desktop-note__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" /><path d="M10.5 18.5h3" /></svg>
+        <p><b>Made for your phone.</b> a2urbex is built for the field, on mobile. On a computer some things look and work differently. Open it on your phone and add it to your home screen.</p>
+      </div>
+
       <ol class="home-points" :class="{ 'is-hidden': showAuth }">
         <li><span>01</span><p><b class="mono">{{ locationCount !== null ? locationCount : '200k+' }}</b> spots, fed by scrapers day and night.</p></li>
         <li><span>02</span><p>Draw a zone, build the weekend list, go.</p></li>

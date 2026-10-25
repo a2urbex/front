@@ -11,6 +11,7 @@ applyAccent();
 // Styling
 import './assets/styles/base.scss'
 import 'vue3-toastify/dist/index.css';
+import './utilities/toastDefaults';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';

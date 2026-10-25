@@ -6,7 +6,7 @@ import { request } from '@/services/api';
 import { resolveDefaultCountry } from '@/stores/filter';
 import { useAuthStore } from '@/stores/auth';
 import { useExplorationStore } from '@/stores/exploration';
-import { enablePush, disablePush, pushSupported } from '@/services/push';
+import { enablePush, disablePush, pushSupported, resetPush } from '@/services/push';
 import { useVersionStore } from '@/stores/version';
 import Title from '@/components/Title.vue';
 const versionStore = useVersionStore();
@@ -43,6 +43,24 @@ const togglePush = async () => {
   }
   await loadPush();
 };
+const resetting = ref(false);
+const resetNotifications = async () => {
+  resetting.value = true;
+  try {
+    const ok = await resetPush();
+    if (!ok) throw new Error(Notification.permission === 'denied'
+      ? 'Notifications are blocked for this app. Allow them in the phone settings, then try again.'
+      : 'Notifications were not allowed.');
+    await loadPush();
+    toast.success('Notifications re-registered on this device. Send a test to check.', { position: toast.POSITION.TOP_CENTER, autoClose: 4000, theme: 'dark' });
+  } catch (e) {
+    toast.error(e.message, { position: toast.POSITION.TOP_CENTER, autoClose: 6000, theme: 'dark' });
+    await loadPush();
+  } finally {
+    resetting.value = false;
+  }
+};
+
 const testing = ref(false);
 const testPush = async () => {
   testing.value = true;
@@ -101,6 +119,8 @@ const clearCache = forceAppUpdate;
                     <span>This device</span><b>{{ pushOn ? 'On' : 'Off' }}</b>
                 </button>
                 <button v-if="pushOn" class="app-settings__test" :disabled="testing" @click="testPush">{{ testing ? 'Sending…' : 'Send a test notification' }}</button>
+                <button v-if="canPush" class="app-settings__test app-settings__test--reset" :disabled="resetting" @click="resetNotifications">{{ resetting ? 'Re-registering…' : 'Reset notifications on this device' }}</button>
+                <p v-if="canPush" class="app-settings__hint">Use it if notifications stopped arriving or the switch won't turn on.</p>
                 <button v-for="p in prefs" :key="p.channel" class="app-settings__toggle" :class="{ on: p.enabled }" :disabled="p.critical" @click="togglePref(p)">
                     <span>{{ p.label }}</span><b>{{ p.critical ? 'Always' : p.enabled ? 'On' : 'Off' }}</b>
                 </button>

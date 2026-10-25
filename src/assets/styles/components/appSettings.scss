@@ -190,3 +190,5 @@
   b { font: 12px $font-mono; color: #777; } &.on b { color: #ff8a1f; } &:disabled { cursor: default; } }
 
 .app-settings__test { width: 100%; margin: 8px 0; padding: 10px; background: #1a1a1a; border: 1px solid #2e2e2e; color: #ff8a1f; font: 500 12px 'JetBrains Mono', monospace; cursor: pointer; }
+
+.app-settings__test--reset { color: #d8d3ca; }

@@ -9,7 +9,7 @@ import { usePositionStore } from '@/stores/position';
 import { toast } from 'vue3-toastify';
 
 
-import LocationCard from '@/components/LocationCard.vue';
+import SpotGrid from '@/components/SpotGrid.vue';
 import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
 import PreLoader from '../components/PreLoader.vue';
 import MapHeader from '@/components/MapHeader.vue';
@@ -76,28 +76,24 @@ const listName = computed(() => favoritesStore.locationsListItems.name || 'No Li
     <Title :title="listName" :backgroundTransparent="false" />
     <MapHeader class="small-header" />
 
-    <div class="list-planning page-width" v-if="!isLoading">
-        <span v-if="STATUS[isExploring ? 'in_progress' : listStatus]" class="list-planning__status" :class="`is-${isExploring ? 'in_progress' : listStatus}`">
-            {{ STATUS[isExploring ? 'in_progress' : listStatus] }}
-        </span>
-        <button class="list-planning__go" :class="{ on: isExploring }" :disabled="otherRunning" @click="toggleExploration">
+    <!-- En-tête de liste : résumé + bouton d'exploration -->
+    <div class="list-head" v-if="!isLoading">
+        <p class="list-head__meta">
+            {{ locationsListItems.length }} spot{{ locationsListItems.length === 1 ? '' : 's' }}
+            <span v-if="STATUS[isExploring ? 'in_progress' : listStatus]" class="list-badge" :class="isExploring ? 'is-live' : 'is-done'">{{ STATUS[isExploring ? 'in_progress' : listStatus] }}</span>
+        </p>
+        <button class="list-head__go" :class="{ on: isExploring }" :disabled="otherRunning" @click="toggleExploration">
+            <font-awesome-icon :icon="['fas', isExploring ? 'xmark' : 'compass']" />
             {{ isExploring ? 'End exploration' : starting ? 'Locating…' : 'Start exploration' }}
         </button>
-        <p v-if="otherRunning" class="list-planning__note">"{{ exploration.active.name }}" is being explored. End it first.</p>
+        <p v-if="otherRunning" class="list-head__note">"{{ exploration.active.name }}" is being explored. End it first.</p>
     </div>
 
     <transition name="fade" mode="out-in">
         <PreLoader msg="List" v-if="isLoading" key="preloader" /> 
     </transition>
 
-    <div class="locations-container favorites-containers page-width">
-        <LocationCard 
-            v-for="location in locationsListItems" 
-            :key="location.id" 
-            :location="location" 
-            @open-location="showLocationCardDisplay" 
-        />
-    </div>
+    <SpotGrid class="favorites-containers" :items="locationsListItems" @open-location="showLocationCardDisplay" />
 
     <LocationCardDisplay 
         v-if="selectedLocation" 

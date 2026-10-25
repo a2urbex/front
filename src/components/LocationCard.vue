@@ -8,6 +8,7 @@ import { statusEmoji } from '@/utilities/field';
 
 const props = defineProps({
     location: Object,
+    tall: { type: Boolean, default: false }, // quinconce : photo en portrait
 });
 
 const emit = defineEmits(['open-location']);
@@ -20,26 +21,9 @@ const distance = computed(() =>
 const imageError = ref(false);
 const imageLoading = ref(true);
 
-const truncatedName = computed(() => {
-    const maxLength = 35;
-    if (props.location.name && props.location.name.length > maxLength) {
-        return props.location.name.slice(0, maxLength) + '...';
-    }
-    return props.location.name;
-});
 
 const isFavorite = computed(() => Array.isArray(props.location?.fids) && props.location.fids.length > 0);
 
-const contributor = computed(() => {
-    if (props.location?.userId && props.location?.userUsername) {
-        return {
-            name: props.location.userUsername,
-            image: props.location.userImage || '/default-user.png',
-            isUser: true,
-        };
-    }
-    return { name: 'A2urbex', image: '/logox192.png', isUser: false };
-});
 
 const handleImageLoad = () => {
     imageLoading.value = false;
@@ -56,45 +40,33 @@ const openLocationCardDisplay = () => {
 </script>
 
 <template>
-    <div class="location-card" :class="{ 'is-favorite': isFavorite }">
-        <div class="location-card__top" @click="openLocationCardDisplay">
+    <!-- Carte de point : photo 4:3, puis nom et type dessous (pas de texte sur l'image) -->
+    <div class="spot-card" :class="{ 'is-favorite': isFavorite, 'is-tall': tall }" role="button" tabindex="0" @click="openLocationCardDisplay" @keydown.enter="openLocationCardDisplay">
+        <div class="spot-card__media">
             <template v-if="!imageError && (location.image || location.image_maps)">
-                <div v-if="imageLoading" class="skeleton" style="width: 100%; height: 100%;"></div>
+                <div v-if="imageLoading" class="skeleton"></div>
                 <img
                     :src="location.image || location.image_maps"
-                    alt="Location image"
+                    alt=""
+                    loading="lazy"
                     @error="handleImageError"
                     @load="handleImageLoad"
-                    :style="{ display: imageLoading ? 'none' : 'block' }"
+                    :style="{ opacity: imageLoading ? 0 : 1 }"
                 >
             </template>
-            <ImagePlaceholder v-else />
+            <span v-else class="spot-card__empty"><font-awesome-icon :icon="['fas', 'image']" /></span>
 
-            <div class="location-card__top-overlay"></div>
-
-            <span v-if="location.categoryName" class="location-card__category">
-                <font-awesome-icon :icon="['fas', 'font-awesome']" />
-                {{ location.categoryName }}
-            </span>
-
-            <span class="location-card__contributor" :title="`Added by ${contributor.name}`">
-                <img :src="contributor.image" :alt="contributor.name" />
-            </span>
-
-            <span v-if="isFavorite" class="location-card__favorite" aria-label="Favorite">
-                <font-awesome-icon :icon="['fas', 'heart']" />
-            </span>
-
-            <span v-if="distance" class="location-card__distance">{{ distance }}</span>
-            <span v-if="statusEmoji(location)" class="location-card__status" :class="{ 'is-invalid': location.status === 'invalid' }">{{ statusEmoji(location) }}{{ location.danger ? '⚠️' : '' }}</span>
-
-            <div class="location-card__caption">
-                <h2>{{ truncatedName }}</h2>
-            </div>
+            <span v-if="statusEmoji(location)" class="spot-card__chip" :class="{ 'is-invalid': location.status === 'invalid' }">{{ statusEmoji(location) }}{{ location.danger ? '⚠️' : '' }}</span>
+            <span v-if="isFavorite" class="spot-card__fav" aria-label="Saved"><font-awesome-icon :icon="['fas', 'heart']" /></span>
+            <span v-if="distance" class="spot-card__dist">{{ distance }}</span>
+        </div>
+        <div class="spot-card__text">
+            <b>{{ location.name || 'Unnamed spot' }}</b>
+            <small v-if="location.categoryName">{{ location.categoryName }}</small>
         </div>
     </div>
 </template>
 
 <style lang="scss">
-@use '../assets/styles/components/locationCard.scss' as *;
+@use '../assets/styles/components/spotCard.scss' as *;
 </style>

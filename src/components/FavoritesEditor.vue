@@ -1,89 +1,59 @@
 <script setup>
-import { computed } from 'vue';
+import { ref } from 'vue';
 import { useFavoritesStore } from '@/stores/favorites';
 import FavoritesFriend from './FavoriteFriend.vue';
 import { toast } from 'vue3-toastify';
 
+// Actions d'une liste, présentées en feuille d'actions iOS
 const favoritesStore = useFavoritesStore();
+const props = defineProps({ favorite: Object });
+const emit = defineEmits(['close']);
+const sharing = ref(false);
+const confirmDelete = ref(false);
+const TOAST = { position: toast.POSITION.TOP_CENTER, autoClose: 1200, theme: 'dark' };
 
-const props = defineProps({
-    favorite: Object,
-});
-
-const emit = defineEmits(['set-active']); 
-
-const truncatedName = computed(() => {
-    const maxLength = 25;
-    if (props.favorite.name && props.favorite.name.length > maxLength) {
-        return props.favorite.name.slice(0, maxLength) + '...';
-    } 
-    return props.favorite.name;
-});
-
-// VISIBILITY
-const visibilityIcon = computed(() => {
-    return props.favorite && props.favorite.disabled === 1 ? 'eye' : 'eye-slash';
-});
-
-const updateVisibility = () => {
-    if (props.favorite && props.favorite.id) {
-        favoritesStore.updateVisibility(props.favorite.id);
-    }
+const updateVisibility = async () => {
+    await favoritesStore.updateVisibility(props.favorite.id);
+    emit('close');
 };
-
-// PRIVACY
-const privacyIcon = computed(() => {
-    return props.favorite && props.favorite.share === 1 ? 'lock' : 'lock-open';
-});
-
-const updatePrivacy = () => {
-    if (props.favorite && props.favorite.id) {
-        favoritesStore.updatePrivacy(props.favorite.id);
-    }
+const updatePrivacy = async () => {
+    await favoritesStore.updatePrivacy(props.favorite.id);
+    emit('close');
 };
-
-// COPY LINK
 const copyLink = () => {
-    if (props.favorite && props.favorite.id) {
-        const url = `${window.location.origin}/favorites/${props.favorite.id}`;
-        navigator.clipboard.writeText(url).then(() => {
-            toast.success('Link copied to clipboard!', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
-        }).catch(err => {
-            toast.error('Failed to copy link', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, pauseOnHover: true, theme: 'dark' });
-        });
+    navigator.clipboard.writeText(`${window.location.origin}/favorites/${props.favorite.id}`)
+        .then(() => toast.success('Link copied', TOAST))
+        .catch(() => toast.error('Could not copy the link', TOAST));
+    emit('close');
+};
+const deleteFavorite = async () => {
+    if (!confirmDelete.value) {
+        confirmDelete.value = true;
+        return;
     }
+    await favoritesStore.deleteList(props.favorite.id);
+    emit('close');
 };
-
-// DELETE
-const deleteFavorite = () => {
-    if (props.favorite && props.favorite.id) {
-        favoritesStore.deleteList(props.favorite.id);
-    }
-};
-
-const handleShareClick = () => {
-    emit('set-active', props.favorite.id); 
-};
-
 </script>
 
 <template>
-    <div class="favorites-list-editor">
-        <router-link :to="`/favorites/${favorite.id}`"><h2>{{truncatedName}}</h2></router-link>
-        <router-link class="favorites-list-editor__link" :to="`/favorites/${favorite.id}`"><font-awesome-icon :icon="['fas', 'fa-arrow-up-right-from-square']" /></router-link>
-        <div class="favorites-list-editor__actions">
-           <button class="icon icon-visibility" @click="updateVisibility"><font-awesome-icon :icon="['fas', visibilityIcon]"/></button>
-           <button v-if="favorite.name !== 'like'" class="icon icon-open" @click="updatePrivacy"><font-awesome-icon :icon="['fas', privacyIcon]"/></button>
-           <button v-if="favorite.name !== 'like'" class="icon icon-share" @click="handleShareClick"><font-awesome-icon :icon="['fas', 'user-plus']" /></button>
-           <button v-if="favorite.name !== 'like'" class="icon icon-copy-link" @click="copyLink"><font-awesome-icon :icon="['fas', 'link']"/></button>
-           <span v-if="favorite.name !== 'like'" ></span>
-           <button v-if="favorite.name !== 'like'" class="icon icon-delete action-delete" @click="deleteFavorite"><font-awesome-icon :icon="['fas', 'trash']" /></button>
+    <div class="ios-action-sheet" role="dialog" :aria-label="`${favorite.name} actions`">
+        <div class="ios-action-sheet__group">
+            <p class="ios-action-sheet__title">{{ favorite.name }}</p>
+            <template v-if="!sharing">
+                <router-link class="ios-action-sheet__btn" :to="`/favorites/${favorite.id}`" @click="emit('close')"><font-awesome-icon :icon="['fas', 'arrow-right']" />Open list</router-link>
+                <button class="ios-action-sheet__btn" @click="updateVisibility"><font-awesome-icon :icon="['fas', favorite.disabled === 1 ? 'eye' : 'eye-slash']" />{{ favorite.disabled === 1 ? 'Show list on the map' : 'Hide list from the map' }}</button>
+                <template v-if="favorite.name !== 'like'">
+                    <button class="ios-action-sheet__btn" @click="updatePrivacy"><font-awesome-icon :icon="['fas', favorite.share === 1 ? 'lock' : 'lock-open']" />{{ favorite.share === 1 ? 'Make private' : 'Allow sharing by link' }}</button>
+                    <button class="ios-action-sheet__btn" @click="sharing = true"><font-awesome-icon :icon="['fas', 'user-plus']" />Share with a friend</button>
+                    <button class="ios-action-sheet__btn" @click="copyLink"><font-awesome-icon :icon="['fas', 'link']" />Copy link</button>
+                    <button class="ios-action-sheet__btn is-danger" @click="deleteFavorite"><font-awesome-icon :icon="['fas', 'trash']" />{{ confirmDelete ? 'Tap again to delete' : 'Delete list' }}</button>
+                </template>
+            </template>
+            <div v-else class="ios-action-sheet__share">
+                <FavoritesFriend :favorite="favorite" />
+            </div>
         </div>
-
-        <FavoritesFriend :favorite="favorite" />
+        <button class="ios-action-sheet__btn ios-action-sheet__cancel" @click="sharing ? (sharing = false) : emit('close')">{{ sharing ? 'Back' : 'Cancel' }}</button>
     </div>
 </template>
-
-<style lang="scss">
-@use '@/assets/styles/components/favoritesListEditor.scss' as *;
-</style>

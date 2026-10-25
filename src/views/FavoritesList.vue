@@ -1,66 +1,39 @@
 <script setup>
-import { apiImage } from '@/utilities/apiImage';
-import { onMounted, onBeforeUnmount, ref, computed } from 'vue';
+import { onMounted, ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
+import Title from '@/components/Title.vue';
 import FavoritesEditor from '@/components/FavoritesEditor.vue';
 import { useFavoritesStore } from '@/stores/favorites';
-import { useRoute } from 'vue-router';
-import PreLoader from '../components/PreLoader.vue';
-import Title from '@/components/Title.vue';
+import { useExplorationStore } from '@/stores/exploration';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+// Lists / Outings : lignes groupées iOS ; ⋯ ouvre les actions de la liste en feuille d'actions
 const favoritesStore = useFavoritesStore();
+const exploration = useExplorationStore();
 const route = useRoute();
 const isOutings = computed(() => route.query.view === 'outings');
-// Outings = historique : l'exploration en cours d'abord, puis les listes déjà explorées
-const locationsList = computed(() => {
-    const all = favoritesStore.locationsList || [];
-    if (!isOutings.value) return all;
-    return all
-        .filter((f) => f.status === 'in_progress' || f.status === 'finished')
-        .sort((a, b) => (a.status === 'in_progress' ? -1 : 0) - (b.status === 'in_progress' ? -1 : 0));
-});
 const isLoading = computed(() => favoritesStore.loading);
+const query = ref('');
+const sheetFor = ref(null);
 
-const selectedLocationId = ref(null); 
-const activeFavoriteId = ref(null); 
-
-const selectLocation = (locationId) => {
-    selectedLocationId.value = locationId;
-};
-
-const setActiveFavorite = (favoriteId) => {
-    activeFavoriteId.value = favoriteId;
-};
-
-const removeActiveFavorite = () => {
-    activeFavoriteId.value = null;
-};
-
-const handleClickOutside = (event) => {
-    const activeEntry = document.querySelector('.favorites__entry.active');
-    const selectedEntry = document.querySelector('.favorites__entry-selected');
-
-    // Remove active state if clicked outside the active entry
-    if (activeEntry && !activeEntry.contains(event.target)) {
-        removeActiveFavorite(); 
-    }
-
-    // Remove selected state if clicked outside the selected entry
-    if (selectedEntry && !selectedEntry.contains(event.target)) {
-        selectedLocationId.value = null;
-    }
-};
-
-onMounted(() => {
-    document.addEventListener('click', handleClickOutside);
+const all = computed(() => {
+    const q = query.value.trim().toLowerCase();
+    return (favoritesStore.locationsList || []).filter((f) => !q || (f.name || '').toLowerCase().includes(q));
+});
+const running = computed(() => all.value.filter((f) => f.status === 'in_progress'));
+const others = computed(() => {
+    // Outings = historique : listes déjà explorées ; Lists = tout sauf l'exploration en cours
+    if (isOutings.value) return all.value.filter((f) => f.status === 'finished');
+    return all.value.filter((f) => f.status !== 'in_progress');
 });
 
-onBeforeUnmount(() => {
-    document.removeEventListener('click', handleClickOutside);
-});
+const subtitle = (f) => {
+    const parts = [`${f.count} spot${f.count === 1 ? '' : 's'}`];
+    if ((f.users?.length || 0) > 1) parts.push(`shared with ${f.users.length - 1}`);
+    if (f.disabled === 1) parts.push('hidden');
+    if (f.status === 'in_progress' && exploration.active?.favoriteId === f.id) parts.push('exploring now');
+    return parts.join(' · ');
+};
 
-// Fetch list on component mount
 onMounted(async () => {
     await favoritesStore.getList();
 });
@@ -68,36 +41,55 @@ onMounted(async () => {
 
 <template>
     <Title :title="isOutings ? 'Outings' : 'Lists'" />
-    <p v-if="isOutings && !isLoading && !locationsList.length" class="favorites-empty page-width">No outing yet. Open a list and tap Start exploration.</p>
-    <transition name="fade" mode="out-in">
-        <PreLoader msg="Favorites" v-if="isLoading" key="preloader" /> 
-    </transition>
-    
-    <div class="favorites__container">
-        <div class="favorites page-width">
-            <div class="favorites__entry" 
-                v-for="(favorite) in locationsList" 
-                :key="favorite.id"
-                :class="{ 'favorites__entry-selected': favorite.id === selectedLocationId, 'active': favorite.id === activeFavoriteId }"
-                @click="selectLocation(favorite.id)">
-                <div class="favorites__content">
-                    <h3>{{ favorite.name }}</h3>
-                    <p>{{ favorite.count }} location(s)</p>
-                    <p class="fav-planning" v-if="favorite.status === 'in_progress' || favorite.status === 'finished'">
-                        <span :class="`is-${favorite.status}`">{{ favorite.status === 'in_progress' ? 'In progress' : 'Explored' }}</span>
-                    </p>
-                    <div class="favorites__content-users">
-                        <div class="favorites__content-users-entry" v-for="(user) in favorite.users" :key="user.id">
-                            <img v-if="user.image" :src="apiImage(user.image)" :alt="user.name">
-                        </div>
-                    </div>
-                    <div class="favorites__content-edit">                        
-                        <FavoritesEditor :favorite="favorite" @set-active="setActiveFavorite" />
-                    </div>
+    <div class="ios-page lists-page">
+        <label class="ios-search" for="lists-search">
+            <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+            <input id="lists-search" v-model="query" type="search" :placeholder="isOutings ? 'Search outings' : 'Search lists'" autocomplete="off" />
+        </label>
+
+        <section class="ios-section" v-if="running.length">
+            <h3 class="ios-header">Exploring now</h3>
+            <div class="ios-group">
+                <div v-for="f in running" :key="f.id" class="ios-row list-row">
+                    <router-link class="list-row__main" :to="`/favorites/${f.id}`">
+                        <span class="list-row__icon is-live"><font-awesome-icon :icon="['fas', 'compass']" /></span>
+                        <span class="list-row__text"><b>{{ f.name }}</b><small>{{ subtitle(f) }}</small></span>
+                        <span class="list-badge is-live">Live</span>
+                    </router-link>
+                    <button class="list-row__more" @click="sheetFor = f" aria-label="List actions"><font-awesome-icon :icon="['fas', 'ellipsis']" /></button>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <section class="ios-section" v-if="others.length">
+            <h3 class="ios-header">{{ isOutings ? 'Explored' : 'My lists' }}</h3>
+            <div class="ios-group">
+                <div v-for="f in others" :key="f.id" class="ios-row list-row">
+                    <router-link class="list-row__main" :to="`/favorites/${f.id}`">
+                        <span class="list-row__icon" :class="{ 'is-done': f.status === 'finished' }">
+                            <font-awesome-icon :icon="['fas', f.status === 'finished' ? 'check' : 'list-ul']" />
+                        </span>
+                        <span class="list-row__text"><b>{{ f.name }}</b><small>{{ subtitle(f) }}</small></span>
+                        <span v-if="f.status === 'finished'" class="list-badge is-done">Explored</span>
+                    </router-link>
+                    <button class="list-row__more" @click="sheetFor = f" aria-label="List actions"><font-awesome-icon :icon="['fas', 'ellipsis']" /></button>
+                </div>
+            </div>
+            <p class="ios-footer" v-if="!isOutings">Open a list and tap Start exploration to head out with it.</p>
+        </section>
+
+        <p v-if="!isLoading && !running.length && !others.length" class="lists-empty">
+            <template v-if="query">No list matches "{{ query }}".</template>
+            <template v-else-if="isOutings">No outing yet. Open a list and tap Start exploration.</template>
+            <template v-else>No list yet. Save a spot with the heart to create your first list.</template>
+        </p>
     </div>
+
+    <Teleport to="body">
+        <div v-if="sheetFor" class="ios-sheet-backdrop" @click.self="sheetFor = null">
+            <FavoritesEditor :favorite="sheetFor" @close="sheetFor = null" />
+        </div>
+    </Teleport>
 </template>
 
 <style lang="scss">

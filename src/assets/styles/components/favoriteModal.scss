@@ -76,7 +76,7 @@
         background: rgba(15, 15, 15, 0.95);
         backdrop-filter: blur(0);
         -webkit-backdrop-filter: blur(0);
-        border: 1px solid rgba($primary, 0.2);
+        border: 1px solid color-mix(in srgb, var(--tint) 20%, transparent);
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
         padding-bottom: 2rem;
         width: 22rem;
@@ -204,8 +204,8 @@
                 }
 
                 &:hover {
-                    background: rgba($primary, 0.06);
-                    border-color: rgba($primary, 0.25);
+                    background: color-mix(in srgb, var(--tint) 6%, transparent);
+                    border-color: color-mix(in srgb, var(--tint) 25%, transparent);
                     color: #fff;
 
                     span {
@@ -216,11 +216,11 @@
             }
 
             input:checked + label {
-                background: rgba($primary, 0.12);
-                border-color: rgba($primary, 0.4);
+                background: color-mix(in srgb, var(--tint) 12%, transparent);
+                border-color: color-mix(in srgb, var(--tint) 40%, transparent);
                 color: #fff;
                 font-weight: 600;
-                box-shadow: 0 0 15px rgba($primary, 0.08);
+                box-shadow: 0 0 15px color-mix(in srgb, var(--tint) 8%, transparent);
 
                 span {
                     color: $primary;
@@ -250,7 +250,7 @@
                 &:focus {
                     border-color: $primary;
                     background: rgba(255, 255, 255, 0.07);
-                    box-shadow: 0 0 10px rgba($primary, 0.15);
+                    box-shadow: 0 0 10px color-mix(in srgb, var(--tint) 15%, transparent);
                 }
             }
 
@@ -267,13 +267,13 @@
                 width: 100%;
                 cursor: pointer;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                box-shadow: 0 4px 15px rgba($primary, 0.25);
+                box-shadow: 0 4px 15px color-mix(in srgb, var(--tint) 25%, transparent);
                 display: flex;
                 align-items: center;
                 justify-content: center;
 
                 &:hover {
-                    box-shadow: 0 6px 20px rgba($primary, 0.45);
+                    box-shadow: 0 6px 20px color-mix(in srgb, var(--tint) 45%, transparent);
                     transform: translateY(-2px);
                 }
 

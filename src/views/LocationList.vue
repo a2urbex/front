@@ -1,8 +1,8 @@
 <script setup>
-import { ref, onMounted, computed, onUnmounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { useMapStore } from '@/stores/map';
-import LocationCard from '@/components/LocationCard.vue';
+import SpotGrid from '@/components/SpotGrid.vue';
 import LocationCardDisplay from '@/components/LocationCardDisplay.vue';
 import Filters from '@/components/Filters.vue';
 import PreLoader from '../components/PreLoader.vue';
@@ -15,32 +15,9 @@ const locationsList = computed(() => locationStore.locationsList);
 const isLoading = computed(() => locationStore.loading);
 const selectedLocation = ref(null);
 const loadMoreTrigger = ref(null);
-const visibleCards = ref(new Set());
 
 function showLocationCardDisplay(location) {
   selectedLocation.value = location;
-}
-
-function isLargeItem(index) {
-  return index % 2 === 0;
-}
-
-function setupCardObserver() {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          visibleCards.value.add(entry.target.dataset.id);
-        }
-      });
-    },
-    {
-      threshold: 0.1,
-      rootMargin: '50px',
-    },
-  );
-
-  return observer;
 }
 
 function setupInfiniteScroll() {
@@ -67,28 +44,6 @@ onMounted(() => {
   // locationStore.fetchLocations(1);
   mapStore.setType('location');
   setupInfiniteScroll();
-
-  const cardObserver = setupCardObserver();
-  const observeCards = () => {
-    document.querySelectorAll('.locations-container .card-appear').forEach((card) => {
-      cardObserver.observe(card);
-    });
-  };
-
-  // Observe initial cards
-  observeCards();
-
-  // Watch for new cards being added
-  const observer = new MutationObserver(observeCards);
-  observer.observe(document.querySelector('.locations-container'), {
-    childList: true,
-  });
-
-  // Cleanup
-  onUnmounted(() => {
-    cardObserver.disconnect();
-    observer.disconnect();
-  });
 });
 </script>
 
@@ -100,21 +55,8 @@ onMounted(() => {
     <PreLoader msg="Locations" v-if="isLoading && locationsList.length === 0" key="preloader" />
   </transition>
 
-  <div class="locations-container page-width">
-    <LocationCard
-      v-for="(location, index) in locationsList"
-      :key="location.id"
-      :location="location"
-      :class="{
-        large: isLargeItem(index),
-        'card-appear': true,
-        'card-visible': visibleCards.has(location.id),
-      }"
-      :data-id="location.id"
-      @open-location="showLocationCardDisplay"
-    />
-    <div ref="loadMoreTrigger" class="load-more-trigger"></div>
-  </div>
+  <SpotGrid :items="locationsList" @open-location="showLocationCardDisplay" />
+  <div ref="loadMoreTrigger" class="load-more-trigger"></div>
 
   <LocationCardDisplay v-if="selectedLocation" :location="selectedLocation" @close="selectedLocation = null" />
 

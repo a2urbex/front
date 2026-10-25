@@ -66,20 +66,20 @@
     &:hover {
       transform: translateY(-4px);
       background: rgba(255, 255, 255, 0.04);
-      border-color: rgba($primary, 0.35);
+      border-color: color-mix(in srgb, var(--tint) 35%, transparent);
       box-shadow: 
         0 12px 30px rgba(0, 0, 0, 0.4), 
-        0 0 15px rgba($primary, 0.15),
+        0 0 15px color-mix(in srgb, var(--tint) 15%, transparent),
         inset 0 1px 1px rgba(255, 255, 255, 0.1);
     }
 
     &.active {
       z-index: 1;
       border-color: $primary;
-      background: linear-gradient(145deg, rgba($primary, 0.06), rgba(20, 20, 20, 0.85));
+      background: linear-gradient(145deg, color-mix(in srgb, var(--tint) 6%, transparent), rgba(20, 20, 20, 0.85));
       box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.5), 
-        0 0 20px rgba($primary, 0.2);
+        0 0 20px color-mix(in srgb, var(--tint) 20%, transparent);
 
       .favorite-friend {
         visibility: visible;
@@ -92,7 +92,7 @@
       border-color: $primary;
       box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.5), 
-        0 0 20px rgba($primary, 0.2);
+        0 0 20px color-mix(in srgb, var(--tint) 20%, transparent);
 
       .favorites-list-editor {
         visibility: visible;
@@ -173,6 +173,6 @@
 }
 
 .fav-planning { display: flex; gap: 8px; font: 11px $font-mono; text-transform: uppercase; color: #888;
-  .is-in_progress { color: #ff8a1f; } .is-finished { color: #5fae5a; } }
+  .is-in_progress { color: var(--tint); } .is-finished { color: #5fae5a; } }
 
 .favorites-empty { margin-top: 1.5rem; color: #777; font: 13px $font-mono; }

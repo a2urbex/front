@@ -6,7 +6,10 @@
     </button>
     <span v-else class="back-spacer"></span>
     <h2 v-appear>{{ title }}</h2>
-    <span class="back-spacer"></span>
+    <button v-if="inPanel" class="panel-close" @click="router.push('/locations')" aria-label="Close panel">
+      <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8" /></svg>
+    </button>
+    <span v-else class="back-spacer"></span>
     <h1 v-if="isLarge" class="large-title">{{ title }}</h1>
   </div>
 </template>
@@ -15,8 +18,13 @@
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { addBodyClass, removeBodyClass } from '@/utilities/bodyClass';
+import { isDeskPanel } from '@/utilities/deskPanel';
+import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
+const authStore = useAuthStore();
+// Ordinateur, mode panneau : croix pour fermer le panneau et revenir à la carte
+const inPanel = computed(() => isDeskPanel(router.currentRoute.value.path, !!authStore.token));
 
 const props = defineProps({
   title: {
@@ -43,11 +51,23 @@ const parentOf = (path) => {
   return null;
 };
 
-const showBackButton = computed(() => !props.goHistory || !ROOTS.includes(router.currentRoute.value.path));
+// Ordinateur : Amis et Admin sont aussi des entrées de la barre latérale. Ouverts depuis elle, pas de « Back » ;
+// ouverts depuis le Profil, « Back » ramène au Profil.
+const SIDEBAR_ROOTS = ['/friends', '/admin'];
+// page ouverte comme entrée principale de la barre latérale (ordinateur, pas depuis le Profil)
+const asSidebarRoot = computed(() => {
+  const path = router.currentRoute.value.path;
+  return SIDEBAR_ROOTS.includes(path) && window.matchMedia('(min-width: 990px)').matches && !(window.history.state?.back || '').startsWith('/me');
+});
+const showBackButton = computed(() => {
+  if (!props.goHistory) return true;
+  if (ROOTS.includes(router.currentRoute.value.path)) return false;
+  return !asSidebarRoot.value;
+});
 
 // Pages racines des onglets (Lists, Outings, Profile) : grand titre iOS qui se réduit au défilement
 const LARGE = ['/favorites', '/me'];
-const isLarge = computed(() => LARGE.includes(router.currentRoute.value.path));
+const isLarge = computed(() => LARGE.includes(router.currentRoute.value.path) || asSidebarRoot.value);
 const scrolled = ref(false);
 let scroller = null;
 const onScroll = () => { scrolled.value = (scroller?.scrollTop || 0) > 28; };
@@ -104,16 +124,16 @@ const goBack = () => {
   justify-self: start;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 7px;
   height: 44px;
-  padding: 0 8px 0 4px;
+  padding: 0 8px 0 6px;
   background: none;
   border: 0;
   color: var(--tint);
-  font-size: 17px;
+  font-size: 15px;
   cursor: pointer;
 }
-.back-button svg { width: 12px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.back-button svg { width: 8px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 .back-button:active { opacity: 0.5; }
 
 /* Grand titre (racines d'onglets) : un seul titre, aligné à gauche, qui rétrécit en place au défilement */
@@ -128,6 +148,15 @@ const goBack = () => {
 .title-container.large.compact .large-title { font-size: 22px; line-height: 28px; padding-bottom: 12px; }
 
 /* Ordinateur : la barre suit la colonne de contenu (680px centrée) au lieu de coller aux bords */
+/* Croix du panneau (ordinateur) : ronde, discrète, à droite de la barre ; sur les grands titres, en haut à droite */
+.panel-close {
+  justify-self: end; display: grid; place-items: center; width: 30px; height: 30px; margin-right: 6px; padding: 0;
+  border: 0; border-radius: 50%; background: rgba(118, 118, 128, 0.24); color: rgba(235, 235, 245, 0.6); cursor: pointer;
+}
+.panel-close svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.panel-close:hover { color: #fff; }
+.title-container.large .panel-close { display: grid; position: absolute; top: 12px; right: 8px; }
+
 /* Ordinateur : titre aligné à gauche sur le contenu (48px), retour juste avant, comme une barre d'outils macOS */
 @media (min-width: 990px) {
   .title-container:not(.large) { grid-template-columns: auto minmax(0, 1fr) 0; justify-content: start; gap: 4px; padding-inline: 34px 24px; }

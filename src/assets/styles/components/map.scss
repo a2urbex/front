@@ -1225,3 +1225,13 @@ body:not(.has-title) #map .map-ctrls { top: calc(12px + #{$sat}); }
   @media (max-width: $md) { display: inline-flex; }
   &:active { transform: translateX(-50%) scale(0.96); }
 }
+
+// « Load spots » : premier passage sur la carte, au même endroit que la pastille de chargement
+#map .map-load {
+  @include glass;
+  position: absolute; z-index: 9; bottom: 24px; left: 50%; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 20px; border: 0; border-radius: 22px;
+  background: $primary; color: var(--on-tint); font: 600 16px $font-body; white-space: nowrap; cursor: pointer;
+  @media (max-width: $md) { bottom: 68px; }
+  &:active { transform: translateX(-50%) scale(0.96); }
+}

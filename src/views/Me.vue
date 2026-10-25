@@ -3,6 +3,7 @@ import { computed, ref, onMounted } from 'vue';
 import { toast } from 'vue3-toastify';
 import Title from '@/components/Title.vue';
 import { request } from '@/services/api';
+import { cached, remember } from '@/utilities/sessionCache';
 import { apiImage } from '@/utilities/apiImage';
 import { forceAppUpdate } from '@/utilities/appUpdate';
 import { resolveDefaultCountry } from '@/stores/filter';
@@ -29,8 +30,8 @@ const avatarBroken = ref(false);
 const initials = computed(() => (me.value.username || '?').split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase());
 
 // Pays par défaut
-const country = ref(null);
-const countrySetting = ref('');
+const country = ref(cached('me:country') || null);
+const countrySetting = ref(country.value?.setting || '');
 // Couleur d'accent (réglée dans Appearance)
 const accentNow = getAccent();
 
@@ -38,7 +39,7 @@ const SOURCE = { account: 'chosen', geolocation: 'from GPS', ip: 'from IP', lang
 const countryName = computed(() => country.value?.countries?.find((c) => c.code === country.value.code)?.name || country.value?.code || '');
 const saveCountry = async () => {
   await request('PUT', `${import.meta.env.VITE_ACCOUNT_ENDPOINT}/country`, { code: countrySetting.value || null });
-  country.value = await resolveDefaultCountry();
+  country.value = remember('me:country', await resolveDefaultCountry());
 };
 
 
@@ -92,13 +93,13 @@ const resetNotifications = async () => {
 const pending = computed(() => usersStore.users.filter((u) => Number(u.pending) === 1).length);
 
 // Chiffres de l'en-tête : points ajoutés, amis, listes
-const stats = ref({});
+const stats = ref(cached('me:stats') || {});
 const loadStats = async () => {
   const [profile, lists] = await Promise.all([
     me.value.id ? request('GET', `${import.meta.env.VITE_PROFILE_ENDPOINT}/${me.value.id}`).catch(() => null) : null,
     request('GET', `${import.meta.env.VITE_FAVORITES_ENDPOINT}/summary`).catch(() => null),
   ]);
-  stats.value = { spots: profile?.urbexCount, friends: profile?.friendCount, lists: Array.isArray(lists) ? lists.length : undefined };
+  stats.value = remember('me:stats', { spots: profile?.urbexCount, friends: profile?.friendCount, lists: Array.isArray(lists) ? lists.length : undefined });
 };
 
 const addLocation = () => window.dispatchEvent(new CustomEvent('a2:add-location'));
@@ -106,12 +107,13 @@ const logout = () => authStore.logout();
 
 onMounted(async () => {
   if (!authStore.token) return;
-  resolveDefaultCountry().then((c) => { country.value = c; countrySetting.value = c?.setting || ''; });
+  resolveDefaultCountry().then((c) => { country.value = remember('me:country', c); countrySetting.value = c?.setting || ''; });
   loadPush();
   if (!me.value.id) await authStore.fetchUserProfile().catch(() => {});
   loadStats();
   if (isAdmin.value || me.value.isAdmin === undefined) {
     if (me.value.isAdmin === undefined) await authStore.fetchUserProfile().catch(() => {});
+    // badge « en attente » : la liste déjà chargée suffit, on la rafraîchit sans bloquer
     if (authStore.userProfile?.isAdmin) usersStore.getAll().catch(() => {});
   }
 });

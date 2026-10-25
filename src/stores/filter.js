@@ -34,6 +34,7 @@ export const useFilterStore = defineStore('filter', {
     excludedSources: [],
     isCleared: false,
     query: '',
+    defaultCountry: null, // pays de la personne (réglage > détecté > France)
   }),
   actions: {
     async init() {
@@ -49,6 +50,7 @@ export const useFilterStore = defineStore('filter', {
         const countries = this.filters.countries || {};
         const fallback = Object.keys(countries).find((id) => countries[id].toLowerCase() === 'france');
         const selected = countryId && countries[countryId] ? countryId : fallback;
+        this.defaultCountry = selected || null;
         if (selected) this.selectedFilters.countries = [selected];
 
         this.fetching = false;
@@ -97,6 +99,8 @@ export const useFilterStore = defineStore('filter', {
     },
 
     applyFilters() {
+      // Jamais aucun pays (= toute la base) : on retombe sur le pays de la personne
+      if (!this.selectedFilters.countries?.length && this.defaultCountry) this.selectedFilters.countries = [this.defaultCountry];
       const cleanedFilters = Object.keys(this.selectedFilters).reduce((acc, key) => {
         acc[key] = this.selectedFilters[key];
         return acc;

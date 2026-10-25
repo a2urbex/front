@@ -196,7 +196,7 @@ const goToNext = () => {
 
 const toggleInvalid = () => {
   mapStore.showInvalid = !mapStore.showInvalid
-  mapStore.getMapLocations(true)
+  if (canLoad()) mapStore.getMapLocations(true)
 }
 
 const onStatusUpdated = (updated) => {
@@ -204,9 +204,13 @@ const onStatusUpdated = (updated) => {
   mapStore.locations = hide
     ? mapStore.locations.filter((l) => l.id !== updated.id)
     : mapStore.locations.map((l) => (l.id === updated.id ? updated : l))
+  mapStore.syncCache()
   if (hide) overlayOpen.value = false
   else itemSelected.value = updated
 }
+
+// Carte globale : rien n'est chargé avant « Load spots » ; les listes (favoris) se chargent toujours
+const canLoad = () => mapStore.type !== 'location' || mapStore.spotsRequested
 
 // --- Zone dessinée + frise des imports (carte globale uniquement) ---
 const favoritesStore = useFavoritesStore()
@@ -331,7 +335,7 @@ watch(() => mapStore.open, async (open) => {
   if (open) {
     await nextTick()
     initMap()
-    mapStore.getMapLocations()
+    if (canLoad()) mapStore.getMapLocations()
   } else {
     overlayOpen.value = false
     destroyMap()
@@ -341,7 +345,7 @@ watch(() => mapStore.open, async (open) => {
 watch(() => [mapStore.locations, mapStore.clipTo], () => renderMarkers());
 
 watch(() => locationStore.selectedFilters, async () => {
-  if (mapStore.open) mapStore.getMapLocations();
+  if (mapStore.open && canLoad()) mapStore.getMapLocations();
 }, { deep: true });
 
 const displayOverlay = (item) => {
@@ -361,6 +365,7 @@ const closeSheet = () => {
 // Suppression depuis le menu ⋮ de la fiche : on retire le pin
 const onDeleted = (id) => {
   mapStore.locations = mapStore.locations.filter((loc) => loc.id !== id)
+  mapStore.syncCache()
   closeSheet()
 }
 
@@ -445,6 +450,12 @@ onBeforeUnmount(destroyMap)
           <font-awesome-icon class="map-next__icon" :icon="['fas', 'location-arrow']" />
           <span class="map-next__name">{{ nextPoint.item.name || 'Unnamed' }}</span>
           <span class="map-next__dist">{{ formatDistance(nextPoint.d) }}</span>
+        </button>
+
+        <!-- Premier passage : on ne charge les points qu'à la demande (évite de bloquer l'ouverture de l'app) -->
+        <button v-if="isGlobal && !mapStore.spotsRequested" class="map-load" @click="mapStore.requestSpots()">
+          <font-awesome-icon :icon="['fas', 'location-dot']" />
+          Load spots
         </button>
 
         <transition name="map-loader">

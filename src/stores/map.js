@@ -1,4 +1,4 @@
-import { toRaw } from 'vue';
+import { toRaw, markRaw } from 'vue';
 import { defineStore } from 'pinia';
 
 import { request } from '@/services/api';
@@ -18,6 +18,11 @@ export const useMapStore = defineStore('Map', {
     clipTo: null,
     highlightFrom: null,
     loaded: { type: null, typeId: null, filters: null },
+    // Carte globale : les points ne se chargent qu'après « Load spots » (une fois par ouverture de l'app),
+    // puis restent en mémoire tant que les filtres ne changent pas (navigation entre menus = pas de rechargement)
+    spotsRequested: false,
+    globalCache: { key: null, list: null },
+    needsCountry: false,
   }),
   actions: {
     setType(type, typeId = null) {
@@ -49,14 +54,32 @@ export const useMapStore = defineStore('Map', {
         }
 
         if(this.type === 'location') {
-          if(isSamePage && JSON.stringify(filtersSnapshot) === JSON.stringify(this.loaded.filters)) return this.locations;
-          this.locations = await this.loadLocation(filtersSnapshot)
+          // jamais toute la base : sans pays (et sans zone), on attend que le pays par défaut soit connu
+          if (!filtersSnapshot.countries?.length && !this.zone) { this.needsCountry = true; return this.locations; }
+          this.needsCountry = false;
+          const key = JSON.stringify(filtersSnapshot);
+          if (!force && this.globalCache.key === key && this.globalCache.list) {
+            this.locations = this.globalCache.list;
+          } else {
+            const list = await this.loadLocation(filtersSnapshot);
+            // markRaw : 10 000 points sans proxies réactifs, beaucoup plus léger
+            this.globalCache = { key, list: markRaw(list || []) };
+            this.locations = this.globalCache.list;
+          }
         }
 
         this.loaded = { type: this.type, typeId: this.typeId, filters: filtersSnapshot };
       } finally {
         this.loading = false;
       }
+    },
+    // Garde le cache aligné après une modification locale (statut, suppression)
+    syncCache() {
+      if (this.type === 'location' && this.globalCache.key) this.globalCache = { ...this.globalCache, list: markRaw([...this.locations]) };
+    },
+    requestSpots() {
+      this.spotsRequested = true;
+      return this.getMapLocations();
     },
     async loadLocation(filters) {
       try {

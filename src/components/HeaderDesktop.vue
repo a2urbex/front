@@ -93,10 +93,10 @@ const clearCache = forceAppUpdate;
       </div>
 
       <div class="header-desktop__section header-desktop__section--secondary">
-        <router-link class="header-desktop__nav-link" to="/app-settings">
+        <router-link class="header-desktop__nav-link" to="/me">
           <font-awesome-icon v-if="status === 'up-to-date'" :icon="['fa', 'wrench']" />
           <font-awesome-icon v-else-if="status === 'outdated'" :icon="['fa', 'triangle-exclamation']" />
-          <span>App Settings</span>
+          <span>Settings</span>
         </router-link>
         <router-link v-if="userProfile.isAdmin" class="header-desktop__nav-link" to="/admin">
           <font-awesome-icon :icon="['fa', 'gear']" />

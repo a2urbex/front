@@ -34,22 +34,23 @@ const end = async () => {
 
 <style lang="scss">
 @use '@/assets/styles/base.scss' as *;
+// Barre « exploration en cours » : rangée iOS posée sur la barre d'onglets (comme le mini-lecteur de Musique)
 .exploration-bar {
   display: flex;
   align-items: center;
   gap: 10px;
   height: $explorationBarHeight;
-  padding: 0 12px;
-  background: #111;
-  border-top: 2px solid $primary;
-  .header-desktop & { height: auto; flex-wrap: wrap; padding: 10px 12px; margin: 0 0 12px; border: 1px solid #2a2a2a; border-left: 3px solid $primary; }
-  color: #eee;
-  font-size: 13px;
-  &__dot { width: 8px; height: 8px; flex: none; border-radius: 50%; background: $primary; animation: expl-pulse 1.6s ease infinite; }
-  &__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: none; border: 0; color: inherit; font-weight: 600; text-align: left; cursor: pointer; }
-  &__gps { font: 11px $font-mono; color: #e0766b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%; }
-  &__end { padding: 6px 12px; border: 0; background: $primary; color: #111; font-weight: 700; text-transform: uppercase; font-size: 12px; cursor: pointer; }
-  &__cancel { background: none; border: 0; color: #888; cursor: pointer; }
+  padding: 0 10px 0 14px;
+  background: transparent;
+  box-shadow: inset 0 -0.5px 0 $separator;
+  color: $label;
+  font: 400 15px/20px $font-body;
+  .header-desktop & { height: auto; flex-wrap: wrap; padding: 10px 12px; margin: 0 0 12px; background: $bg-2; border-radius: 10px; box-shadow: none; }
+  &__dot { width: 8px; height: 8px; flex: none; border-radius: 50%; background: $primary; box-shadow: 0 0 0 4px color-mix(in srgb, var(--tint) 18%, transparent); animation: expl-pulse 2s ease infinite; }
+  &__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: none; border: 0; color: inherit; font: 600 15px/20px $font-body; text-align: left; cursor: pointer; }
+  &__gps { font-size: 12px; color: $red; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%; }
+  &__end { height: 30px; padding: 0 14px; border: 0; border-radius: 15px; background: $fill; color: $label; font: 600 14px $font-body; cursor: pointer; }
+  &__cancel { width: 30px; height: 30px; border: 0; border-radius: 15px; background: $fill; color: $label-2; cursor: pointer; }
 }
-@keyframes expl-pulse { 50% { opacity: .3; } }
+@keyframes expl-pulse { 50% { opacity: .45; } }
 </style>

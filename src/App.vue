@@ -36,6 +36,9 @@ watch(() => explorationStore.active, (a) => {
   else positionStore.stop();
 }, { immediate: true });
 
+// "Add a location" depuis l'onglet Profil
+window.addEventListener('a2:add-location', () => { showAddLocation.value = true; });
+
 // Rôle changé par un admin : le profil se met à jour au retour au premier plan, sans reconnexion
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && authStore.token) authStore.fetchUserProfile().catch(() => {});

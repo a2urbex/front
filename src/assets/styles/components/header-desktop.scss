@@ -53,7 +53,7 @@
       transition: background 0.2s ease;
     }
     &:hover::-webkit-scrollbar-thumb {
-      background: rgba($primary, 0.25);
+      background: color-mix(in srgb, var(--tint) 25%, transparent);
     }
 
     > * {
@@ -125,10 +125,10 @@
 
   // Highlight active link inside sidebar (override existing)
   .router-link-active.header-desktop__nav-link {
-    background: linear-gradient(135deg, rgba($primary, 0.12) 0%, rgba($primary, 0.04) 100%);
-    border-color: rgba($primary, 0.25);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--tint) 12%, transparent) 0%, color-mix(in srgb, var(--tint) 4%, transparent) 100%);
+    border-color: color-mix(in srgb, var(--tint) 25%, transparent);
     color: #fff;
-    box-shadow: inset 0 0 0 1px rgba($primary, 0.06);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tint) 6%, transparent);
   }
 
   &__filters-trigger {

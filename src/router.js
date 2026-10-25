@@ -38,6 +38,9 @@ import AdminSourcesView from '@/views/AdminSources.vue'
 import AdminPinterestView from '@/views/AdminPinterest.vue'
 import AdminNotifyView from '@/views/AdminNotify.vue'
 import AdminImportersView from '@/views/AdminImporters.vue'
+import MeView from '@/views/Me.vue'
+import MeAppearanceView from '@/views/MeAppearance.vue'
+import MeNotificationsView from '@/views/MeNotifications.vue'
 
 
 const router = createRouter({
@@ -95,9 +98,9 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      // Réglages déplacés dans l'onglet Profil
       path: '/app-settings',
-      component: AppSettingsView,
-      meta: { requiresAuth: true }
+      redirect: '/me',
     },
     { path: '/admin', component: AdminView, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/admin/users', component: AdminUsersView, meta: { requiresAuth: true, requiresAdmin: true } },
@@ -107,6 +110,9 @@ const router = createRouter({
     { path: '/admin/pinterest', component: AdminPinterestView, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/admin/notify', component: AdminNotifyView, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/admin/importers', component: AdminImportersView, meta: { requiresAuth: true, requiresAdmin: true } },
+    { path: '/me', component: MeView, meta: { requiresAuth: true } },
+    { path: '/me/notifications', component: MeNotificationsView, meta: { requiresAuth: true } },
+    { path: '/me/appearance', component: MeAppearanceView, meta: { requiresAuth: true } },
     {
       path: '/edit-profile',
       component: EditProfile,
@@ -169,6 +175,21 @@ router.beforeEach(async (to, from, next) => {
   }
 
   next()
+})
+
+// Chaque page repart du haut : sur iPhone, le défilement (parfois encore en élan) d'une longue page
+// restait appliqué à la suivante, plus courte, et n'affichait que du noir sous la barre de titre
+router.afterEach((to, from) => {
+  if (to.path === from.path) return
+  const reset = () => {
+    const el = document.querySelector('.content')
+    if (!el) return
+    el.style.overflowY = 'hidden' // coupe l'élan iOS
+    el.scrollTop = 0
+    requestAnimationFrame(() => { el.style.overflowY = '' })
+  }
+  reset()
+  requestAnimationFrame(reset) // une fois la nouvelle page montée
 })
 
 export default router

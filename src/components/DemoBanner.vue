@@ -25,7 +25,7 @@ const exit = () => {
   height: $demoBarHeight;
   padding: 0 12px;
   background: repeating-linear-gradient(-45deg, #1a1408 0 8px, #141005 8px 16px);
-  border-top: 1px solid rgba(255, 138, 31, 0.5);
+  border-top: 1px solid color-mix(in srgb, var(--tint) 50%, transparent);
   color: #e8d9c2;
   font: 500 10px $font-mono;
   letter-spacing: 0.06em;

@@ -9,7 +9,8 @@ export default defineConfig({
   plugins: [
     vue({reactivityTransform: true,}),
     VitePWA({ 
-      registerType: 'autoUpdate',
+      // 'prompt' : pas de rechargement automatique quand une nouvelle version prend la main (cf. main.js)
+      registerType: 'prompt',
       workbox: {
         cleanupOutdatedCaches: true,
         sourcemap: true,

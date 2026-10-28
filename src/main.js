@@ -27,9 +27,10 @@ if (window.location.hostname.includes('a2urbex.eu')) {
   window.location.replace(newUrl);
 }
 
-// Mise à jour : on vérifie au retour au premier plan + toutes les 30 min ; dès qu'un nouveau SW prend
-// la main, on recharge une seule fois (iOS PWA ne recharge jamais seule)
-const updateSW = registerSW({
+// Mise à jour : on vérifie au retour au premier plan + toutes les 30 min. La nouvelle version s'installe
+// en arrière-plan SANS recharger la page (sinon chaque retour dans l'app la rechargeait) : elle s'applique
+// à la prochaine ouverture, et la popup « Update available » propose de l'appliquer tout de suite.
+registerSW({
     immediate: true,
     onRegisteredSW(_url, registration) {
         if (!registration) return;
@@ -37,7 +38,9 @@ const updateSW = registerSW({
         setInterval(check, 30 * 60 * 1000);
         document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
     },
-    onNeedRefresh() { updateSW(true); },
+    onNeedRefresh() { },
+    // une nouvelle version a pris la main : pas de rechargement (le plugin rechargerait sinon)
+    onNeedReload() { },
     onOfflineReady() { },
 });
 
@@ -48,15 +51,6 @@ if (new URLSearchParams(location.search).has('v')) {
     history.replaceState(history.state, '', clean.toString());
 }
 
-if ('serviceWorker' in navigator) {
-    let reloading = false;
-    const hadController = !!navigator.serviceWorker.controller;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!hadController || reloading) return;
-        reloading = true;
-        window.location.reload();
-    });
-}
 
 // Accès direct /demo : session démo activée avant tout rendu, puis ouverture de l'app (aucun passage par l'accueil)
 if (window.location.pathname.replace(/\/+$/, '') === '/demo') {

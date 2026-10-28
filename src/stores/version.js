@@ -17,7 +17,7 @@ const isNewer = (a, b) => {
 
 export const useVersionStore = defineStore('version', {
   state: () => ({
-    code_version: '2.1.5', // Use for dev only
+    code_version: '2.1.6', // Use for dev only
     latest_version: '',
   }),
   actions: {

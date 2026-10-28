@@ -1,4 +1,5 @@
 <script setup>
+import { navSource } from '@/utilities/deskPanel';
 import { computed, ref, onMounted } from 'vue';
 import { toast } from 'vue3-toastify';
 import Title from '@/components/Title.vue';
@@ -145,7 +146,7 @@ onMounted(async () => {
           <span class="ios-icon"><font-awesome-icon :icon="['fas', 'plus']" /></span>
           <span class="ios-row__label">Add a location</span>
         </button>
-        <router-link class="ios-row" to="/friends">
+        <router-link class="ios-row" to="/friends" @click="navSource = 'profile'">
           <span class="ios-icon"><font-awesome-icon :icon="['fas', 'users']" /></span>
           <span class="ios-row__label">Friends</span>
           <svg class="ios-chev" viewBox="0 0 8 13" aria-hidden="true"><path d="M1.4 0 0 1.4 5.1 6.5 0 11.6 1.4 13l6.5-6.5Z" /></svg>
@@ -190,7 +191,7 @@ onMounted(async () => {
           <span class="ios-row__value">{{ canPush ? (pushOn ? 'On' : 'Off') : 'Not supported' }}</span>
           <svg class="ios-chev" viewBox="0 0 8 13" aria-hidden="true"><path d="M1.4 0 0 1.4 5.1 6.5 0 11.6 1.4 13l6.5-6.5Z" /></svg>
         </router-link>
-        <router-link v-if="isAdmin" class="ios-row" to="/admin">
+        <router-link v-if="isAdmin" class="ios-row" to="/admin" @click="navSource = 'profile'">
           <span class="ios-icon"><font-awesome-icon :icon="['fas', 'shield-halved']" /></span>
           <span class="ios-row__label">Administration</span>
           <span v-if="pending" class="ios-badge">{{ pending }}</span>

@@ -103,17 +103,17 @@ onMounted(async () => {
                 class="admin-page__action admin-page__action--approve"
                 @click="approveUser(user)"
                 title="Approve as Superuser"
+                aria-label="Approve as Superuser"
               >
                 <font-awesome-icon :icon="['fa', 'check']" />
-                <span>Approve</span>
               </button>
               <button
                 class="admin-page__action admin-page__action--reject"
                 @click="rejectUser(user)"
                 title="Reject access request"
+                aria-label="Reject access request"
               >
                 <font-awesome-icon :icon="['fa', 'xmark']" />
-                <span>Reject</span>
               </button>
               <button
                 class="admin-page__user-actions-button"

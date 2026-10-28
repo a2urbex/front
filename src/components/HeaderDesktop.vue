@@ -1,4 +1,5 @@
 <script setup>
+import { navSource } from '@/utilities/deskPanel';
 import { apiImage } from '@/utilities/apiImage';
 import ExplorationBar from '@/components/ExplorationBar.vue';
 import DemoBanner from '@/components/DemoBanner.vue';
@@ -34,6 +35,7 @@ const profileImageUrl = computed(() => {
 });
 
 const isUserSectionOpen = ref(false);
+const avatarBroken = ref(false);
 
 const toggleUserSection = () => {
   isUserSectionOpen.value = !isUserSectionOpen.value;
@@ -60,15 +62,15 @@ const clearCache = forceAppUpdate;
 
     <div v-if="isLoggedIn" class="header-desktop__content">
       <nav class="header-desktop__section header-desktop__section--primary">
-        <router-link class="header-desktop__nav-link" to="/locations">
+        <router-link class="header-desktop__nav-link" @click="navSource = 'sidebar'" to="/locations">
           <font-awesome-icon :icon="['fa', 'map-pin']" />
           <span>Locations</span>
         </router-link>
-        <router-link class="header-desktop__nav-link" to="/favorites">
+        <router-link class="header-desktop__nav-link" @click="navSource = 'sidebar'" to="/favorites">
           <font-awesome-icon :icon="['fa', 'heart']" />
           <span>Favorites</span>
         </router-link>
-        <router-link class="header-desktop__nav-link" to="/friends">
+        <router-link class="header-desktop__nav-link" @click="navSource = 'sidebar'" to="/friends">
           <font-awesome-icon :icon="['fa', 'users']" />
           <span>Friends</span>
         </router-link>
@@ -95,12 +97,12 @@ const clearCache = forceAppUpdate;
 
       <div class="header-desktop__section header-desktop__section--secondary">
         <p class="header-desktop__section-label">Account</p>
-        <router-link class="header-desktop__nav-link" to="/me">
+        <router-link class="header-desktop__nav-link" @click="navSource = 'sidebar'" to="/me">
           <font-awesome-icon v-if="status === 'up-to-date'" :icon="['fa', 'wrench']" />
           <font-awesome-icon v-else-if="status === 'outdated'" :icon="['fa', 'triangle-exclamation']" />
           <span>Profile</span>
         </router-link>
-        <router-link v-if="userProfile.isAdmin" class="header-desktop__nav-link" to="/admin">
+        <router-link v-if="userProfile.isAdmin" class="header-desktop__nav-link" @click="navSource = 'sidebar'" to="/admin">
           <font-awesome-icon :icon="['fa', 'gear']" />
           <span>Admin</span>
         </router-link>
@@ -110,7 +112,8 @@ const clearCache = forceAppUpdate;
 
       <div class="header-desktop__section header-desktop__section--user">
         <div class="header-desktop__profile" @click="toggleUserSection">
-          <img :src="profileImageUrl" class="header-desktop__profile-avatar" />
+          <img v-if="profileImageUrl && !avatarBroken" :src="profileImageUrl" class="header-desktop__profile-avatar" alt="" @error="avatarBroken = true" />
+          <span v-else class="header-desktop__profile-avatar header-desktop__profile-avatar--initials">{{ (userProfile.username || '?').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase() }}</span>
           <div class="header-desktop__profile-meta">
             <span class="header-desktop__profile-name">{{ userProfile.username }}</span>
             <span class="header-desktop__profile-handle">@{{ userProfile.username }}</span>
@@ -121,12 +124,12 @@ const clearCache = forceAppUpdate;
         </div>
 
         <div v-if="isUserSectionOpen" class="header-desktop__user-menu">
-          <router-link class="header-desktop__nav-link" :to="'/profile/' + userProfile.id">
+          <router-link class="header-desktop__nav-link" @click="navSource = 'sidebar'" :to="'/profile/' + userProfile.id">
             <font-awesome-icon :icon="['fa', 'user']" />
             <span>My profile</span>
           </router-link>
 
-          <router-link v-if="!demo" class="header-desktop__nav-link" to="/edit-profile">
+          <router-link v-if="!demo" class="header-desktop__nav-link" @click="navSource = 'sidebar'" to="/edit-profile">
             <font-awesome-icon :icon="['fa', 'gear']" />
             <span>Account settings</span>
           </router-link>

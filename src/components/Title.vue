@@ -18,7 +18,7 @@
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { addBodyClass, removeBodyClass } from '@/utilities/bodyClass';
-import { isDeskPanel } from '@/utilities/deskPanel';
+import { isDeskPanel, navSource } from '@/utilities/deskPanel';
 import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
@@ -57,7 +57,7 @@ const SIDEBAR_ROOTS = ['/friends', '/admin'];
 // page ouverte comme entrée principale de la barre latérale (ordinateur, pas depuis le Profil)
 const asSidebarRoot = computed(() => {
   const path = router.currentRoute.value.path;
-  return SIDEBAR_ROOTS.includes(path) && window.matchMedia('(min-width: 990px)').matches && !(window.history.state?.back || '').startsWith('/me');
+  return SIDEBAR_ROOTS.includes(path) && window.matchMedia('(min-width: 990px)').matches && navSource.value !== 'profile';
 });
 const showBackButton = computed(() => {
   if (!props.goHistory) return true;

@@ -1,6 +1,8 @@
 <script setup>
 import { apiImage } from '@/utilities/apiImage';
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
+import Title from '@/components/Title.vue';
+import { isDemo } from '@/demo/session';
 import { useProfileStore } from '@/stores/profile';
 import { useRoute } from 'vue-router';
 import PreLoader from '../components/PreLoader.vue';
@@ -14,6 +16,10 @@ const route = useRoute();
 const isLoading = computed(() => profileStore.loading);
 const id = route.params.id;
 const authStore = useAuthStore();
+const demo = isDemo();
+const avatarBroken = ref(false);
+const avatarUrl = computed(() => apiImage(user.value?.image));
+const initials = computed(() => (user.value?.username || '?').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase());
 
 const isSelf = computed(() => {
   return authStore.userProfile?.id === id;
@@ -121,68 +127,52 @@ const copyLink = () => {
 </script>
 
 <template>
+  <Title title="Profile" />
   <transition name="fade" mode="out-in">
-    <PreLoader msg="Profile" v-if="isLoading" key="preloader" /> 
+    <PreLoader msg="Profile" v-if="isLoading" key="preloader" />
   </transition>
 
-  <div class="profile page-width">
-    <div class="profile__share" @click="copyLink"><font-awesome-icon :icon="['fa', 'share']" /></div>
-    <div class="profile__wrapper">
-      <div class="profile__image">
-        <img v-if="user.image" :src="user.image" alt="Profile image">
+  <div class="ios-page pf">
+    <!-- En-tête : avatar (initiales en secours), nom, rôle, chiffres -->
+    <header class="pf-head">
+      <img v-if="avatarUrl && !avatarBroken" class="pf-head__avatar" :src="avatarUrl" alt="" @error="avatarBroken = true" />
+      <span v-else class="pf-head__avatar pf-head__avatar--initials">{{ initials }}</span>
+      <h2 class="pf-head__name">{{ user.username }} <UserRoleBadge :roles="user.roles" /></h2>
+      <p v-if="user.about" class="pf-head__about">{{ user.about }}</p>
+      <div class="pf-head__stats">
+        <div><b>{{ user.urbexCount ?? '–' }}</b><small>Spots</small></div>
+        <div><b>{{ user.friendCount ?? '–' }}</b><small>Friends</small></div>
       </div>
-      <div class="profile__info">
-        <h2>
-          {{ user.username }}
-          <UserRoleBadge :roles="user.roles" />
-        </h2>
-        <div class="profile__stats">
-          <p><span>{{ user.urbexCount }}</span> Location(s)</p>
-          <p><span>{{ user.friendCount }}</span> Friend(s)</p>
-        </div>
-        <p class="profile__about">{{ user.about }}</p>
-      </div>
-      <div class="profile__actions">
-        <template v-if="!isSelf">
-          <template v-if="friendshipState === 'waiting'">
-            <button class="profile__actions-button profile__actions-button--accept" @click="handleAction('accept')">
-              <font-awesome-icon :icon="['fas', 'check']" />
-              Accept
-            </button>
-            <button class="profile__actions-button profile__actions-button--decline" @click="handleAction('decline')">
-              <font-awesome-icon :icon="['fas', 'times']" />
-              Decline
-            </button>
-          </template>
-          <button v-else class="profile__actions-button" @click="handleAction()">
-            <font-awesome-icon :icon="buttonIcon" />
-            {{ buttonText }}
-          </button>
+    </header>
+
+    <!-- Actions : ami / demande / modifier (jamais en démo), partage -->
+    <div class="pf-actions">
+      <template v-if="!isSelf">
+        <template v-if="friendshipState === 'waiting'">
+          <button class="pf-btn pf-btn--tint" @click="handleAction('accept')"><font-awesome-icon :icon="['fas', 'check']" />Accept</button>
+          <button class="pf-btn pf-btn--danger" @click="handleAction('decline')"><font-awesome-icon :icon="['fas', 'xmark']" />Decline</button>
         </template>
-        <button v-else class="profile__actions-button" @click="$router.push('/edit-profile')">
-          <font-awesome-icon :icon="buttonIcon" />
-          {{ buttonText }}
+        <button v-else class="pf-btn" :class="{ 'pf-btn--tint': friendshipState === 'none', 'pf-btn--danger': friendshipState === 'friends' }" @click="handleAction()">
+          <font-awesome-icon :icon="buttonIcon" />{{ buttonText }}
         </button>
+      </template>
+      <button v-else-if="!demo" class="pf-btn" @click="$router.push('/edit-profile')"><font-awesome-icon :icon="['fas', 'pencil']" />Edit profile</button>
+      <button class="pf-btn pf-btn--icon" @click="copyLink" aria-label="Copy profile link"><font-awesome-icon :icon="['fas', 'arrow-up-from-bracket']" /></button>
+    </div>
+
+    <div v-if="user.youtube || user.instagram || user.tiktok" class="pf-social">
+      <a v-if="user.youtube" :href="user.youtube" target="_blank" rel="noopener" aria-label="YouTube"><font-awesome-icon :icon="['fab', 'Youtube']" /></a>
+      <a v-if="user.instagram" :href="'https://instagram.com/' + user.instagram" target="_blank" rel="noopener" aria-label="Instagram"><font-awesome-icon :icon="['fab', 'instagram']" /></a>
+      <a v-if="user.tiktok" :href="'https://tiktok.com/@' + user.tiktok" target="_blank" rel="noopener" aria-label="TikTok"><font-awesome-icon :icon="['fab', 'tiktok']" /></a>
+    </div>
+
+    <section v-if="(!user.isPrivate || isSelf) && visibleImages.length" class="ios-section">
+      <h3 class="ios-header">Spots</h3>
+      <div class="pf-grid">
+        <div v-for="(item, index) in visibleImages" :key="index" class="pf-grid__item" :class="{ 'is-blurred': item.blurred }">
+          <img :src="item.src" alt="" loading="lazy" @error="(e) => (e.target.style.visibility = 'hidden')" />
+        </div>
       </div>
-    </div>
-    <div class="profile__social">
-      <a v-if="user.youtube" :href="user.youtube" target="_blank"><font-awesome-icon :icon="['fab', 'Youtube']" /></a>
-      <a v-if="user.instagram" :href="'http://instagram.com/' + user.instagram" target="_blank"><font-awesome-icon :icon="['fab', 'instagram']" /></a>
-      <a v-if="user.tiktok" :href="'http://tiktok.com/@' + user.tiktok" target="_blank"><font-awesome-icon :icon="['fab', 'tiktok']" /></a>
-    </div>  
-  </div>
-  <div v-if="(!user.isPrivate || isSelf) && visibleImages.length" class="profile__locations">
-    <div
-      v-for="(item, index) in visibleImages"
-      :key="index"
-      class="profile__locations-item"
-      :class="{ 'profile__locations-item--blurred': item.blurred }"
-    >
-        <img :src="item.src" :alt="'location-profile-' + user.username">
-    </div>
+    </section>
   </div>
 </template>
-
-<style lang="scss" scoped>
-@use '@/assets/styles/components/profile.scss' as *;
-</style>

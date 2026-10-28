@@ -234,6 +234,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUIStore } from '@/stores/ui';
 import { request } from '@/services/api';
+import { isDemo } from '@/demo/session';
 import ThreeBackground from '@/components/ThreeBackground.vue';
 import Loader from '@/components/Loader.vue';
 
@@ -367,8 +368,8 @@ onBeforeUnmount(() => document.body.classList.remove('on-home'));
 
 onMounted(async () => {
   fetchLocationCount();
-  // Check if user is already authenticated
-  if (authStore.token) {
+  // Check if user is already authenticated (the demo's fake token stays on the home page)
+  if (authStore.token && !isDemo()) {
     const isValid = await authStore.validateToken();
     if (isValid) {
       // If already logged in, do the transition immediately but faster

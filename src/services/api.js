@@ -17,7 +17,8 @@ const demoCall = async (method, route, body) => {
 };
 
 export function request(method, route, body) {
-    if (isDemo()) return demoCall(method, route, body);
+    // Connexion / inscription depuis l'accueil pendant une démo : vraie API (le login quitte la démo)
+    if (isDemo() && !route.startsWith('/auth')) return demoCall(method, route, body);
     const auth = useAuthStore();
 
     const headers = {

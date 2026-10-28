@@ -758,3 +758,21 @@ $deskPanel: 420px;
 
 // Ordinateur, panneau ouvert : « Load map » centré dans la partie visible de la carte (à gauche du panneau)
 @media (min-width: $md) { body.desk-panel #map .map-veil { padding-right: $deskPanel; } }
+
+// Barre latérale : bascule Carte / Liste, contrôle segmenté iOS (pastille qui glisse sous le choix actif)
+.sb-switch {
+  position: relative; display: grid; grid-template-columns: 1fr 1fr; margin: 0 2px; padding: 2px; border-radius: 9px;
+  background: rgba(118, 118, 128, 0.24);
+  &::before {
+    content: ''; position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc(50% - 2px); border-radius: 7px;
+    background: #636366; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04), inset 0 0 0 0.5px rgba(255, 255, 255, 0.04);
+    transition: transform 0.25s cubic-bezier(0.3, 0.7, 0.3, 1);
+  }
+  &.is-right::before { transform: translateX(100%); }
+  button {
+    position: relative; z-index: 1; height: 28px; border: 0; background: none; color: $label;
+    font: 500 13px $font-body; letter-spacing: -0.01em; cursor: pointer; transition: font-weight 0.2s;
+    &.on { font-weight: 600; }
+  }
+  @media (prefers-reduced-motion: reduce) { &::before { transition: none; } }
+}

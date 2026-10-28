@@ -89,9 +89,10 @@ const clearCache = forceAppUpdate;
 
       <div v-if="isLocationsRoute || isFavoritesRoute" class="header-desktop__section header-desktop__section--map">
         <p class="header-desktop__section-label">View</p>
-        <div class="header-desktop__map-toggle">
-          <button class="header-desktop__map-btn" :class="{ active: !mapStore.open }" @click="mapStore.open = false">List</button>
-          <button class="header-desktop__map-btn" :class="{ active: mapStore.open }" @click="mapStore.open = true">Map</button>
+        <!-- bascule Carte / Liste : contrôle segmenté, la vue active en relief -->
+        <div class="sb-switch" :class="{ 'is-right': !mapStore.open }" role="tablist" aria-label="View">
+          <button role="tab" :aria-selected="mapStore.open" :class="{ on: mapStore.open }" @click="mapStore.open = true">Map</button>
+          <button role="tab" :aria-selected="!mapStore.open" :class="{ on: !mapStore.open }" @click="mapStore.open = false">List</button>
         </div>
       </div>
 

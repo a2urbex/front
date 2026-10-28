@@ -1,5 +1,6 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import { useRoute } from 'vue-router';
 import Title from '@/components/Title.vue';
 import { useFavoritesStore } from '@/stores/favorites';
@@ -18,6 +19,7 @@ import MapHeader from '@/components/MapHeader.vue';
 const route = useRoute();
 const favoritesStore = useFavoritesStore();
 const mapStore = useMapStore();
+const authStore = useAuthStore();
 
 const locationsListItems = computed(() => favoritesStore.locationsListItems.list || []);
 const selectedLocation = ref(null);
@@ -27,8 +29,21 @@ function showLocationCardDisplay(location) {
     selectedLocation.value = location;
 }
 
+// Visiteur non connecté (lien de partage) : uniquement la carte avec les points de la liste
+const loggedIn = computed(() => !!authStore.token);
+const sharedMissing = ref(false);
+
 onMounted(async () => {
     const id = route.params.id;
+    if (!loggedIn.value) {
+        mapStore.sharedLoaded = false;
+        mapStore.setType('shared', id);
+        await nextTick();
+        if (id) await favoritesStore.getFavorites(id);
+        sharedMissing.value = !locationsListItems.value.length;
+        mapStore.locations = [...locationsListItems.value];
+        return;
+    }
     if (id) await favoritesStore.getFavorites(id);
     mapStore.setType('favorite', id);
 });
@@ -73,6 +88,7 @@ const listName = computed(() => favoritesStore.locationsListItems.name || 'No Li
 </script>
 
 <template>
+  <template v-if="loggedIn">
     <Title :title="listName" :backgroundTransparent="false" />
     <MapHeader class="small-header" />
 
@@ -100,6 +116,24 @@ const listName = computed(() => favoritesStore.locationsListItems.name || 'No Li
         :location="selectedLocation" 
         @close="selectedLocation = null"
     />
+  </template>
+  <template v-else>
+    <div class="share-chip">
+      <img src="/logox192.png" alt="" />
+      <span class="share-chip__title">{{ favoritesStore.locationsListItems.name || 'Shared list' }}<small v-if="locationsListItems.length"> · {{ locationsListItems.length }} spots</small></span>
+      <router-link to="/" class="share-chip__login">Log in</router-link>
+    </div>
+    <p v-if="sharedMissing && !isLoading" class="share-note">This list is private, or it doesn't exist anymore.</p>
+    <!-- Vue liste (carte fermée) : les spots de la liste, fiche simplifiée au tap -->
+    <div v-if="!mapStore.open && locationsListItems.length" class="guest-list">
+      <SpotGrid class="favorites-containers" :items="locationsListItems" @open-location="showLocationCardDisplay" />
+    </div>
+    <LocationCardDisplay v-if="selectedLocation && !mapStore.open" :location="selectedLocation" @close="selectedLocation = null" />
+    <button v-if="locationsListItems.length" class="view-toggle view-toggle--guest" @click="mapStore.open = !mapStore.open" :aria-label="mapStore.open ? 'Show as list' : 'Show on map'">
+      <font-awesome-icon :icon="['fas', mapStore.open ? 'list-ul' : 'map-location-dot']" />
+      {{ mapStore.open ? 'List' : 'Map' }}
+    </button>
+  </template>
 </template>
 
 <style lang="scss">

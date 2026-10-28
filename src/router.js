@@ -84,7 +84,8 @@ const router = createRouter({
       path: '/favorites/:id',
       component: FavoritesDetailView,
       props: route => ({ id: route.params.id }),
-      meta: { requiresAuth: true }
+
+      // public : un visiteur peut ouvrir une liste partagée par lien (l'API refuse les listes privées)
     },
     {
       path: '/friends',
@@ -166,9 +167,15 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // Connecté : jamais l'accueil (login + animation). Un token expiré est déconnecté au 1er 401 de l'API.
-  if (to.path === '/' && authStore.token) return next({ path: '/locations' })
+  // La démo (token fictif) garde l'accueil, comme un visiteur.
+  if (to.path === '/' && authStore.token) {
+    const { isDemo } = await import('@/demo/session')
+    if (!isDemo()) return next({ path: '/locations' })
+  }
 
-  if (to.path === '/locations' && authStore.token) {
+  // Mobile : en exploration, l'onglet Carte ouvre la liste explorée. Sur ordinateur, Locations reste accessible
+  // (sinon la croix du panneau ne pouvait plus fermer une liste en exploration).
+  if (to.path === '/locations' && authStore.token && !window.matchMedia('(min-width: 990px)').matches) {
     const { useExplorationStore } = await import('@/stores/exploration')
     const active = useExplorationStore().active
     if (active?.favoriteId) return next({ path: `/favorites/${active.favoriteId}` })

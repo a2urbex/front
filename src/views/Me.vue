@@ -19,6 +19,8 @@ import { getAccent } from '@/utilities/accent';
 // Onglet Profil : remplace le menu latéral, App Settings et le hub admin
 const authStore = useAuthStore();
 const versionStore = useVersionStore();
+const updating = ref(false);
+const updateNow = async () => { updating.value = true; await forceAppUpdate(); };
 const exploration = useExplorationStore();
 const usersStore = useUsersStore();
 const demo = isDemo();
@@ -214,8 +216,12 @@ onMounted(async () => {
           <span class="ios-row__label">Version</span>
           <span class="ios-row__value">{{ versionStore.code_version }}</span>
         </div>
-        <button v-if="versionStore.status === 'outdated'" class="ios-row ios-row--link" @click="forceAppUpdate">Update to {{ versionStore.latest_version }}</button>
+        <!-- toujours là : force le téléchargement de la dernière version (vide les caches, recharge) -->
+        <button class="ios-row ios-row--link" :disabled="updating" @click="updateNow">
+          {{ updating ? 'Updating…' : versionStore.status === 'outdated' ? `Update to ${versionStore.latest_version}` : 'Update now' }}
+        </button>
       </div>
+      <p class="ios-footer">New versions install in the background and apply the next time you open the app. Update now applies the latest one right away.</p>
     </section>
 
     <section class="ios-section">

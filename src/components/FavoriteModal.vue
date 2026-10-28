@@ -1,125 +1,115 @@
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useAuthStore } from '@/stores/auth';
+import { useMapStore } from '@/stores/map';
 
 const props = defineProps({
-  id: {
-    type: String,
-  },
-  code: {
-    type: String,
-  },
-  fids: {
-    type: Array,
-    default: () => [],
-  },
+  id: { type: String },
+  code: { type: String },
+  fids: { type: Array, default: () => [] },
 });
 
 const locationStore = useLocationStore();
 const favoritesStore = useFavoritesStore();
+const mapStore = useMapStore();
 const authStore = useAuthStore();
 
 const isLoggedIn = computed(() => authStore.token !== null);
-const fidsRef = computed(() => locationStore.location?.fids || []);
-const favoriteList = computed(() => favoritesStore.favoriteList);
+const favoriteList = computed(() => favoritesStore.favoriteList || []);
 const isActive = ref(false);
-
-const isCreatingList = ref(false);
+const loadingLists = ref(false);
+const busy = ref(null);
+const creating = ref(false);
 const newListName = ref('');
-const inputRef = ref(null);
+// listes contenant ce point (mise à jour immédiate à l'écran, puis confirmée par le serveur)
+const inLists = ref(new Set(props.fids || []));
+watch(() => props.fids, (f) => { inLists.value = new Set(f || []); });
 
-const toggleActive = async () => {
-  isActive.value = !isActive.value;
-  if (isActive.value) {
-    await favoritesStore.getSummary();
-    await locationStore.getLocation(props.id);
+// Le point est aussi présent dans les listes affichées (cartes, carte) : on garde ses fids à jour sans tout recharger
+const syncFids = () => {
+  const fids = [...inLists.value];
+  for (const list of [locationStore.locationsList, mapStore.locations]) {
+    const item = (list || []).find((l) => l.id === props.id);
+    if (item) item.fids = fids;
   }
 };
 
-watch(() => props.id, async (newId) => {
-  if (newId && isActive.value) {
-    await favoritesStore.getSummary();
-    await locationStore.getLocation(newId);
-  }
-});
-
-const isItemInFids = (itemId) => fidsRef.value.includes(itemId);
-
-const addToSelectedList = async (id) => {
-  await favoritesStore.addLocation(props.id, id);
-  await locationStore.getLocation(props.id);
-  await favoritesStore.getSummary();
-  locationStore.fetchLocations(locationStore.currentPage, locationStore.selectedFilters, false);
+const open = () => {
+  isActive.value = true;
+  loadingLists.value = true;
+  Promise.all([
+    favoritesStore.getSummary().catch(() => {}),
+    locationStore.getLocation(props.id).then(() => {
+      if (locationStore.location?.id === props.id) inLists.value = new Set(locationStore.location?.fids || []);
+    }).catch(() => {}),
+  ]).finally(() => { loadingLists.value = false; });
 };
+const close = () => { isActive.value = false; };
 
-const handleCreateList = async () => {
-  isCreatingList.value = true;
-
-  await nextTick(() => {
-    if (inputRef.value) {
-      inputRef.value.focus();
-    } else {
-      console.error('inputRef is null, cannot focus the input');
-    }
-  });
+const toggleList = async (listId) => {
+  busy.value = listId;
+  const next = new Set(inLists.value);
+  next.has(listId) ? next.delete(listId) : next.add(listId);
+  inLists.value = next;
+  try {
+    await favoritesStore.addLocation(props.id, listId);
+    syncFids();
+  } catch {
+    open();
+  } finally {
+    busy.value = null;
+  }
 };
 
 const submitNewList = async () => {
-  if (newListName.value.trim()) {
-    await favoritesStore.createNewList(newListName.value, props.id);
+  const name = newListName.value.trim();
+  if (!name) return;
+  creating.value = true;
+  try {
+    await favoritesStore.createNewList(name, props.id);
     newListName.value = '';
+    await favoritesStore.getSummary();
+    const created = favoriteList.value.find((l) => l.name === name);
+    if (created) inLists.value = new Set([...inLists.value, created.id]);
+    syncFids();
+    favoritesStore.getList().catch(() => {}); // l'onglet Lists affiche aussitôt la nouvelle liste
+  } finally {
+    creating.value = false;
   }
-  isCreatingList.value = false;
-  await locationStore.getLocation(props.id);
-  await favoritesStore.getSummary();
-  locationStore.fetchLocations(locationStore.currentPage, locationStore.selectedFilters, false);
-};
-
-const handleInputBlur = () => {
-  submitNewList();
 };
 </script>
 
 <template>
   <div v-if="isLoggedIn">
     <div class="favorite-modal">
-      <div
-        class="favorite-modal__trigger"
-        :class="{ 'is-favorite': fids && fids.length > 0 }"
-        @click="toggleActive"
-      >
+      <div class="favorite-modal__trigger" :class="{ 'is-favorite': inLists.size > 0 }" @click="open">
         <font-awesome-icon :icon="['fas', 'heart']" />
       </div>
     </div>
+    <!-- Feuille « Save to a list » : s'ouvre tout de suite, les listes arrivent ensuite -->
     <Teleport to="body">
-      <div :class="['favorite-modal__overlay', { active: isActive }]" @click="toggleActive"></div>
-      <div :class="['favorite-modal__content', { active: isActive }]">
-      <div class="favorite-modal__content-header">
-        <button class="close-button" @click="toggleActive">
-          <font-awesome-icon :icon="['fas', 'xmark']" />
-        </button>
-        <h3>Add to list</h3>
-      </div>
-      <fieldset>
-        <div v-for="item in favoriteList" :key="item.id">
-          <input type="radio" :id="`radio-${item.id}-${props.id}`" name="contactMethod" @click="addToSelectedList(item.id)" />
-          <label :for="`radio-${item.id}-${props.id}`">
-            {{ item.name }}
-            <span>
-              <font-awesome-icon v-if="isItemInFids(item.id)" :icon="['fa', 'circle-check']" />
-              <font-awesome-icon v-else :icon="['fa', 'plus']" />
-            </span>
-          </label>
+      <div v-if="isActive" class="ios-sheet-backdrop" @click.self="close">
+        <div class="ios-action-sheet fav-sheet" role="dialog" aria-label="Save to a list" v-swipe-close="close">
+          <div class="ios-action-sheet__group">
+            <p class="ios-action-sheet__title">Save to a list</p>
+            <div class="fav-sheet__lists">
+              <p v-if="loadingLists && !favoriteList.length" class="fav-sheet__empty"><span class="ios-spinner"></span>Loading your lists…</p>
+              <button v-for="item in favoriteList" :key="item.id" class="ios-action-sheet__btn fav-sheet__row" :disabled="busy === item.id" @click="toggleList(item.id)">
+                <font-awesome-icon :icon="['fas', 'list-ul']" />
+                <span class="fav-sheet__name">{{ item.name }}</span>
+                <font-awesome-icon v-if="inLists.has(item.id)" class="fav-sheet__check" :icon="['fas', 'check']" />
+              </button>
+              <p v-if="!loadingLists && !favoriteList.length" class="fav-sheet__empty">No list yet. Create your first one below.</p>
+            </div>
+            <form class="fav-sheet__new" @submit.prevent="submitNewList">
+              <input :id="`new-list-${props.id}`" v-model="newListName" type="text" placeholder="New list name" autocomplete="off" />
+              <button type="submit" class="ios-pill ios-pill--tint" :disabled="!newListName.trim() || creating">{{ creating ? 'Creating…' : 'Create' }}</button>
+            </form>
+          </div>
+          <button class="ios-action-sheet__btn ios-action-sheet__cancel" @click="close">Done</button>
         </div>
-      </fieldset>
-      <div class="favorite-modal__content-footer">
-        <div v-if="isCreatingList">
-          <input type="text" v-model="newListName" placeholder="Enter list name" ref="inputRef" @blur="handleInputBlur" @keyup.enter="submitNewList" />
-        </div>
-        <button v-else class="favorite-modal__content-footer-button-create" @click="handleCreateList">Create List</button>
-      </div>
       </div>
     </Teleport>
   </div>

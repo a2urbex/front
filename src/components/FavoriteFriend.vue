@@ -1,73 +1,60 @@
 <script setup>
 import { apiImage } from '@/utilities/apiImage';
-import { ref, onMounted } from 'vue';
+import { ref, computed, reactive, onMounted } from 'vue';
 import { useFavoritesStore } from '@/stores/favorites';
+import { useAuthStore } from '@/stores/auth';
 
+// Personnes d'une liste : membres actuels, puis amis à ajouter (recherche)
 const favoritesStore = useFavoritesStore();
-const input = ref(''); 
+const authStore = useAuthStore();
+const props = defineProps({ favorite: Object });
+const input = ref('');
+const adding = ref(null);
+const broken = reactive({});
 
-const props = defineProps({
-  favorite: Object,
-});
+// version à jour de la liste (après un ajout, le store est rechargé)
+const current = computed(() => (favoritesStore.locationsList || []).find((f) => f.id === props.favorite?.id) || props.favorite || {});
+const members = computed(() => current.value.users || []);
+const candidates = computed(() => (favoritesStore.friends || []).filter((f) => !members.value.some((m) => m.id === f.id || m.username === f.username)));
 
-const listUser = async () => {
-  if (props.favorite?.id) {
-    await favoritesStore.getUserInList(props.favorite.id, input.value);
-  }
+const avatar = (u) => apiImage(u.image);
+const initials = (u) => (u.username || '?').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+const isMe = (u) => u.username === authStore.userProfile?.username;
+
+const search = () => props.favorite?.id && favoritesStore.getUserInList(props.favorite.id, input.value).catch(() => {});
+const add = async (friend) => {
+  adding.value = friend.id;
+  try { await favoritesStore.addUserInlist(props.favorite.id, friend.id); } finally { adding.value = null; }
 };
 
-const onKeyPress = async () => {
-  await listUser();
-};
-
-const getFriendImageUrl = (friend) => {
-  return apiImage(friend.image);
-};
-
-// Trigger when a friend item is clicked
-const addUserToList = async (friendId) => {
-  if (props.favorite?.id && friendId) {
-    await favoritesStore.addUserInlist(props.favorite.id, friendId);
-  }
-};
-
-onMounted(async () => {
-  await listUser();
-});
+onMounted(search);
 </script>
 
 <template>
-  <div class="favorite-friend">
-    <input 
-      v-model="input" 
-      @keyup="onKeyPress"
-      placeholder="Search.." 
-    />
-    <div class="favorite-friend__list">
-      <div v-if="favoritesStore.friends.length > 0">
-        <div 
-          v-for="(friend, index) in favoritesStore.friends" 
-          :key="friend.id" 
-          class="favorite-friend__item"
-          @click="addUserToList(friend.id)"
-        >
-          <div class="favorite-friend__info">
-            <div class="favorite-friend__item-image">
-              <img v-if="friend.image" :src="getFriendImageUrl(friend)" alt="friend image" class="favorite-friend__image" />
-            </div>
-            <p>{{ friend.username }}</p>
-          </div>
-          <font-awesome-icon  :icon="['fa', 'plus']" />
-        </div>
+  <div class="fav-people">
+    <p class="fav-people__header">In this list</p>
+    <div class="fav-people__group">
+      <div v-for="u in members" :key="u.id || u.username" class="fav-people__row">
+        <img v-if="avatar(u) && !broken[u.username]" class="ios-avatar" :src="avatar(u)" alt="" @error="broken[u.username] = true" />
+        <span v-else class="ios-avatar">{{ initials(u) }}</span>
+        <span class="fav-people__name">{{ u.username }}<small v-if="isMe(u)"> · You</small></span>
       </div>
-      
-      <div v-else class="center">
-        <p>No friends in the list</p>
+      <p v-if="!members.length" class="fav-people__empty">Only you for now.</p>
+    </div>
+
+    <p class="fav-people__header">Add a friend</p>
+    <label class="ios-search fav-people__search" :for="`fav-people-${favorite?.id}`">
+      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+      <input :id="`fav-people-${favorite?.id}`" v-model="input" type="search" placeholder="Search friends" autocomplete="off" @input="search" />
+    </label>
+    <div class="fav-people__group">
+      <div v-for="f in candidates" :key="f.id" class="fav-people__row">
+        <img v-if="avatar(f) && !broken[f.username]" class="ios-avatar" :src="avatar(f)" alt="" @error="broken[f.username] = true" />
+        <span v-else class="ios-avatar">{{ initials(f) }}</span>
+        <span class="fav-people__name">{{ f.username }}</span>
+        <button class="ios-pill ios-pill--tint" :disabled="adding === f.id" @click="add(f)">{{ adding === f.id ? 'Adding…' : 'Add' }}</button>
       </div>
+      <p v-if="!candidates.length" class="fav-people__empty">{{ input ? `No friend matches "${input}".` : 'All your friends are already in this list.' }}</p>
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-@use '@/assets/styles/components/favoritesFriend.scss' as *;
-</style>

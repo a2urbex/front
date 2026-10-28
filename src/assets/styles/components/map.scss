@@ -1182,7 +1182,7 @@ body:not(.has-title) #map .map-ctrls { top: calc(12px + #{$sat}); }
   border: 0 !important; border-radius: 20px; color: $label; cursor: pointer;
   .map-next__icon { color: $primary; font-size: 13px; }
   .map-next__name { font: 600 14px $font-body; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-  .map-next__dist { font: 600 14px $font-body; color: $primary; font-variant-numeric: tabular-nums; }
+  .map-next__dist { flex: none; font: 600 14px $font-body; color: $primary; font-variant-numeric: tabular-nums; white-space: nowrap; }
 }
 
 // Chargement : pastille en haut au centre, indicateur d'activité iOS
@@ -1240,3 +1240,6 @@ body:not(.has-title) #map .map-ctrls { top: calc(12px + #{$sat}); }
   svg { font-size: 16px; }
   &:active { transform: scale(0.96); opacity: 0.9; }
 }
+
+// Visiteur sur une liste partagée : bascule Carte / Liste aussi sur ordinateur, sans barre d'onglets dessous
+.view-toggle.view-toggle--guest { display: inline-flex; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); }

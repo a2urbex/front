@@ -610,7 +610,9 @@ body.has-large-title #app .content { padding-top: calc(60px + env(safe-area-inse
 .Toastify__toast-body > div:last-child { flex: 1; text-wrap: pretty; }
 .Toastify__toast-icon { width: 22px !important; margin-inline-end: 12px !important; }
 .Toastify__toast-icon svg { width: 22px; height: 22px; }
-.Toastify__progress-bar, .Toastify__close-button { display: none !important; }
+// la barre de progression doit rester « vivante » : c'est la fin de son animation qui ferme la notification
+.Toastify__progress-bar { opacity: 0 !important; height: 2px !important; }
+.Toastify__close-button { display: none !important; }
 // entrée : descend du haut avec un léger rebond ; sortie : remonte en fondu
 .Toastify__toast[class*='-enter--'] { animation-name: a2-toast-in !important; animation-duration: 0.45s !important; animation-timing-function: cubic-bezier(0.2, 0.9, 0.3, 1.15) !important; }
 .Toastify__toast[class*='-exit--'] { animation-name: a2-toast-out !important; animation-duration: 0.25s !important; animation-timing-function: ease-in !important; }
@@ -644,7 +646,9 @@ $deskPanel: 420px;
       position: fixed; top: 0; right: 0; bottom: 0; z-index: 7; width: $deskPanel; height: auto; max-height: none;
       background: $bg; box-shadow: -0.5px 0 0 $separator, -16px 0 40px rgba(0, 0, 0, 0.35);
     }
-    #map { left: $sideHeaderWidth !important; right: $deskPanel !important; width: auto !important; top: 0 !important; height: 100% !important; }
+    // la carte garde toute la largeur sous le panneau : pas de redimensionnement (plus de saut à l'ouverture/fermeture)
+    #map { left: $sideHeaderWidth !important; right: 0 !important; width: auto !important; top: 0 !important; height: 100% !important; }
+    #map .map-ctrls { right: calc(#{$deskPanel} + 12px) !important; }
     .title-container { left: auto !important; right: 0 !important; width: $deskPanel !important; }
     // fiche d'un spot : juste à gauche du panneau
     .location-card-display.ld { right: $deskPanel !important; }
@@ -660,8 +664,93 @@ $deskPanel: 420px;
     .locations-container.is-staggered { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
     .list-head { margin: 12px 0 8px; padding: 0 16px; }
     .list-head__go { justify-self: stretch; }
+    :is(.admin-page, .sources-page, .admin-pinterest, .admin-dedup, .imports-page, .importers, .admin-notify) { max-width: none; padding: 16px 16px 32px !important; }
     .title-container:not(.large) { grid-template-columns: minmax(84px, 1fr) auto minmax(84px, 1fr) !important; justify-content: stretch !important; padding-inline: 8px !important; }
     .title-container:not(.large) h2 { text-align: center !important; font-size: 17px !important; font-weight: 600 !important; max-width: 220px !important; }
     .title-container.large .large-title { padding-left: 8px !important; }
   }
 }
+
+// Feuille « Save to a list »
+.fav-sheet__lists { max-height: 46vh; overflow-y: auto; }
+.fav-sheet__row { display: flex !important; justify-content: flex-start; width: 100%; }
+.fav-sheet__check { margin-left: auto; }
+.fav-sheet__name { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: left; }
+.fav-sheet__check { color: $primary !important; }
+.fav-sheet__empty { display: flex; align-items: center; gap: 10px; margin: 0; padding: 14px 16px; color: $label-2; font-size: 15px; }
+.fav-sheet__new {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px; box-shadow: inset 0 0.5px 0 $separator;
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']) { flex: 1; min-width: 0; min-height: 40px !important; padding: 8px 12px !important; font-size: 16px !important; }
+  .ios-pill { height: 36px; flex: none; }
+}
+
+// Personnes d'une liste (feuille d'actions d'une liste)
+.ios-action-sheet__share .fav-people { display: grid; gap: 6px; padding: 4px 12px 12px; max-height: 60vh; overflow-y: auto; }
+.fav-people__header { margin: 8px 4px 0; color: $label-2; font: 400 13px $font-body; text-transform: uppercase; letter-spacing: 0.02em; }
+.fav-people__group { overflow: hidden; border-radius: 10px; background: $bg-3; }
+.fav-people__row { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 12px; & + & { box-shadow: inset 0 0.5px 0 $separator; } }
+.fav-people__name { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 16px; color: $label; small { color: $label-2; } }
+.fav-people__empty { margin: 0; padding: 14px 12px; color: $label-2; font-size: 14px; }
+.fav-people__search { margin: 0 !important; }
+.fav-people__count { margin-left: auto; color: $label-2; font-size: 15px; }
+
+// Profil d'une personne : en-tête centré, chiffres en tuiles, actions pleine largeur, galerie en grille
+.pf { gap: 18px; }
+.pf-head { display: grid; justify-items: center; gap: 6px; text-align: center; }
+.pf-head__avatar {
+  display: grid; place-items: center; width: 96px; height: 96px; border-radius: 50%; object-fit: cover; background: $bg-3;
+  font-size: 0; color: transparent; // une image cassée n'affiche pas son texte
+  &--initials { font: 600 34px/1 $font-body; color: $label-2; text-align: center; }
+}
+.pf-head__name { display: inline-flex; align-items: center; gap: 6px; margin: 6px 0 0; font: 700 22px/28px $font-display; color: $label; }
+.pf-head__about { max-width: 46ch; margin: 0; color: $label-2; font: 400 15px/20px $font-body; }
+.pf-head__stats {
+  display: grid; grid-template-columns: 1fr 1fr; width: 100%; max-width: 320px; margin-top: 8px; overflow: hidden; border-radius: 12px; background: $bg-2;
+  div { display: grid; gap: 2px; padding: 10px; & + div { box-shadow: inset 0.5px 0 0 $separator; } }
+  b { font: 600 20px $font-body; color: $label; font-variant-numeric: tabular-nums; }
+  small { font: 400 12px $font-body; color: $label-2; }
+}
+.pf-actions { display: flex; gap: 8px; }
+.pf-btn {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 16px; border: 0; border-radius: 12px;
+  background: $bg-2; color: $label; font: 600 16px $font-body; cursor: pointer;
+  &--tint { background: $primary; color: var(--on-tint); }
+  &--danger { color: $red; }
+  &--icon { flex: none; width: 44px; padding: 0; color: $primary; }
+  &:active { opacity: 0.8; }
+}
+.pf-social { display: flex; justify-content: center; gap: 10px; a { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: $bg-2; color: $label; font-size: 17px; } }
+.pf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; overflow: hidden; border-radius: 12px; }
+.pf-grid__item { aspect-ratio: 1; background: $bg-2; overflow: hidden; img { width: 100%; height: 100%; object-fit: cover; } &.is-blurred img { filter: blur(10px); transform: scale(1.1); } }
+
+// Initiales de secours (photo absente ou cassée) : bien centrées
+:is(.ld-avatar--initials, .header-desktop__profile-avatar--initials) {
+  display: inline-grid !important; place-items: center; flex: none; background: $bg-3; color: $label-2; font: 600 11px/1 $font-body; text-align: center;
+}
+.header-desktop__profile-avatar--initials { width: 32px; height: 32px; border-radius: 50%; font-size: 12px; }
+
+// Lien partagé, visiteur non connecté : petite pastille en haut (logo, nom, « Log in »)
+.share-chip {
+  position: fixed; z-index: 9; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 12px; right: 12px; max-width: 460px; margin: 0 auto;
+  display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 8px 0 10px; border-radius: 24px;
+  background: rgba(28, 28, 30, 0.86); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  img { width: 30px; height: 30px; border-radius: 8px; }
+  > span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 600 15px $font-body; color: $label; small { color: $label-2; font-weight: 400; } }
+}
+.share-chip__login { flex: none; height: 34px; padding: 0 16px; border-radius: 17px; background: $primary; color: var(--on-tint) !important; font: 600 14px/34px $font-body; text-decoration: none; }
+.share-note {
+  position: fixed; z-index: 9; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: 300px; margin: 0; padding: 14px 18px; border-radius: 14px;
+  background: $bg-2; color: $label-2; font: 400 15px/20px $font-body; text-align: center;
+}
+
+// Visiteur non connecté (liens partagés) : la carte prend toute la largeur, sans marge pour une barre latérale absente
+@media (min-width: $md) {
+  body.guest #app { padding-left: 0 !important; }
+  body.guest #map { left: 0 !important; right: 0 !important; width: 100% !important; top: 0 !important; height: 100% !important; }
+}
+// Liste partagée en vue liste (visiteur) : sous la pastille du haut
+.guest-list { padding-top: calc(env(safe-area-inset-top, 0px) + 72px); }
+
+// Ordinateur, panneau ouvert : « Load map » centré dans la partie visible de la carte (à gauche du panneau)
+@media (min-width: $md) { body.desk-panel #map .map-veil { padding-right: $deskPanel; } }

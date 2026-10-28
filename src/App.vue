@@ -46,10 +46,19 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden && authStore.token) authStore.fetchUserProfile().catch(() => {});
 });
 
+// Dès l'ouverture (connecté) : on demande la localisation une fois. Ensuite elle sert au pays par défaut
+// et au bouton « ma position » de la carte (sans nouvelle question).
+const askLocationOnce = () => {
+  if (!authStore.token || isDemo() || !navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(() => {}, () => {}, { timeout: 15000, maximumAge: 600000 });
+};
+
 watch(() => authStore.token, (token) => {
+  if (token) askLocationOnce();
   if (token) explorationStore.fetch().then(() => {
     const a = explorationStore.active;
-    if (a && router.currentRoute.value.path === '/locations') router.replace(`/favorites/${a.favoriteId}`);
+    // mobile : l'exploration impose sa liste ; sur ordinateur, on laisse fermer le panneau (carte globale)
+    if (a && router.currentRoute.value.path === '/locations' && !desktopQuery.matches) router.replace(`/favorites/${a.favoriteId}`);
   });
   else explorationStore.active = null;
 }, { immediate: true });
@@ -73,7 +82,11 @@ watch(
 );
 
 // Ordinateur : pages dans un panneau à droite, carte au centre (classe sur <body>)
-const syncDeskPanel = () => document.body.classList.toggle('desk-panel', isDeskPanel(router.currentRoute.value.path, !!authStore.token));
+const syncDeskPanel = () => {
+  document.body.classList.toggle('desk-panel', isDeskPanel(router.currentRoute.value.path, !!authStore.token));
+  // visiteur (lien partagé) : pas de barre latérale, donc pas de place à lui réserver
+  document.body.classList.toggle('guest', !authStore.token);
+};
 watch(() => [router.currentRoute.value.path, authStore.token], syncDeskPanel, { immediate: true });
 desktopQuery.addEventListener?.('change', syncDeskPanel);
 

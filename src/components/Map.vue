@@ -114,6 +114,7 @@ const selectMarker = (item) => {
   }
 }
 
+let fittedList = null // dernière liste de favoris cadrée
 const renderMarkers = () => {
   if (!map || !cluster) return
   cluster.clearLayers()
@@ -134,6 +135,20 @@ const renderMarkers = () => {
     layers.push(marker)
   }
   cluster.addLayers(layers)
+  // Cadrage une fois par jeu de points : une liste (favoris ou partagée) sur ses spots ;
+  // un point partagé seul à l'échelle du pays autour de lui (pas de gros zoom)
+  const fitKey = `${mapStore.type}:${mapStore.typeId}`
+  if (['favorite', 'shared'].includes(mapStore.type) && layers.length && fittedList !== fitKey) {
+    fittedList = fitKey
+    if (layers.length === 1) {
+      map.setView(layers[0].getLatLng(), 6, { animate: false })
+    } else {
+      const bounds = L.latLngBounds(layers.map((m) => m.getLatLng()))
+      // ordinateur : le panneau de droite couvre 420 px de carte, on n'y place pas de points
+      const right = document.body.classList.contains('desk-panel') ? 468 : 48
+      map.fitBounds(bounds, { paddingTopLeft: [48, 48], paddingBottomRight: [right, 48], maxZoom: 13, animate: false })
+    }
+  }
   if (position.pos && !userDot) userDot = L.circleMarker(position.pos, { pane: 'userPane', radius: 8, color: '#fff', weight: 3, fillColor: '#2a7fff', fillOpacity: 1 }).addTo(map)
 
   // ré-applique le highlight si une fiche est ouverte après un re-render (changement de filtres)
@@ -276,11 +291,13 @@ let touched = false
 const markTouched = () => { touched = true }
 const applyDefaultView = () => {
   const view = filterStore.defaultView
-  if (!map || !view || touched) return
-  if (view.bounds) map.fitBounds(view.bounds)
+  // carte globale seulement : une liste (favoris ou partagée) se cadre sur ses propres points
+  if (!map || !view || touched || mapStore.type !== 'location') return
+  if (view.bounds) map.fitBounds(view.bounds, { padding: [24, 24], animate: false })
   else map.setView(view.center, view.zoom)
 }
 watch(() => filterStore.defaultView, applyDefaultView)
+
 
 const initMap = () => {
   if (map || !mapEl.value) return
@@ -340,18 +357,19 @@ const destroyMap = () => {
     cluster._topClusterLevel = { _recalculateBounds: noop, _recursivelyAddChildrenToMap: noop }
   }
   cluster = null
+  fittedList = null
   markersById = new Map()
 }
 
 // Changement de page : l'onglet Carte (/locations) s'ouvre toujours sur la carte, le reste sur la liste ;
 // le panneau de recherche se referme (sinon il masquait la pilule Liste au retour)
 // Ordinateur (panneau à droite) : la carte reste ouverte sur toutes les pages, sans rechargement
-const syncOpen = () => { mapStore.open = route.path === '/locations' || isDeskPanel(route.path, !!authStore.token) }
+// Liens partagés : un point (/location/:id) ouvre toujours la carte ; une liste (/favorites/:id) aussi pour un visiteur non connecté
+const isSharedRoute = () => route.path.startsWith('/location/') || (!authStore.token && route.path.startsWith('/favorites/'))
+const syncOpen = () => { mapStore.open = route.path === '/locations' || isDeskPanel(route.path, !!authStore.token) || isSharedRoute() }
 watch(() => route.path, () => {
   syncOpen()
   filterUIStore.setShowContent(false)
-  // le panneau apparaît ou disparaît : la carte change de largeur, Leaflet doit recalculer sa taille
-  nextTick(() => setTimeout(() => map?.invalidateSize(), 60))
 }, { immediate: true })
 desktopQuery.addEventListener?.('change', syncOpen)
 
@@ -382,6 +400,8 @@ watch(() => locationStore.selectedFilters, async () => {
 }, { deep: true });
 
 const displayOverlay = (item) => {
+  // point partagé (/location/:id) : la page a déjà sa fiche, on la rouvre au lieu d'en empiler une seconde
+  if (route.path.startsWith('/location/')) { mapStore.sharedCardOpen = true; return }
   overlayOpen.value = true
   itemSelected.value = toRaw(item)
   selectMarker(item)
@@ -411,7 +431,7 @@ onBeforeUnmount(destroyMap)
         <div class="map-leaflet" ref="mapEl"></div>
 
         <!-- Colonne de contrôles translucide (haut droite) -->
-        <div class="map-ctrls">
+        <div v-if="authStore.token" class="map-ctrls">
           <button class="map-ctrl-btn" :class="{ active: userPos }" @click="locate" title="My position" aria-label="My position">
             <font-awesome-icon :icon="['fas', 'location-arrow']" />
           </button>
@@ -486,8 +506,8 @@ onBeforeUnmount(destroyMap)
         </button>
 
         <!-- Premier passage : on ne charge les points qu'à la demande (évite de bloquer l'ouverture de l'app) -->
-        <div v-if="isGlobal && !mapStore.spotsRequested" class="map-veil">
-          <button class="map-load" @click="mapStore.requestSpots()">
+        <div v-if="(isGlobal && !mapStore.spotsRequested) || (mapStore.type === 'shared' && !mapStore.sharedLoaded)" class="map-veil">
+          <button class="map-load" @click="isGlobal ? mapStore.requestSpots() : (mapStore.sharedLoaded = true)">
             <font-awesome-icon :icon="['fas', 'map-location-dot']" />
             Load map
           </button>

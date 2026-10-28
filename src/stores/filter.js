@@ -55,11 +55,9 @@ export const useFilterStore = defineStore('filter', {
         this.defaultCountry = selected || null;
         if (selected) this.selectedFilters.countries = [selected];
         // Carte cadrée sur le pays retenu par le filtre (sinon elle montrerait une zone sans points) :
-        // autour de la position GPS si c'est elle qui a donné le pays, sinon sur tout le pays
-        if (selected && selected === countryId) {
-          if (country.source === 'geolocation' && country.position) this.defaultView = { center: country.position, zoom: 10 };
-          else if (country.bounds) this.defaultView = { bounds: country.bounds };
-        }
+        // Toujours le pays entier (jamais la ville, même si le pays vient de la position GPS) :
+        // le zoom sur soi se fait avec le bouton « ma position », le zoom de zone avec une liste de favoris.
+        if (selected && selected === countryId && country.bounds) this.defaultView = { bounds: country.bounds };
 
         this.fetching = false;
         this.applyFilters();

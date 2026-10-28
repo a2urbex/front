@@ -24,6 +24,9 @@ export const useMapStore = defineStore('Map', {
     spotsRequested: isDemo(), // démo : points fictifs chargés tout de suite
     globalCache: { key: null, list: null },
     needsCountry: false,
+    // Lien partagé (un point ou une liste) : points fournis par la page, carte floutée jusqu'à « Load map »
+    sharedLoaded: false,
+    sharedCardOpen: true, // fiche du point partagé (page /location/:id), rouverte par un tap sur le point
   }),
   actions: {
     setType(type, typeId = null) {
@@ -49,6 +52,8 @@ export const useMapStore = defineStore('Map', {
 
       this.loading = true;
       try {
+        if (this.type === 'shared') return this.locations;
+
         if(this.type === 'favorite') {
           if(isSamePage) return this.locations;
           this.locations = await this.loadFavorite(this.typeId);

@@ -1,7 +1,7 @@
 // Backend simulé de la démo : mêmes routes et mêmes formats que l'API, tout en mémoire.
 // Les écritures « jouables » (statut terrain, exploration, ajout à une liste) restent locales ;
 // toutes les autres sont bloquées (DemoBlocked). Rien ne quitte le navigateur.
-import { generate, CATEGORIES, COUNTRIES } from './data';
+import { generate, CATEGORIES, COUNTRIES, demoCountry, boundsOf, ensureCountries, countryAt } from './data';
 import { DemoBlocked } from './session';
 
 const PAGE = 50;
@@ -31,9 +31,11 @@ const inZone = (z, lat, lon) => {
   return inside;
 };
 
-const filterLocations = (f = {}, base = db.locations) => {
+const filterLocations = (f = {}, base = null) => {
   const cats = (f.categories || []).map(Number);
   const countries = (f.countries || []).map(Number);
+  // un pays pas encore généré l'est maintenant (même densité partout sur la planète)
+  if (!base) { ensureCountries(db, countries); base = db.locations; }
   const str = (f.string || '').toLowerCase();
   const from = f.dateFrom ? Date.parse(f.dateFrom) : null;
   const to = f.dateTo ? Date.parse(f.dateTo) : null;
@@ -56,9 +58,13 @@ const favList = () =>
 const routes = [
   // Compte
   ['GET', /^\/account$/, () => ({ id: db.me.id, username: db.me.username, image: db.me.image, isAdmin: false, isDemo: true })],
-  ['GET', /^\/account\/country/, () => {
-    const code = countrySetting || 'FR';
-    return { setting: countrySetting, code, countryId: COUNTRIES.find((c) => c.code === code)?.id ?? 1, source: countrySetting ? 'account' : 'default', countries: COUNTRIES.map(({ code, name }) => ({ code, name })) };
+  // Pays par défaut (démo) : réglage du compte > position (si autorisée) > langue de l'appareil
+  ['GET', /^\/account\/country/, (_m, _b, q) => {
+    const lat = parseFloat(q?.get('lat')), lon = parseFloat(q?.get('lon'));
+    const fromPosition = Number.isFinite(lat) && Number.isFinite(lon) ? countryAt(lat, lon) : null;
+    const country = (countrySetting && COUNTRIES.find((c) => c.code === countrySetting)) || fromPosition || demoCountry;
+    const source = countrySetting ? 'account' : fromPosition ? 'geolocation' : 'language';
+    return { setting: countrySetting, code: country.code, countryId: country.id, source, bounds: boundsOf(country), countries: COUNTRIES.map(({ code, name }) => ({ code, name })) };
   }],
   ['PUT', /^\/account\/country$/, (_m, b) => { countrySetting = b?.code || null; return { setting: countrySetting }; }],
   ['GET', /^\/account\/([0-9a-z]{24,})$/, ([, uid]) => {

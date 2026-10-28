@@ -73,7 +73,7 @@ const cancelSourcePress = (event) => {
           @click="filterUIStore.setShowContent(false)"
           style="animation: fadeIn 0.1s ease-in"
         >
-          Cancel
+          Close
         </button>
       </div>
 

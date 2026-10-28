@@ -122,7 +122,11 @@ $sat: env(safe-area-inset-top, 0px);
     overscroll-behavior: contain;
     padding-bottom: calc(#{$bottomHeaderHeight} + var(--nav-extra) + env(safe-area-inset-bottom, 0px) + 16px);
   }
-  .filter__container.active .filter__item-content { max-height: none !important; }
+  // section ouverte (ex. Countries) : c'est sa liste qui défile, pas toute la page
+  .filter__container.active .filter__item:checked + label > .filter__item-content {
+    max-height: min(52vh, 440px) !important; overflow-y: auto !important;
+    overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  }
 }
 
 // Filtres dans le panneau de la carte : le composant garde sinon sa mise en page mobile

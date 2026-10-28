@@ -10,7 +10,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useExplorationStore } from '@/stores/exploration';
 import { usePositionStore } from '@/stores/position';
 import { isDemo } from '@/demo/session';
-import { ref, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useVersionStore } from '@/stores/version';
 import { useUIStore } from '@/stores/ui';
 import { useRouter } from 'vue-router';
@@ -81,11 +81,14 @@ watch(
   },
 );
 
+// Accueil : jamais de header, même avec le token fictif de la démo
+const onHome = computed(() => router.currentRoute.value.path === '/');
+
 // Ordinateur : pages dans un panneau à droite, carte au centre (classe sur <body>)
 const syncDeskPanel = () => {
   document.body.classList.toggle('desk-panel', isDeskPanel(router.currentRoute.value.path, !!authStore.token));
-  // visiteur (lien partagé) : pas de barre latérale, donc pas de place à lui réserver
-  document.body.classList.toggle('guest', !authStore.token);
+  // visiteur (lien partagé) ou accueil (démo) : pas de barre latérale, donc pas de place à lui réserver
+  document.body.classList.toggle('guest', !authStore.token || onHome.value);
 };
 watch(() => [router.currentRoute.value.path, authStore.token], syncDeskPanel, { immediate: true });
 desktopQuery.addEventListener?.('change', syncDeskPanel);
@@ -113,7 +116,7 @@ const goToUpdate = async () => {
 
 <template>
   <!-- Header -->
-  <HeaderComponent v-if="!uiStore.isTransitioning" @toggle-add-location="toggleAddLocation" />
+  <HeaderComponent v-if="!uiStore.isTransitioning && !onHome" @toggle-add-location="toggleAddLocation" />
 
   <!-- Map -->
   <MapComponent />

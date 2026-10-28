@@ -23,7 +23,7 @@
 
         <div class="hero__actions">
           <button
-            v-if="!showAuth && !authStore.token"
+            v-if="!showAuth && !isLoggedIn"
             class="connect-btn"
             @click="handleConnectClick"
           >
@@ -34,8 +34,8 @@
             </svg>
           </button>
 
-          <button v-if="!showAuth && !authStore.token" class="request-link" @click="requestAccess">Request access</button>
-          <router-link v-if="!showAuth && !authStore.token" class="request-link" to="/demo">Try the demo</router-link>
+          <button v-if="!showAuth && !isLoggedIn" class="request-link" @click="requestAccess">Request access</button>
+          <router-link v-if="!showAuth && !isLoggedIn" class="request-link" to="/demo">Try the demo</router-link>
 
           <a href="https://www.instagram.com/a2urbex" target="_blank" rel="noopener" class="insta-link">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -62,7 +62,7 @@
       </ol>
 
       <transition name="fade">
-        <div class="auth-overlay" v-if="showAuth && !authStore.token">
+        <div class="auth-overlay" v-if="showAuth && !isLoggedIn">
           <div class="auth-container">
           <button class="close-btn" @click="closeAuth" title="Close">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -229,7 +229,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUIStore } from '@/stores/ui';
@@ -253,6 +253,8 @@ const onSceneReady = () => {
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+// Vraie session uniquement : le token fictif de la démo garde les boutons de l'accueil
+const isLoggedIn = computed(() => !!authStore.token && !isDemo());
 const uiStore = useUIStore();
 const activeTab = ref('login');
 const showAuth = ref(false);
@@ -288,7 +290,7 @@ const registerData = ref({
   password: ''
 });
 
-const isTransitioning = ref(!!authStore.token);
+const isTransitioning = ref(isLoggedIn.value);
 
 const performTransition = async () => {
   isTransitioning.value = true;

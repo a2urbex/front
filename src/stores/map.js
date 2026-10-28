@@ -4,6 +4,7 @@ import { defineStore } from 'pinia';
 import { request } from '@/services/api';
 import { useLocationStore } from './location';
 import { isDemo } from '@/demo/session';
+import { keepGet, keepSet, bigGet, bigSet } from '@/utilities/sessionKeep';
 
 export const useMapStore = defineStore('Map', {
   state: () => ({
@@ -21,7 +22,8 @@ export const useMapStore = defineStore('Map', {
     loaded: { type: null, typeId: null, filters: null },
     // Carte globale : les points ne se chargent qu'après « Load spots » (une fois par ouverture de l'app),
     // puis restent en mémoire tant que les filtres ne changent pas (navigation entre menus = pas de rechargement)
-    spotsRequested: isDemo(), // démo : points fictifs chargés tout de suite
+    spotsRequested: isDemo() || !!keepGet('spotsRequested'), // démo : tout de suite ; sinon une fois par session
+    resumed: !!keepGet('spotsRequested'), // page rechargée en cours de session (iOS) : copie locale des points autorisée
     globalCache: { key: null, list: null },
     needsCountry: false,
     // Lien partagé (un point ou une liste) : points fournis par la page, carte floutée jusqu'à « Load map »
@@ -64,6 +66,11 @@ export const useMapStore = defineStore('Map', {
           if (!filtersSnapshot.countries?.length && !this.zone) { this.needsCountry = true; return this.locations; }
           this.needsCountry = false;
           const key = JSON.stringify(filtersSnapshot);
+          // après un rechargement par iOS : les points de la session sont relus depuis l'appareil, sans réseau
+          if (!force && !this.globalCache.list && this.resumed && !isDemo()) {
+            const kept = await bigGet('spots');
+            if (kept?.key === key && Array.isArray(kept.list)) this.globalCache = { key, list: markRaw(kept.list) };
+          }
           if (!force && this.globalCache.key === key && this.globalCache.list) {
             this.locations = this.globalCache.list;
           } else {
@@ -71,6 +78,7 @@ export const useMapStore = defineStore('Map', {
             // markRaw : 10 000 points sans proxies réactifs, beaucoup plus léger
             this.globalCache = { key, list: markRaw(list || []) };
             this.locations = this.globalCache.list;
+            if (!isDemo()) bigSet('spots', { key, list: toRaw(list || []) });
           }
         }
 
@@ -85,6 +93,7 @@ export const useMapStore = defineStore('Map', {
     },
     requestSpots() {
       this.spotsRequested = true;
+      keepSet('spotsRequested', true);
       return this.getMapLocations();
     },
     async loadLocation(filters) {

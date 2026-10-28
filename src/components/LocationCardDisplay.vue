@@ -2,6 +2,7 @@
 import { isDemo } from '@/demo/session';
 const demo = isDemo();
 import { computed, ref } from 'vue';
+import { apiImage } from '@/utilities/apiImage';
 import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
 import { useLocationStore } from '@/stores/location';
@@ -18,6 +19,7 @@ const props = defineProps({
 });
 
 const imageError = ref(false);
+const avatarBroken = ref(false);
 const position = usePositionStore();
 // Statut terrain : l'objet vient de la liste du store, on le met à jour en place
 const emit = defineEmits(['close', 'deleted', 'status-updated']);
@@ -51,37 +53,11 @@ const copyLink = (id) => {
     }
 };
 
-// Glisser vers le bas pour fermer (mobile), seulement quand la feuille est en haut de son défilement
-const sheet = ref(null);
-let startY = 0, dy = 0, startT = 0, dragging = false;
-const isMobile = () => window.matchMedia('(max-width: 990px)').matches;
-const onTouchStart = (e) => {
-    if (!isMobile() || sheet.value.scrollTop > 0) return;
-    if (e.target.closest('.location-card-display__slider')) return; // le carrousel garde ses gestes
-    startY = e.touches[0].clientY; startT = Date.now(); dy = 0; dragging = true;
-};
-const onTouchMove = (e) => {
-    if (!dragging) return;
-    dy = e.touches[0].clientY - startY;
-    if (dy <= 0) { dy = 0; sheet.value.style.transform = ''; return; }
-    if (e.cancelable) e.preventDefault();
-    sheet.value.classList.add('is-dragging');
-    sheet.value.style.transform = `translateY(${dy}px)`;
-};
-const onTouchEnd = () => {
-    if (!dragging) return;
-    dragging = false;
-    const el = sheet.value;
-    el.classList.remove('is-dragging');
-    el.classList.add('is-settling');
-    const fast = dy > 40 && dy / Math.max(1, Date.now() - startT) > 0.5;
-    if (dy > 120 || fast) {
-        el.style.transform = 'translateY(100%)';
-        setTimeout(() => emit('close'), 200);
-    } else {
-        el.style.transform = '';
-        setTimeout(() => el.classList.remove('is-settling'), 260);
-    }
+// Tuiles Save / More : un tap n'importe où sur la tuile déclenche son bouton (pas seulement sur l'icône)
+const SLOT_TRIGGER = '.favorite-modal__trigger, .location-edit-trigger';
+const tapSlot = (e) => {
+    if (e.target.closest(SLOT_TRIGGER)) return; // tap direct sur le bouton : il gère déjà
+    e.currentTarget.querySelector(SLOT_TRIGGER)?.click();
 };
 
 const handleImageError = () => {
@@ -111,7 +87,7 @@ const contributor = computed(() => {
     if (props.location?.userId && props.location?.userUsername) {
         return {
             name: props.location.userUsername,
-            image: props.location.userImage || '/default-user.png',
+            image: apiImage(props.location.userImage),
             isUser: true,
         };
     }
@@ -129,7 +105,7 @@ const contributor = computed(() => {
     <div v-if="location">
         <div class="ld-backdrop" @click="$emit('close')"></div>
         <transition name="translate" mode="out-in" appear>
-            <div class="location-card-display ld" ref="sheet" @touchstart.passive="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd" @touchcancel="onTouchEnd">
+            <div class="location-card-display ld" v-swipe-close="() => $emit('close')">
                 <span class="ld-grabber"></span>
                 <div class="ld-media">
                     <!-- Photo + vue Google Maps : défilables quand les deux existent -->
@@ -161,22 +137,24 @@ const contributor = computed(() => {
                         <a class="ld-action" :href="wazeUrl" target="_blank" rel="noopener">
                             <font-awesome-icon :icon="['fab', 'waze']" /><span>Waze</span>
                         </a>
-                        <div class="ld-action ld-action--slot"><FavoritesModal :fids="location.fids" :id="location.id" /><span>Save</span></div>
-                        <div v-if="canEdit" class="ld-action ld-action--slot"><LocationEdit :location="location" @close="$emit('close')" @deleted="(id) => $emit('deleted', id)" /><span>More</span></div>
+                        <div v-if="userId" class="ld-action ld-action--slot" @click="tapSlot"><FavoritesModal :fids="location.fids" :id="location.id" /><span>Save</span></div>
+                        <div v-if="canEdit" class="ld-action ld-action--slot" @click="tapSlot"><LocationEdit :location="location" @close="$emit('close')" @deleted="(id) => $emit('deleted', id)" /><span>More</span></div>
                         <button v-else class="ld-action" @click="copyLink(location.id)"><font-awesome-icon :icon="['fas', 'link']" /><span>Link</span></button>
                     </div>
 
                     <FieldStatus v-if="userId" :key="location.id" :item="location" @updated="onStatusUpdated" @removed="onRemoved" />
 
                     <div class="ios-group">
-                        <router-link v-if="contributor.isUser" :to="`/profile/${location.userId}`" class="ios-row" @click="$emit('close')">
-                            <img :src="contributor.image" alt="" class="ld-avatar" />
+                        <router-link v-if="contributor.isUser && userId" :to="`/profile/${location.userId}`" class="ios-row" @click="$emit('close')">
+                            <img v-if="contributor.image && !avatarBroken" :src="contributor.image" alt="" class="ld-avatar" @error="avatarBroken = true" />
+                            <span v-else class="ld-avatar ld-avatar--initials">{{ (contributor.name || '?').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase() }}</span>
                             <span class="ios-row__label">Added by</span>
                             <span class="ios-row__value">{{ contributor.name }}</span>
                             <svg class="ios-chev" viewBox="0 0 8 13" aria-hidden="true"><path d="M1.4 0 0 1.4 5.1 6.5 0 11.6 1.4 13l6.5-6.5Z" /></svg>
                         </router-link>
                         <div v-else class="ios-row">
-                            <img :src="contributor.image" alt="" class="ld-avatar" />
+                            <img v-if="contributor.image && !avatarBroken" :src="contributor.image" alt="" class="ld-avatar" @error="avatarBroken = true" />
+                            <span v-else class="ld-avatar ld-avatar--initials">{{ (contributor.name || '?').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase() }}</span>
                             <span class="ios-row__label">Added by</span>
                             <span class="ios-row__value">{{ contributor.name }}</span>
                         </div>

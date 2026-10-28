@@ -152,7 +152,7 @@ onMounted(() => {
 
   <Teleport to="body">
     <div v-if="sheetFor" class="ios-sheet-backdrop" @click.self="closeSheet">
-      <div class="ios-action-sheet" role="dialog" :aria-label="`${sheetFor.username} actions`">
+      <div class="ios-action-sheet" role="dialog" :aria-label="`${sheetFor.username} actions`" v-swipe-close="closeSheet">
         <div class="ios-action-sheet__group">
           <p class="ios-action-sheet__title">{{ sheetFor.username }}</p>
           <router-link class="ios-action-sheet__btn" :to="'/profile/' + sheetFor.id" @click="closeSheet"><font-awesome-icon :icon="['fas', 'circle-user']" />View profile</router-link>

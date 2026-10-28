@@ -152,7 +152,7 @@ const handleClose = () => {
 
 <template>
     <transition name="slide-up" mode="out-in" appear>
-    <div class="location-add">
+    <div class="location-add" v-swipe-close="handleClose">
       <p v-if="demo" class="location-add__demo">You are in demo mode: you can fill in the form, but nothing will be saved.</p>
       <button type="button" class="location-add__close" @click="handleClose">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

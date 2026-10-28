@@ -37,7 +37,7 @@ const deleteFavorite = async () => {
 </script>
 
 <template>
-    <div class="ios-action-sheet" role="dialog" :aria-label="`${favorite.name} actions`">
+    <div class="ios-action-sheet" role="dialog" :aria-label="`${favorite.name} actions`" v-swipe-close="() => emit('close')">
         <div class="ios-action-sheet__group">
             <p class="ios-action-sheet__title">{{ favorite.name }}</p>
             <template v-if="!sharing">
@@ -45,7 +45,7 @@ const deleteFavorite = async () => {
                 <button class="ios-action-sheet__btn" @click="updateVisibility"><font-awesome-icon :icon="['fas', favorite.disabled === 1 ? 'eye' : 'eye-slash']" />{{ favorite.disabled === 1 ? 'Show list on the map' : 'Hide list from the map' }}</button>
                 <template v-if="favorite.name !== 'like'">
                     <button class="ios-action-sheet__btn" @click="updatePrivacy"><font-awesome-icon :icon="['fas', favorite.share === 1 ? 'lock' : 'lock-open']" />{{ favorite.share === 1 ? 'Make private' : 'Allow sharing by link' }}</button>
-                    <button class="ios-action-sheet__btn" @click="sharing = true"><font-awesome-icon :icon="['fas', 'user-plus']" />Share with a friend</button>
+                    <button class="ios-action-sheet__btn" @click="sharing = true"><font-awesome-icon :icon="['fas', 'user-plus']" />People<span class="fav-people__count">{{ favorite.users?.length || 1 }}</span></button>
                     <button class="ios-action-sheet__btn" @click="copyLink"><font-awesome-icon :icon="['fas', 'link']" />Copy link</button>
                     <button class="ios-action-sheet__btn is-danger" @click="deleteFavorite"><font-awesome-icon :icon="['fas', 'trash']" />{{ confirmDelete ? 'Tap again to delete' : 'Delete list' }}</button>
                 </template>

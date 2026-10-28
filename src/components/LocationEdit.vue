@@ -53,7 +53,7 @@ const handleClose = () => {
     <!-- Menu monté dans <body> : jamais coincé dans le défilement de la fiche -->
     <Teleport to="body">
         <div v-if="showContainer && !showDeleteConfirm && !showEditPopup" class="ios-sheet-backdrop" @click.self="toggleContainer">
-            <div class="ios-action-sheet" role="dialog" aria-label="Spot actions">
+            <div class="ios-action-sheet" role="dialog" aria-label="Spot actions" v-swipe-close="toggleContainer">
                 <div class="ios-action-sheet__group">
                     <p class="ios-action-sheet__title">{{ location.name || 'This spot' }}</p>
                     <button class="ios-action-sheet__btn" @click="handleEdit"><font-awesome-icon :icon="['fas', 'pencil']" />Edit spot</button>

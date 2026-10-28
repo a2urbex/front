@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import swipeClose from './directives/swipeClose'
 import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia';
@@ -62,6 +63,6 @@ if (window.location.pathname.replace(/\/+$/, '') === '/demo') {
     startDemo();
     window.location.replace('/locations');
 } else {
-    createApp(App).component('font-awesome-icon', FontAwesomeIcon).use(router).use(createPinia()).mount('#app')
+    createApp(App).component('font-awesome-icon', FontAwesomeIcon).directive('swipe-close', swipeClose).use(router).use(createPinia()).mount('#app')
 }
 

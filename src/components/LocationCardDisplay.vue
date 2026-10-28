@@ -66,11 +66,8 @@ const handleImageError = () => {
 
 const canEdit = computed(() => !demo && userId.value && (isAdmin.value || props.location.userId === userId.value));
 const coords = computed(() => `${Number(props.location.lat).toFixed(5)}, ${Number(props.location.lon).toFixed(5)}`);
-// Itinéraire : Plans sur iPhone/iPad/Mac, Google Maps ailleurs
-const isApple = /iPhone|iPad|Macintosh/.test(navigator.userAgent);
-const directionsUrl = computed(() => isApple
-    ? `https://maps.apple.com/?daddr=${props.location.lat},${props.location.lon}`
-    : `https://www.google.com/maps/dir/?api=1&destination=${props.location.lat},${props.location.lon}`);
+// Itinéraire : toujours Google Maps (l'app s'ouvre si elle est installée, sinon le site)
+const directionsUrl = computed(() => `https://www.google.com/maps/dir/?api=1&destination=${props.location.lat},${props.location.lon}`);
 const copyCoords = () => {
     navigator.clipboard?.writeText(coords.value).then(() => toast.success('Coordinates copied', { position: toast.POSITION.TOP_CENTER, autoClose: 1000, theme: 'dark' })).catch(() => {});
 };

@@ -27,6 +27,7 @@ export const useEditProfileStore = defineStore('editProfile', {
                 if (profileData.tiktok !== undefined) formData.append('tiktok', profileData.tiktok);
                 if (profileData.instagram !== undefined) formData.append('instagram', profileData.instagram);
                 if (profileData.isPrivate !== undefined) formData.append('isPrivate', profileData.isPrivate.toString());
+                if (profileData.hideActivity !== undefined) formData.append('hideActivity', profileData.hideActivity.toString());
 
                 // Handle image and banner files
                 if (profileData.image instanceof File) {

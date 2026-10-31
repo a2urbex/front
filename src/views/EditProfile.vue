@@ -17,6 +17,7 @@ const formData = ref({
     tiktok: '',
     instagram: '',
     isPrivate: false,
+    hideActivity: false,
     image: null,
     banner: null
 });
@@ -42,6 +43,7 @@ onMounted(async () => {
         tiktok: profile.tiktok || '',
         instagram: profile.instagram || '',
         isPrivate: profile.isPrivate || false,
+        hideActivity: !!profile.hideActivity,
         image: null,
         banner: null
     };
@@ -169,7 +171,14 @@ const handleSubmit = async () => {
                     <span class="ios-switch" :class="{ on: formData.isPrivate }"></span>
                 </button>
             </div>
-            <p class="ios-footer">Only your friends can see a private profile.</p>
+            <div class="ios-group">
+                <button type="button" class="ios-row" role="switch" :aria-checked="!!formData.hideActivity" @click="formData.hideActivity = !formData.hideActivity">
+                    <span class="ios-icon"><font-awesome-icon :icon="['fas', 'eye-slash']" /></span>
+                    <span class="ios-row__label">Hide activity</span>
+                    <span class="ios-switch" :class="{ on: formData.hideActivity }"></span>
+                </button>
+            </div>
+            <p class="ios-footer">Only your friends can see a private profile. Hide activity removes "Online" and "Last active" from your profile (admins can still see it).</p>
         </section>
 
         <section class="ios-section">

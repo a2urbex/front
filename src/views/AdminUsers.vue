@@ -4,6 +4,7 @@ import { useUsersStore } from '@/stores/users'
 import { computed, onMounted, ref } from 'vue'
 import UserRoles from '@/components/UserRoles.vue'
 import UserRoleBadge from '@/components/UserRoleBadge.vue'
+import { activityLabel, isOnline } from '@/utilities/activity'
 
 const usersStore = useUsersStore()
 const selectedUserId = ref(null)
@@ -80,23 +81,27 @@ onMounted(async () => {
             :key="user.id"
             class="admin-page__user admin-page__user--pending"
           >
-            <img
-              v-if="user.image"
-              :src="getUserImageUrl(user)"
-              :alt="user.username"
-              class="admin-page__user-image"
-            />
-            <div v-else class="admin-page__user-image-placeholder">
-              <font-awesome-icon :icon="['fa', 'user']" />
-            </div>
-
-            <div class="admin-page__user-info">
-              <div class="admin-page__user-info-username">
-                <span class="username-text">{{ user.username }}</span>
-                <UserRoleBadge :roles="user.roles" />
+            <!-- tap sur la personne : ouvre son profil -->
+            <router-link :to="`/profile/${user.id}`" class="admin-page__user-link">
+              <img
+                v-if="user.image"
+                :src="getUserImageUrl(user)"
+                :alt="user.username"
+                class="admin-page__user-image"
+              />
+              <div v-else class="admin-page__user-image-placeholder">
+                <font-awesome-icon :icon="['fa', 'user']" />
               </div>
-              <div class="admin-page__user-info-email">{{ user.email }}</div>
-            </div>
+
+              <div class="admin-page__user-info">
+                <div class="admin-page__user-info-username">
+                  <span class="username-text">{{ user.username }}</span>
+                  <UserRoleBadge :roles="user.roles" />
+                </div>
+                <div class="admin-page__user-info-email">{{ user.email }}</div>
+                <div v-if="user.lastActiveAt" class="admin-page__user-info-activity" :class="{ 'is-online': isOnline(user.lastActiveAt) }">{{ activityLabel(user.lastActiveAt) }}</div>
+              </div>
+            </router-link>
 
             <div class="admin-page__user-actions">
               <button
@@ -149,22 +154,26 @@ onMounted(async () => {
 
         <div v-else class="admin-page__users">
           <div v-for="user in approvedUsers" :key="user.id" class="admin-page__user">
-            <img
-              v-if="user.image"
-              :src="getUserImageUrl(user)"
-              :alt="user.username"
-              class="admin-page__user-image"
-            />
-            <div v-else class="admin-page__user-image-placeholder">
-              <font-awesome-icon :icon="['fa', 'user']" />
-            </div>
-            <div class="admin-page__user-info">
-              <div class="admin-page__user-info-username">
-                <span class="username-text">{{ user.username }}</span>
-                <UserRoleBadge :roles="user.roles" />
+            <!-- tap sur la personne : ouvre son profil -->
+            <router-link :to="`/profile/${user.id}`" class="admin-page__user-link">
+              <img
+                v-if="user.image"
+                :src="getUserImageUrl(user)"
+                :alt="user.username"
+                class="admin-page__user-image"
+              />
+              <div v-else class="admin-page__user-image-placeholder">
+                <font-awesome-icon :icon="['fa', 'user']" />
               </div>
-              <div class="admin-page__user-info-email">{{ user.email }}</div>
-            </div>
+              <div class="admin-page__user-info">
+                <div class="admin-page__user-info-username">
+                  <span class="username-text">{{ user.username }}</span>
+                  <UserRoleBadge :roles="user.roles" />
+                </div>
+                <div class="admin-page__user-info-email">{{ user.email }}</div>
+                <div v-if="user.lastActiveAt" class="admin-page__user-info-activity" :class="{ 'is-online': isOnline(user.lastActiveAt) }">{{ activityLabel(user.lastActiveAt) }}</div>
+              </div>
+            </router-link>
             <div class="admin-page__user-actions">
               <button
                 class="admin-page__user-actions-button"

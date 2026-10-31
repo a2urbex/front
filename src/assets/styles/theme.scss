@@ -707,6 +707,10 @@ $deskPanel: 420px;
   &--initials { font: 600 34px/1 $font-body; color: $label-2; text-align: center; }
 }
 .pf-head__name { display: inline-flex; align-items: center; gap: 6px; margin: 6px 0 0; font: 700 22px/28px $font-display; color: $label; }
+.pf-head__activity {
+  display: inline-flex; align-items: center; gap: 6px; margin: 0; font: 400 13px $font-body; color: $label-2;
+  &.is-online { color: $green; &::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: $green; } }
+}
 .pf-head__about { max-width: 46ch; margin: 0; color: $label-2; font: 400 15px/20px $font-body; }
 .pf-head__stats {
   display: grid; grid-template-columns: 1fr 1fr; width: 100%; max-width: 320px; margin-top: 8px; overflow: hidden; border-radius: 12px; background: $bg-2;

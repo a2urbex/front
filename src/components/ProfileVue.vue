@@ -9,6 +9,7 @@ import PreLoader from '../components/PreLoader.vue';
 import UserRoleBadge from './UserRoleBadge.vue';
 import { toast } from 'vue3-toastify';
 import { useAuthStore } from '@/stores/auth';
+import { activityLabel, isOnline } from '@/utilities/activity';
 
 const profileStore = useProfileStore();
 const user = computed(() => profileStore.viewProfile);
@@ -20,6 +21,10 @@ const demo = isDemo();
 const avatarBroken = ref(false);
 const avatarUrl = computed(() => apiImage(user.value?.image));
 const initials = computed(() => (user.value?.username || '?').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase());
+
+// null quand la personne masque son activité (sauf pour elle-même et les admins)
+const activity = computed(() => activityLabel(user.value?.lastActiveAt));
+const online = computed(() => isOnline(user.value?.lastActiveAt));
 
 const isSelf = computed(() => {
   return authStore.userProfile?.id === id;
@@ -138,6 +143,7 @@ const copyLink = () => {
       <img v-if="avatarUrl && !avatarBroken" class="pf-head__avatar" :src="avatarUrl" alt="" @error="avatarBroken = true" />
       <span v-else class="pf-head__avatar pf-head__avatar--initials">{{ initials }}</span>
       <h2 class="pf-head__name">{{ user.username }} <UserRoleBadge :roles="user.roles" /></h2>
+      <p v-if="activity" class="pf-head__activity" :class="{ 'is-online': online }">{{ activity }}<template v-if="user.hideActivity"> · hidden from others</template></p>
       <p v-if="user.about" class="pf-head__about">{{ user.about }}</p>
       <div class="pf-head__stats">
         <div><b>{{ user.urbexCount ?? '–' }}</b><small>Spots</small></div>

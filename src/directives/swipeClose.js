@@ -2,8 +2,9 @@
 // - depuis la zone du haut (poignée, image, titre de la feuille) : toujours possible ;
 // - ailleurs : seulement quand le contenu touché est tout en haut de son défilement
 //   (le geste peut démarrer en cours de route, dès que le défilement revient à 0).
+// Un geste surtout horizontal (diaporama photo/vue Maps, rangées défilantes) est laissé tel quel.
 const GRAB = '.ld-grabber, .ld-media, .ios-action-sheet__title, [data-swipe-grab]';
-const SKIP = 'input, textarea, select, .location-card-display__slider, [data-no-swipe]';
+const SKIP = 'input, textarea, select, [data-no-swipe]';
 const isMobile = () => window.matchMedia('(max-width: 990px)').matches;
 
 const scrolledBetween = (node, root) => {
@@ -16,12 +17,13 @@ const scrolledBetween = (node, root) => {
 export default {
   mounted(el, binding) {
     el._swipeClose = binding.value;
-    let startY = 0, lastY = 0, startT = 0, dy = 0, state = 'idle', grab = false, target = null;
+    let startX = 0, startY = 0, lastY = 0, startT = 0, dy = 0, state = 'idle', grab = false, target = null;
 
     const start = (e) => {
-      if (!isMobile() || e.touches.length !== 1 || e.target.closest(SKIP)) return;
+      if (!isMobile() || e.touches.length !== 1 || e.target.closest(SKIP)) { state = 'idle'; return; }
       target = e.target;
       grab = !!e.target.closest(GRAB);
+      startX = e.touches[0].clientX;
       startY = lastY = e.touches[0].clientY;
       startT = Date.now();
       dy = 0;
@@ -29,11 +31,16 @@ export default {
     };
     const move = (e) => {
       if (state === 'idle') return;
-      const y = e.touches[0].clientY;
+      const { clientX: x, clientY: y } = e.touches[0];
       if (state === 'maybe') {
         // on ne commence que vers le bas, et seulement si rien n'est défilé sous le doigt
-        if (y - lastY < 0 && !grab) { lastY = y; startY = y; return; }
-        if (!grab && scrolledBetween(target, el)) { lastY = y; startY = y; return; }
+        if (y - lastY < 0 && !grab) { lastY = y; startY = y; startX = x; return; }
+        if (!grab && scrolledBetween(target, el)) { lastY = y; startY = y; startX = x; return; }
+        const ax = Math.abs(x - startX);
+        if (ax > 6 && ax > y - startY) { state = 'idle'; return; }
+        if (y - startY < 3) return; // simple tremblement du doigt : le défilement normal reste possible
+        // bloqué dès le premier mouvement : sinon le défilement natif s'empare du geste et ne le rend plus
+        if (e.cancelable) e.preventDefault();
         if (y - startY < 6) return;
         state = 'drag';
         startY = y;

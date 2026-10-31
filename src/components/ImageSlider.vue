@@ -89,7 +89,7 @@ export default {
     const touchEnd = ref(0)
 
     const handleTouchStart = e => {
-      touchStart.value = e.touches[0].clientX
+      touchStart.value = touchEnd.value = e.touches[0].clientX
     }
 
     const handleTouchMove = e => {

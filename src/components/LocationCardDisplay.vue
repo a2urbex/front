@@ -12,6 +12,7 @@ import LocationEdit from './LocationEdit.vue';
 import UserRoleBadge from './UserRoleBadge.vue';
 import ImagePlaceholder from './ImagePlaceholder.vue';
 import FieldStatus from './FieldStatus.vue';
+import LocationNotes from './LocationNotes.vue';
 import ImageSlider from './ImageSlider.vue';
 import { usePositionStore } from '@/stores/position';
 const props = defineProps({
@@ -140,6 +141,9 @@ const contributor = computed(() => {
                     </div>
 
                     <FieldStatus v-if="userId" :key="location.id" :item="location" @updated="onStatusUpdated" @removed="onRemoved" />
+
+                    <!-- Notes privées : superusers (leur note) et admins (toutes) -->
+                    <LocationNotes v-if="userId && !demo && authStore.userProfile?.isSuperUser" :key="`notes-${location.id}`" :location-id="location.id" />
 
                     <div class="ios-group">
                         <router-link v-if="contributor.isUser && userId" :to="`/profile/${location.userId}`" class="ios-row" @click="$emit('close')">

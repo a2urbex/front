@@ -105,6 +105,13 @@ const contributor = computed(() => {
         <transition name="translate" mode="out-in" appear>
             <div class="location-card-display ld" v-swipe-close="() => $emit('close')">
                 <span class="ld-grabber"></span>
+                <!-- Partager / fermer : collés en haut de la fiche, toujours visibles même quand on fait défiler (notes…) -->
+                <div class="ld-float">
+                    <div class="ld-media__buttons">
+                        <button class="ld-round" @click="copyLink(location.id)" aria-label="Copy link"><font-awesome-icon :icon="['fas', 'arrow-up-from-bracket']" /></button>
+                        <button class="ld-round" @click="$emit('close')" aria-label="Close"><font-awesome-icon :icon="['fas', 'xmark']" /></button>
+                    </div>
+                </div>
                 <div class="ld-media">
                     <!-- Photo + vue Google Maps : défilables quand les deux existent -->
                     <div v-if="location.image && location.image_maps" class="location-card-display__slider">
@@ -112,10 +119,6 @@ const contributor = computed(() => {
                     </div>
                     <img v-else-if="!imageError && (location.image || location.image_maps)" :src="location.image || location.image_maps" alt="" @error="handleImageError">
                     <ImagePlaceholder v-else />
-                    <div class="ld-media__buttons">
-                        <button class="ld-round" @click="copyLink(location.id)" aria-label="Copy link"><font-awesome-icon :icon="['fas', 'arrow-up-from-bracket']" /></button>
-                        <button class="ld-round" @click="$emit('close')" aria-label="Close"><font-awesome-icon :icon="['fas', 'xmark']" /></button>
-                    </div>
                 </div>
 
                 <div class="ld-body">

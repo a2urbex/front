@@ -16,6 +16,8 @@ const locationStore = useLocationStore();
 
 const toggleContainer = () => {
     showContainer.value = !showContainer.value;
+    // rouvrir « More » repart toujours du menu (jamais bloqué derrière un formulaire resté ouvert)
+    if (showContainer.value) showEditPopup.value = showDeleteConfirm.value = false;
 };
 
 const handleDelete = async () => {
@@ -37,6 +39,7 @@ const cancelDelete = () => {
 };
 
 const handleEdit = () => {
+    showContainer.value = false; // le menu est refermé : le prochain tap sur « More » le rouvre directement
     showEditPopup.value = true;
 };
 
@@ -74,7 +77,8 @@ const handleClose = () => {
             </div>
         </div>
 
-        <LocationAdd v-if="showEditPopup" :isEdit="true" :editData="location" @close="handleClose" />
+        <!-- au-dessus de la fiche (z-index 11) : sinon le formulaire s'ouvrait derrière elle -->
+        <div v-if="showEditPopup" class="location-add-over"><LocationAdd :isEdit="true" :editData="location" @close="handleClose" /></div>
     </Teleport>
 </template>
 

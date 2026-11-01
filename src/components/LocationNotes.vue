@@ -56,23 +56,25 @@ const initials = (name) => (name || '?').split(/\s+/).map((w) => w[0]).join('').
 
 <template>
   <section class="ln">
-    <p class="ln__header">Private notes</p>
+    <div class="ln__top">
+      <p class="ln__header">Private notes</p>
+      <button v-if="!editing && !mine" class="ln__add" :disabled="loading" @click="startEdit">
+        <font-awesome-icon :icon="['fas', 'plus']" />{{ loading ? 'Loading…' : 'Add' }}
+      </button>
+    </div>
 
-    <!-- Ma note -->
-    <div class="ln__group">
+    <!-- Ma note : en édition, ou affichée si elle existe -->
+    <div v-if="editing || mine" class="ln__group">
       <template v-if="editing">
-        <textarea :id="`note-${locationId}`" v-model="draft" class="ln__input" rows="4" maxlength="4000" placeholder="What should the admins know about this spot?"></textarea>
+        <textarea :id="`note-${locationId}`" v-model="draft" class="ln__input" rows="3" maxlength="4000" :placeholder="isAdmin ? 'Your note on this spot' : 'What should the admins know about this spot?'"></textarea>
         <div class="ln__actions">
           <button class="ios-pill" :disabled="saving" @click="editing = false">Cancel</button>
           <button class="ios-pill ios-pill--tint" :disabled="saving" @click="save">{{ saving ? 'Saving…' : 'Save' }}</button>
         </div>
       </template>
-      <button v-else-if="mine" class="ln__note ln__note--mine" @click="startEdit">
+      <button v-else class="ln__note ln__note--mine" @click="startEdit">
         <span class="ln__body">{{ mine.body }}</span>
         <small>Your note · {{ when(mine.updatedAt) }} · Tap to edit</small>
-      </button>
-      <button v-else class="ln__add" :disabled="loading" @click="startEdit">
-        <font-awesome-icon :icon="['fas', 'pencil']" />{{ loading ? 'Loading notes…' : isAdmin ? 'Add a note' : 'Add a note for the admins' }}
       </button>
     </div>
 
@@ -89,6 +91,7 @@ const initials = (name) => (name || '?').split(/\s+/).map((w) => w[0]).join('').
       </div>
     </div>
 
-    <p class="ln__footer">{{ isAdmin ? 'Notes left by superusers. Each one sees only their own and their friends\' notes.' : 'Only you, your friends and the admins can see your note.' }}</p>
+    <!-- Qui voit la note : rappelé seulement pendant l'écriture -->
+    <p v-if="editing" class="ln__footer">{{ isAdmin ? 'Superusers only see their own and their friends\' notes.' : 'Only you, your friends and the admins can see your note.' }}</p>
   </section>
 </template>

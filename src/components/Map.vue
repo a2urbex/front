@@ -307,7 +307,7 @@ const initMap = () => {
   // vue gardée pour la session (iOS peut recharger la PWA en arrière-plan) : on la reprend telle quelle
   const kept = keepGet('mapView')
   if (kept && mapStore.type === 'location') { map.setView(kept.center, kept.zoom, { animate: false }); touched = true }
-  map.on('moveend', () => { if (mapStore.type === 'location') keepSet('mapView', { center: map.getCenter(), zoom: map.getZoom() }) })
+  map.on('moveend', () => { if (map && mapStore.type === 'location') keepSet('mapView', { center: map.getCenter(), zoom: map.getZoom() }) })
   mapEl.value.addEventListener('pointerdown', markTouched)
   mapEl.value.addEventListener('wheel', markTouched, { passive: true })
   applyDefaultView()

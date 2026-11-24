@@ -55,7 +55,7 @@
       </div>
 
       <ol class="home-points" :class="{ 'is-hidden': showAuth }">
-        <li><span>01</span><p><b class="mono">{{ locationCount !== null ? locationCount : '200k+' }}</b> spots, fed by scrapers day and night.</p></li>
+        <li><span>01</span><p><b class="mono">{{ locationCount !== null ? locationCount : '200k+' }}</b> spots, fed by users and scrapers day and night.</p></li>
         <li><span>02</span><p>Draw a zone, build the weekend list, go.</p></li>
         <li><span>03</span><p>Field mode: one tap to mark a spot alive, walled or gone.</p></li>
         <li><span>04</span><p>Invite only. Nothing here is public.</p></li>
